@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="18"
+    android:viewportHeight="18">
+
+    <path
+        android:name="flash"
+        android:fillColor="@color/primary"
+        android:pathData="M4.5,0 L4.5,9.9 L7.2,9.9 L7.2,18 L13.4892,7.2 L9.9,7.2 L13.5,0 Z" />
+</vector>

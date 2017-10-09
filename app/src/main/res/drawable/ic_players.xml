@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="26.17dp"
+    android:height="26.17dp"
+    android:viewportWidth="26.17"
+    android:viewportHeight="26.17">
+
+    <path
+        android:name="account"
+        android:fillColor="#3c5161"
+        android:pathData="M13.085,0 A6.543,6.543,0,1,1,6.542,6.543 L6.542,6.543
+A6.542,6.542,0,0,1,13.083,0 L13.085,0 M13.085,16.356
+C20.314,16.356,26.17,19.284,26.17,22.898 L26.17,26.17 L0,26.17 L0,22.9
+C0,19.284,5.856,16.356,13.085,16.356 Z" />
+</vector>

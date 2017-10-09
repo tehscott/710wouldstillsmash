@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:elevation="5dp"
+    android:layout_gravity="center_vertical"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/player_list_item_player_name"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:text="Chad"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/primary"
+        android:textSize="@dimen/player_list_player_name"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="16dp"
+        android:gravity="center_vertical"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="wins"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"
+                fontPath="Quicksand-Bold.ttf"
+                tools:ignore="MissingPrefix"/>
+
+            <TextView
+                android:id="@+id/player_list_item_royale_wins_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="50.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_royale"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/player_list_item_sudden_death_wins_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="40.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_sudden_death"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="best"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"
+                fontPath="Quicksand-Bold.ttf"
+                tools:ignore="MissingPrefix"/>
+
+            <TextView
+                android:id="@+id/player_list_item_best_one_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="50.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_royale"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/player_list_item_best_two_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="40.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_sudden_death"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="worst"
+                android:textSize="16sp"
+                android:gravity="center"
+                android:layout_marginBottom="8dp"
+                fontPath="Quicksand-Bold.ttf"
+                tools:ignore="MissingPrefix"/>
+
+            <TextView
+                android:id="@+id/player_list_item_worst_one_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="50.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_royale"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"
+                android:layout_marginBottom="8dp"/>
+
+            <TextView
+                android:id="@+id/player_list_item_worst_two_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="40.03%"
+                android:textSize="16sp"
+                android:drawableLeft="@drawable/ic_sudden_death"
+                android:drawableTint="@color/text_secondary"
+                android:drawablePadding="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

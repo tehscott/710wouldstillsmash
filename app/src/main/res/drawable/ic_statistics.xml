@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="26.17dp"
+    android:height="26.17dp"
+    android:viewportWidth="26.17"
+    android:viewportHeight="26.17">
+
+    <path
+        android:name="chart-pie"
+        android:fillColor="#3c5161"
+        android:pathData="M26.17,11.631 L14.539,11.631 L14.539,0 A11.631,11.631,0,0,1,26.17,11.631
+L26.17,11.631 M23.262,14.539 A11.659,11.659,0,0,1,18.072,24.239 L12.472,14.539
+L23.262,14.539 M11.631,26.17 A11.659,11.659,0,0,1,1.931,20.98 L11.367,15.528
+L16.805,24.964 A11.589,11.589,0,0,1,11.629,26.171 M0,14.539
+A11.631,11.631,0,0,1,11.631,2.908 L11.631,13.7 L1.207,19.715
+A11.589,11.589,0,0,1,0,14.539 Z" />
+</vector>

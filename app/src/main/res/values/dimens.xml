@@ -1,0 +1,4 @@
+<resources>
+    <dimen name="space_8dp">8dp</dimen>
+    <dimen name="player_list_player_name">24sp</dimen>
+</resources>

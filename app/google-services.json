@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "912182772328",
+    "firebase_url": "https://would-still-smash.firebaseio.com",
+    "project_id": "would-still-smash",
+    "storage_bucket": "would-still-smash.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912182772328:android:e206c49543e037f7",
+        "android_client_info": {
+          "package_name": "com.stromberg.scott.seventenwouldstillsmash"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "912182772328-7vs7bkk342giftlvsmdhlev32u59lvbf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.stromberg.scott.seventenwouldstillsmash",
+            "certificate_hash": "b49ffcca4b51496dfb0b0e4746d1d9b7d9019c49"
+          }
+        },
+        {
+          "client_id": "912182772328-qvur2ss844tkp9nchjtifv9fv4639qin.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeShXRC6ffsdXn-boKXlyztEtS_iFpfz0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "912182772328-qvur2ss844tkp9nchjtifv9fv4639qin.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

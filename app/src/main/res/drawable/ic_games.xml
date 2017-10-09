@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="47.97dp"
+    android:height="26.166dp"
+    android:viewportWidth="47.97"
+    android:viewportHeight="26.166">
+
+    <path
+        android:name="gamepad-variant"
+        android:fillColor="#3c5161"
+        android:pathData="M13.083,0 L34.883,0 A13.083,13.083,0,1,1,25.136,21.8 L22.829,21.8
+A13.081,13.081,0,1,1,13.083,0 M10.9,6.541 L10.9,10.9 L6.541,10.9 L6.541,15.261
+L10.9,15.261 L10.9,19.622 L15.261,19.622 L15.261,15.263 L19.622,15.263
+L19.622,10.9 L15.263,10.9 L15.263,6.541 L10.9,6.541 M31.614,13.082
+A3.271,3.271,0,1,0,34.885,16.353 A3.271,3.271,0,0,0,31.614,13.082 L31.614,13.082
+M38.155,6.541 A3.2695,3.2695,0,1,0,38.158,6.541 Z" />
+</vector>

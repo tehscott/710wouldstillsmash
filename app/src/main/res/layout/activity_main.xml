@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.stromberg.scott.seventenwouldstillsmash.MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:gravity="center"
+        android:paddingBottom="32dp"
+        android:paddingTop="32dp"
+        android:text="@string/app_name"
+        android:textColor="@color/text_primary"
+        android:textSize="30sp"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.github.clans.fab.FloatingActionMenu
+            android:id="@+id/add_fab_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_gravity="bottom|right"
+            fab:menu_colorNormal="@color/primary"
+            fab:menu_colorPressed="@color/primary_light"
+            fab:menu_colorRipple="@color/text_primary"
+            fab:menu_labels_colorNormal="@color/primary"
+            fab:menu_labels_colorPressed="@color/primary_light"
+            fab:menu_labels_colorRipple="@color/text_primary" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/add_fab_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_gravity="bottom|right"
+            android:src="@drawable/fab_add"
+            fab:fab_colorNormal="@color/primary"
+            fab:fab_colorPressed="@color/primary_light"
+            fab:fab_colorRipple="@color/text_primary" />
+    </FrameLayout>
+
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:menu="@menu/navigation" />
+</LinearLayout>
