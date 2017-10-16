@@ -2,32 +2,28 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.DialogInterface
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Button
-import android.widget.DatePicker
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.adapter.ChooseCharacterListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.adapter.ChoosePlayerListAdapter
+import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
-import com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 class CreateGameFragment : Fragment() {
     private var db = FirebaseFirestore.getInstance()
@@ -37,80 +33,110 @@ class CreateGameFragment : Fragment() {
     private var royaleToggleWidth: Int = 0
     private var suddenDeathToggleWidth: Int = 0
     private var players = ArrayList<Player>()
-    private var gamePlayers = HashMap<Int, GamePlayer>()
+    private var playersAdapter: CreateGamePlayersListAdapter? = null
 
     private var contentView: View? = null
     private var dateTextView: TextView? = null
     private var royaleToggle: Button? = null
     private var suddenDeathToggle: Button? = null
-
-    private var addPlayer1Button: SquareLinearLayout? = null
-    private var addPlayer2Button: SquareLinearLayout? = null
-    private var addPlayer3Button: SquareLinearLayout? = null
-    private var addPlayer4Button: SquareLinearLayout? = null
-    private var addPlayer5Button: SquareLinearLayout? = null
-    private var addPlayer6Button: SquareLinearLayout? = null
-    private var addPlayer7Button: SquareLinearLayout? = null
-    private var addPlayer8Button: SquareLinearLayout? = null
-    private var setWinnerButton: SquareLinearLayout? = null
+    private var playersList: RecyclerView? = null
+    private var addPlayerButton: TextView? = null
+    private var addPlayerDialog: AlertDialog? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.create_game, null)
 
-        dateTextView = contentView!!.findViewById<TextView>(R.id.create_game_date)
-        royaleToggle = contentView!!.findViewById<Button>(R.id.create_game_royale_toggle)
-        suddenDeathToggle = contentView!!.findViewById<Button>(R.id.create_game_sudden_death_royale_toggle)
+        dateTextView = contentView!!.findViewById(R.id.create_game_date)
+        royaleToggle = contentView!!.findViewById(R.id.create_game_royale_toggle)
+        suddenDeathToggle = contentView!!.findViewById(R.id.create_game_sudden_death_royale_toggle)
+        playersList = contentView!!.findViewById(R.id.create_game_players_list)
+        addPlayerButton = contentView!!.findViewById(R.id.create_game_players_title)
 
         dateTextView!!.text = dateFormatter.format(Calendar.getInstance().time)
         dateTextView!!.setOnClickListener({
             var datePicker = DatePickerDialog(activity)
-            datePicker.setOnDateSetListener(object : DatePickerDialog.OnDateSetListener {
-                override fun onDateSet(view: DatePicker?, year: Int, month: Int, day: Int) {
-                    var cal = Calendar.getInstance()
-                    cal.set(year, month, day)
-                    game.date = cal.time
+            datePicker.setOnDateSetListener { view, year, month, day ->
+                val cal = Calendar.getInstance()
+                cal.set(year, month, day)
+                game.date = cal.time
 
-                    dateTextView!!.text = dateFormatter.format(game.date)
-                }
-            })
+                dateTextView!!.text = dateFormatter.format(game.date)
+            }
             datePicker.show()
         })
 
-        addPlayer1Button = contentView!!.findViewById(R.id.create_game_player_1_button)
-        addPlayer2Button = contentView!!.findViewById(R.id.create_game_player_2_button)
-        addPlayer3Button = contentView!!.findViewById(R.id.create_game_player_3_button)
-        addPlayer4Button = contentView!!.findViewById(R.id.create_game_player_4_button)
-        addPlayer5Button = contentView!!.findViewById(R.id.create_game_player_5_button)
-        addPlayer6Button = contentView!!.findViewById(R.id.create_game_player_6_button)
-        addPlayer7Button = contentView!!.findViewById(R.id.create_game_player_7_button)
-        addPlayer8Button = contentView!!.findViewById(R.id.create_game_player_8_button)
-        setWinnerButton = contentView!!.findViewById(R.id.create_game_set_winner_button)
-
-        addPlayer1Button!!.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                addPlayer1Button!!.viewTreeObserver.removeOnPreDrawListener(this)
-
-                var lp = setWinnerButton!!.layoutParams
-                lp.width = (addPlayer1Button!!.width * 1.5).toInt()
-                lp.height = (addPlayer1Button!!.height * 1.5).toInt()
-                setWinnerButton!!.layoutParams = lp
-
-                return false
-            }
-        })
-
-        addPlayer1Button!!.setOnClickListener({ addPlayer(1) })
-        addPlayer2Button!!.setOnClickListener({ addPlayer(2) })
-        addPlayer3Button!!.setOnClickListener({ addPlayer(3) })
-        addPlayer4Button!!.setOnClickListener({ addPlayer(4) })
-        addPlayer5Button!!.setOnClickListener({ addPlayer(5) })
-        addPlayer6Button!!.setOnClickListener({ addPlayer(6) })
-        addPlayer7Button!!.setOnClickListener({ addPlayer(7) })
-        addPlayer8Button!!.setOnClickListener({ addPlayer(8) })
-
         setupToggle()
 
+        addPlayerButton?.setOnClickListener({ addPlayer(null) })
+
+        playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
+        playersList!!.adapter = playersAdapter
+        playersList!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        val dividerItemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+        playersList!!.addItemDecoration(dividerItemDecoration)
+
+        setContentShown(false)
+        getPlayers()
+
         return contentView
+    }
+
+    private fun addPlayer(editingPlayer: GamePlayer?) {
+        val gamePlayer = editingPlayer ?: GamePlayer()
+        val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
+        val playerNameText = layout.findViewById<AutoCompleteTextView>(R.id.create_game_players_dialog_player_name)
+        val characterNameText = layout.findViewById<AutoCompleteTextView>(R.id.create_game_players_dialog_character_name)
+        val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
+
+        val playerList = ArrayList<Player>()
+        players.forEach { player ->
+            val playerInUse = game.players.any { it.player!! == player }
+
+            if(!playerInUse) {
+                playerList.add(player)
+            }
+        }
+
+        val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerList.map { it.name })
+        playerNameText.threshold = 1
+        playerNameText.setAdapter<ArrayAdapter<String>>(playerAdapter)
+        playerNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long -> gamePlayer.player = playerList.find { it.name.equals((view as TextView).text.toString()) } } )
+
+        val characterNames = (0..57).map { CharacterHelper.getName(it) }
+        val characterAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, characterNames)
+        characterNameText.threshold = 1
+        characterNameText.setAdapter<ArrayAdapter<String>>(characterAdapter)
+        characterNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long -> gamePlayer.characterId = CharacterHelper.getId((view as TextView).text.toString()) } )
+
+        isWinnerCheckbox.setOnCheckedChangeListener { view, isChecked -> gamePlayer.winner = isChecked }
+
+        if(editingPlayer != null) {
+            playerNameText.setText(editingPlayer.player!!.name!!)
+            characterNameText.setText(CharacterHelper.getName(editingPlayer.characterId))
+            isWinnerCheckbox.isChecked = editingPlayer.winner
+        }
+
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(if(editingPlayer != null) "Edit Player" else "Add Player")
+        builder.setView(layout)
+
+        builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+        builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player", { dialog, _ -> if(editingPlayer == null) addPlayerToGame(gamePlayer); else playersList!!.adapter.notifyDataSetChanged(); dialog.dismiss() })
+
+        if(editingPlayer != null) {
+            builder.setNeutralButton("Delete", { dialog, _ -> game.players.remove(editingPlayer); playersList!!.adapter.notifyDataSetChanged(); dialog.dismiss() })
+        }
+
+        addPlayerDialog = builder.create()
+        addPlayerDialog!!.show()
+    }
+
+    private fun addPlayerToGame(player: GamePlayer) {
+        game.players.add(player)
+        playersAdapter!!.notifyDataSetChanged()
+        playersList?.adapter?.notifyDataSetChanged()
+
+        addPlayerDialog!!.dismiss()
     }
 
     private fun setupToggle() {
@@ -170,138 +196,40 @@ class CreateGameFragment : Fragment() {
         }
     }
 
-    private fun addPlayer(playerNumber: Int) {
-        if(players.size > 0) {
-            showPlayersDialog(playerNumber)
-        }
-        else {
-            db.collection("players")
-                .orderBy("name")
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        for (document in task.result) {
-                            var player = Player()
-                            player.id = document.id
-                            player.name = document.get("name").toString()
-                            players.add(player)
-                        }
-
-                        showPlayersDialog(playerNumber)
-                    } else {
-                        Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
-                    }
+    private fun getPlayers() {
+        db.collection("players")
+        .orderBy("name")
+        .get()
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                for (document in task.result) {
+                    var player = Player()
+                    player.id = document.id
+                    player.name = document.get("name").toString()
+                    players.add(player)
                 }
-        }
-    }
-
-    private fun showPlayersDialog(playerNumber: Int) {
-        val recyclerView = RecyclerView(activity)
-
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Select Player")
-        builder.setView(recyclerView)
-
-        builder.setNegativeButton(android.R.string.cancel, DialogInterface.OnClickListener { dialog, _ -> dialog.dismiss() })
-        var dialog = builder.create()
-
-        recyclerView.adapter = ChoosePlayerListAdapter(players, fun(position: Int) {
-            dialog.dismiss()
-
-            showCharactersDialog(players[position], playerNumber)
-        })
-        recyclerView.layoutManager = LinearLayoutManager(context)
-
-        val dividerItemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
-        recyclerView.addItemDecoration(dividerItemDecoration)
-
-        dialog.show()
-    }
-
-    private fun showCharactersDialog(player: Player, playerNumber: Int) {
-        val recyclerView = RecyclerView(activity)
-
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle("Select Character")
-        builder.setView(recyclerView)
-
-        builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
-        var dialog = builder.create()
-
-        recyclerView.adapter = ChooseCharacterListAdapter(fun(position: Int) {
-            if(gamePlayers.containsKey(playerNumber)) {
-                game.players!!.remove(gamePlayers[playerNumber])
-                gamePlayers.remove(playerNumber)
+            } else {
+                Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
             }
 
-            val gamePlayer = GamePlayer()
-            gamePlayer.player = player
-            gamePlayer.characterId = position
-
-            if(game.players == null) {
-                game.players = ArrayList<GamePlayer>()
-            }
-
-            gamePlayers.put(playerNumber, gamePlayer)
-            game.players!!.add(gamePlayer)
-
-            val button = getSetPlayerButton(playerNumber)
-            getSetPlayerButtonImage(button, playerNumber)?.visibility = View.VISIBLE
-            getSetPlayerButtonImage(button, playerNumber)?.setImageResource(CharacterHelper.getImage(gamePlayer.characterId))
-            getSetPlayerButtonText(button, playerNumber)?.text = player.name
-
-            dialog.dismiss()
-        })
-        recyclerView.layoutManager = LinearLayoutManager(context)
-
-        val dividerItemDecoration = DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL)
-        recyclerView.addItemDecoration(dividerItemDecoration)
-
-        dialog.show()
-    }
-
-    private fun getSetPlayerButton(playerNumber: Int): SquareLinearLayout? {
-        when(playerNumber) {
-            1 -> return addPlayer1Button
-            2 -> return addPlayer2Button
-            3 -> return addPlayer3Button
-            4 -> return addPlayer4Button
-            5 -> return addPlayer5Button
-            6 -> return addPlayer6Button
-            7 -> return addPlayer7Button
-            8 -> return addPlayer8Button
+            setContentShown(true)
         }
-
-        return null
     }
 
-    private fun getSetPlayerButtonImage(button: SquareLinearLayout?, playerNumber: Int): ImageView? {
-        when(playerNumber) {
-            1 -> return button?.findViewById(R.id.create_game_player_1_image)
-            2 -> return button?.findViewById(R.id.create_game_player_2_image)
-            3 -> return button?.findViewById(R.id.create_game_player_3_image)
-            4 -> return button?.findViewById(R.id.create_game_player_4_image)
-            5 -> return button?.findViewById(R.id.create_game_player_5_image)
-            6 -> return button?.findViewById(R.id.create_game_player_6_image)
-            7 -> return button?.findViewById(R.id.create_game_player_7_image)
-            8 -> return button?.findViewById(R.id.create_game_player_8_image)
-        }
-
-        return null
+    private fun setContentShown(show: Boolean) {
+        contentView!!.findViewById<View>(R.id.progress).visibility = if(show) View.GONE else View.VISIBLE
+        contentView!!.findViewById<View>(R.id.content).visibility = if(show) View.VISIBLE else View.GONE
     }
 
-    private fun getSetPlayerButtonText(button: SquareLinearLayout?, playerNumber: Int): TextView? {
-        when(playerNumber) {
-            1 -> return button?.findViewById(R.id.create_game_player_1_name)
-            2 -> return button?.findViewById(R.id.create_game_player_2_name)
-            3 -> return button?.findViewById(R.id.create_game_player_3_name)
-            4 -> return button?.findViewById(R.id.create_game_player_4_name)
-            5 -> return button?.findViewById(R.id.create_game_player_5_name)
-            6 -> return button?.findViewById(R.id.create_game_player_6_name)
-            7 -> return button?.findViewById(R.id.create_game_player_7_name)
-            8 -> return button?.findViewById(R.id.create_game_player_8_name)
-        }
-
-        return null
-    }
+//    private fun isEdit(): Boolean {
+//        return arguments != null && arguments.containsKey("isEdit") && arguments.getBoolean("isEdit")
+//    }
+//
+//    private fun getGamePlayer(): GamePlayer {
+//        if(arguments != null && arguments.containsKey("gamePlayer")) {
+//            return arguments.get("gamePlayer") as GamePlayer
+//        }
+//
+//        return GamePlayer()
+//    }
 }

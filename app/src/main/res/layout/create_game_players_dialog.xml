@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/space_16dp">
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <AutoCompleteTextView
+            android:id="@+id/create_game_players_dialog_player_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="player name"
+            android:textColor="@color/text_secondary"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <AutoCompleteTextView
+            android:id="@+id/create_game_players_dialog_character_name"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="character name"
+            android:textColor="@color/text_secondary"/>
+    </android.support.design.widget.TextInputLayout>
+
+    <CheckBox
+        android:id="@+id/create_game_players_dialog_winner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="winner"
+        android:textColor="@color/text_secondary"
+        android:drawableTint="@color/text_secondary"
+        android:layout_marginTop="@dimen/space_16dp" />
+</LinearLayout>
