@@ -6,28 +6,26 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.design.widget.Snackbar
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ProgressBar
 import com.github.clans.fab.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.util.hideKeyboard
 import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
-import android.support.v4.content.ContextCompat
-import android.view.MotionEvent
-import android.widget.EditText
-import android.widget.ImageButton
-import com.google.android.gms.tasks.OnFailureListener
-import com.stromberg.scott.seventenwouldstillsmash.util.hideKeyboard
-
 
 class PlayersFragment : BaseFragment() {
     private var db = FirebaseFirestore.getInstance()
@@ -74,7 +72,7 @@ class PlayersFragment : BaseFragment() {
                             players.add(player)
                         }
 
-                        val playerNameWidth = getLongestNameInDips(players)
+                        val playerNameWidth = getLongestNameLength(players)
 
                         recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
                         recyclerView?.adapter?.notifyDataSetChanged()
@@ -98,7 +96,7 @@ class PlayersFragment : BaseFragment() {
         searchView!!.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
-    fun getLongestNameInDips(players: ArrayList<Player>): Int {
+    fun getLongestNameLength(players: ArrayList<Player>): Int {
         val paint = Paint()
         val bounds = Rect()
 

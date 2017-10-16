@@ -7,4 +7,6 @@
     <string name="players">Players</string>
     <string name="statistics">Statistics</string>
     <string name="settings">Settings</string>
+    <string name="add_player">add\nplayer</string>
+    <string name="set_winner">set\nwinner</string>
 </resources>

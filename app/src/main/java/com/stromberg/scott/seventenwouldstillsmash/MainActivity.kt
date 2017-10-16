@@ -10,6 +10,7 @@ import android.view.View
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
 import com.stromberg.scott.seventenwouldstillsmash.fragment.BaseFragment
+import com.stromberg.scott.seventenwouldstillsmash.fragment.CreateGameFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.GamesFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.PlayersFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.navigation_statistics -> {
                 mCurrentFragment = null
+                supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, CreateGameFragment()).commit()
             }
             R.id.navigation_settings -> {
                 mCurrentFragment = null

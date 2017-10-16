@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat
 
 class GamesListAdapter(private var games: List<Game>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var context: Context? = null
-    var dateFormatter = SimpleDateFormat("MM/dd")
+    var dateFormatter = SimpleDateFormat("MM/dd/yy")
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         context = parent.context
@@ -57,7 +57,7 @@ class GamesListAdapter(private var games: List<Game>) : RecyclerView.Adapter<Rec
         item.players!!.forEach({ player ->
             run {
                 val playerLayout: FrameLayout = LayoutInflater.from(context).inflate(R.layout.game_list_item_image, null) as FrameLayout
-                playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.character!!.id))
+                playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.characterId))
                 playerLayout.findViewById<TextView>(R.id.game_list_item_player_name).text = player.player!!.name
                 playerLayout.findViewById<TextView>(R.id.game_list_item_player_name).setBackgroundResource(if (player.winner) R.color.player_winner else R.color.player_loser)
 

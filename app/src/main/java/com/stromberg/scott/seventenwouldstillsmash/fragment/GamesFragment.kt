@@ -17,6 +17,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import com.github.clans.fab.FloatingActionButton
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
@@ -48,7 +49,6 @@ class GamesFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
 
-//        makeGames()
         getGames()
     }
 
@@ -59,7 +59,8 @@ class GamesFragment : BaseFragment() {
         var games = ArrayList<Game>()
 
         db.collection("games")
-                .orderBy("date")
+                .limit(25)
+                .orderBy("date", Query.Direction.DESCENDING)
                 .get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
@@ -77,11 +78,7 @@ class GamesFragment : BaseFragment() {
                             for (gPlayer in gamePlayersList) {
                                 var gamePlayer = GamePlayer()
 
-                                var character = Character()
-                                character.id = gPlayer.get("characterId").toString().toInt()
-                                character.name = CharacterHelper.getName(character.id)
-
-                                gamePlayer.character = character
+                                gamePlayer.characterId = gPlayer.get("characterId").toString().toInt()
                                 gamePlayer.winner = gPlayer.get("isWinner").toString().toBoolean()
 
                                 var player = Player()
@@ -108,68 +105,6 @@ class GamesFragment : BaseFragment() {
                         Snackbar.make(contentView!!, "Failed to load game data", Snackbar.LENGTH_SHORT).show()
                     }
                 }
-    }
-
-    private fun makeGames() {
-        setContentShown(false)
-
-        var gamesProcessed = 0
-
-        for (i in 0..19) {
-            var cal = Calendar.getInstance()
-            cal.add(Calendar.DAY_OF_YEAR, -i)
-
-            var game = HashMap<String, Any>()
-            game.put("gameType", if ((0..1).random() == 0) GameType.ROYALE.toString() else GameType.SUDDEN_DEATH.toString())
-            game.put("date", cal.timeInMillis)
-
-            var winner = (0..3).random()
-
-            var gamePlayers = ArrayList<Any>()
-
-            var dustin = HashMap<String, Any>()
-            dustin.put("playerId", "Afazw9wal1TEkOZ6jnxF")
-            dustin.put("playerName", "Dustin")
-            dustin.put("characterId", (0..57).random())
-            dustin.put("isWinner", winner == 0)
-
-            var chad = HashMap<String, Any>()
-            chad.put("playerId", "e8F9BY1VHyrALelHu5ah")
-            chad.put("playerName", "Chad")
-            chad.put("characterId", (0..57).random())
-            chad.put("isWinner", winner == 1)
-
-            var scott = HashMap<String, Any>()
-            scott.put("playerId", "eNBKVdu2j7H2p0iE2989")
-            scott.put("playerName", "Scott")
-            scott.put("characterId", (0..57).random())
-            scott.put("isWinner", winner == 2)
-
-            var josh = HashMap<String, Any>()
-            josh.put("playerId", "icHPaoUTxVhQmrSDzleS")
-            josh.put("playerName", "Josh")
-            josh.put("characterId", (0..57).random())
-            josh.put("isWinner", winner == 3)
-
-            gamePlayers.add(dustin)
-            gamePlayers.add(chad)
-            gamePlayers.add(scott)
-            gamePlayers.add(josh)
-
-            game.put("gamePlayers", gamePlayers)
-
-            db.collection("games")
-                    .add(game)
-                    .addOnSuccessListener { documentReference ->
-                        run {
-                            gamesProcessed++
-
-                            if(gamesProcessed == 20) {
-                                setContentShown(true)
-                            }
-                        }
-                    }
-        }
     }
 
     override fun getFabButtons(context: Context): List<FloatingActionButton> {

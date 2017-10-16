@@ -2,13 +2,14 @@
 <resources>
     <color name="primary">#1976D2</color>
     <color name="primary_light">#07A8F3</color>
+    <color name="primary_dark">#0863BB</color>
+    <color name="accent">#66A4E0</color>
     <color name="secondary">#F7A84C</color>
     <color name="secondary_dark">#F48400</color>
     <color name="text_primary">#FFFFFF</color>
     <color name="text_secondary">#3C5161</color>
     <color name="player_winner">#A836BA31</color>
-    <!--<color name="player_winner">#A854B353</color>-->
     <color name="player_loser">#4DFF0000</color>
-    <!--<color name="player_loser">#A8D1453B</color>-->
     <color name="gold">#FFE200</color>
+    <color name="light_gray">#DEDEDE</color>
 </resources>

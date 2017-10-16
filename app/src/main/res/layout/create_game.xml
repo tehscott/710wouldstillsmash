@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/create_game_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mon, Oct 9"
+                android:textSize="28sp"
+                android:gravity="center"
+                android:padding="@dimen/space_8dp"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp">
+
+                <Button
+                    android:id="@+id/create_game_royale_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Royale"
+                    android:textColor="@color/text_primary"
+                    android:textAllCaps="true"
+                    android:background="@drawable/toggle_left_selected_ripple"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"/>
+
+                <Button
+                    android:id="@+id/create_game_sudden_death_royale_toggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="Sudden Death"
+                    android:textColor="@color/text_secondary"
+                    android:textAllCaps="true"
+                    android:background="@drawable/toggle_right_deselected_ripple"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:gravity="center"
+                    android:layout_gravity="center"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/space_16dp"
+                android:layout_marginRight="@dimen/space_16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="@dimen/space_8dp">
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_1_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_1_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_1_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_2_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_2_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_2_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_3_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_3_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_3_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_4_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_4_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_4_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/space_16dp"
+                android:layout_marginRight="@dimen/space_16dp">
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_5_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_5_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_5_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_6_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_6_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_6_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_7_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_7_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_7_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+
+                <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                    android:id="@+id/create_game_player_8_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/add_player"
+                    android:padding="@dimen/space_8dp"
+                    android:layout_marginRight="@dimen/space_8dp"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:background="?android:attr/selectableItemBackground">
+
+                    <ImageView
+                        android:id="@+id/create_game_player_8_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:adjustViewBounds="true"
+                        android:visibility="gone"/>
+
+                    <TextView
+                        android:id="@+id/create_game_player_8_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:text="@string/add_player"
+                        android:gravity="center"
+                        android:textSize="18sp"/>
+                </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+            </LinearLayout>
+
+            <com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout
+                android:id="@+id/create_game_set_winner_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add_player"
+                android:padding="@dimen/space_8dp"
+                android:layout_marginTop="@dimen/space_16dp"
+                android:layout_marginBottom="@dimen/space_16dp"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:background="?android:attr/selectableItemBackground">
+
+                <ImageView
+                    android:id="@+id/create_game_set_winner_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/create_game_set_winner_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:text="@string/set_winner"
+                    android:gravity="center"
+                    android:textSize="18sp"/>
+            </com.stromberg.scott.seventenwouldstillsmash.view.SquareLinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

@@ -100,7 +100,7 @@ class CharacterHelper {
                 26 -> return "Luigi"
                 27 -> return "Mario"
                 28 -> return "Marth"
-                29 -> return "Megaman"
+                29 -> return "Mega Man"
                 30 -> return "Meta Knight"
                 31 -> return "Mewtwo"
                 32 -> return "Mii Fighter"
@@ -132,6 +132,71 @@ class CharacterHelper {
             }
 
             return ""
+        }
+
+        fun getId(characterName: String): Int {
+            when (characterName) {
+                "Bayonetta" -> return 0
+                "Bowser" -> return 1
+                "Bowser Jr." -> return 2
+                "Captain Falcon" -> return 3
+                "Charizard" -> return 4
+                "Cloud" -> return 5
+                "Corrin" -> return 6
+                "Dark Pit" -> return 7
+                "King DeDeDe" -> return 8
+                "Diddy Kong" -> return 9
+                "Donkey Kong" -> return 10
+                "Dr. Mario" -> return 11
+                "Duck Hunt" -> return 12
+                "Falco" -> return 13
+                "Fox" -> return 14
+                "Mr. Game & Watch" -> return 15
+                "Ganondorf" -> return 16
+                "Greninja" -> return 17
+                "Ike" -> return 18
+                "Jigglypuff" -> return 19
+                "Kirby" -> return 20
+                "Link" -> return 21
+                "Little Mac" -> return 22
+                "Lucario" -> return 23
+                "Lucas" -> return 24
+                "Lucina" -> return 25
+                "Luigi" -> return 26
+                "Mario" -> return 27
+                "Marth" -> return 28
+                "Mega Man" -> return 29
+                "Meta Knight" -> return 30
+                "Mewtwo" -> return 31
+                "Mii Fighter" -> return 32
+                "Mii Gunner" -> return 33
+                "Mii Swordsman" -> return 34
+                "Ness" -> return 35
+                "Olimar" -> return 36
+                "Pacman" -> return 37
+                "Palutena" -> return 38
+                "Peach" -> return 39
+                "Pikachu" -> return 40
+                "Pit" -> return 41
+                "Rob" -> return 42
+                "Robin" -> return 43
+                "Rosalina & Luma" -> return 44
+                "Roy" -> return 45
+                "Ryu" -> return 46
+                "Samus" -> return 47
+                "Sheik" -> return 48
+                "Shulk" -> return 49
+                "Sonic" -> return 50
+                "Toon Link" -> return 51
+                "Villager" -> return 52
+                "Wario" -> return 53
+                "Wii Fit Trainer" -> return 54
+                "Yoshi" -> return 55
+                "Zelda" -> return 56
+                "Zero Suit Samus" -> return 57
+            }
+
+            return -1
         }
     }
 }

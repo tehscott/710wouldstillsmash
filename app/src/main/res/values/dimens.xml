@@ -1,4 +1,7 @@
 <resources>
     <dimen name="space_8dp">8dp</dimen>
+    <dimen name="space_16dp">16dp</dimen>
     <dimen name="player_list_player_name">24sp</dimen>
+    <dimen name="toggle_button_corner_radius">10dp</dimen>
+    <dimen name="toggle_button_stroke">1dp</dimen>
 </resources>
