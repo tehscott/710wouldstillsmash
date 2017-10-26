@@ -21,12 +21,18 @@
         app:queryHint="Search"
         android:elevation="5dp"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/games_recyclerview"
+    <com.ajguan.library.EasyRefreshLayout
+        android:id="@+id/games_pull_to_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#EDEDED"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"/>
+        android:layout_weight="1">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/games_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#EDEDED"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
+    </com.ajguan.library.EasyRefreshLayout>
 </LinearLayout>

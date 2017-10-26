@@ -13,6 +13,7 @@ import com.stromberg.scott.seventenwouldstillsmash.fragment.BaseFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.CreateGameFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.GamesFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.PlayersFragment
+import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
@@ -24,48 +25,45 @@ class MainActivity : AppCompatActivity() {
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_games -> {
-                mCurrentFragment = GamesFragment()
+                navigateToFragment(GamesFragment())
             }
             R.id.navigation_players -> {
-                mCurrentFragment = PlayersFragment()
+                navigateToFragment(PlayersFragment())
             }
             R.id.navigation_statistics -> {
-                mCurrentFragment = null
-                supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, CreateGameFragment()).commit()
+//                mCurrentFragment = null
             }
             R.id.navigation_settings -> {
-                mCurrentFragment = null
+//                mCurrentFragment = null
             }
-        }
-
-        if(mCurrentFragment != null) {
-            supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, mCurrentFragment).commit()
-
-            if(mCurrentFragment?.hasFab()!!) {
-                val fabMenuButtons = mCurrentFragment?.getFabButtons(this)
-
-                if(fabMenuButtons?.size!! > 0) {
-                    mAddFabMenu?.visibility = View.VISIBLE
-                    mAddFabButton?.visibility = View.GONE
-
-                    mAddFabMenu?.removeAllMenuButtons()
-                    fabMenuButtons.forEach( {fab -> run { mAddFabMenu?.addMenuButton(fab) } })
-                }
-                else {
-                    mAddFabMenu?.visibility = View.GONE
-                    mAddFabButton?.visibility = View.VISIBLE
-                    mAddFabButton?.setOnClickListener { mCurrentFragment?.addFabClicked() }
-                }
-            }
-            else {
-                hideFabs()
-            }
-        }
-        else {
-            hideFabs()
+            else -> hideFabs()
         }
 
         return@OnNavigationItemSelectedListener true
+    }
+
+    private fun navigateToFragment(fragment: BaseFragment) {
+        mCurrentFragment = fragment
+
+        supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment).commit()
+
+        if (fragment.hasFab()) {
+            val fabMenuButtons = fragment.getFabButtons(this)
+
+            if (fabMenuButtons.isNotEmpty()) {
+                mAddFabMenu?.visibility = View.VISIBLE
+                mAddFabButton?.visibility = View.GONE
+
+                mAddFabMenu?.removeAllMenuButtons()
+                fabMenuButtons.forEach({ fab -> run { mAddFabMenu?.addMenuButton(fab) } })
+            } else {
+                mAddFabMenu?.visibility = View.GONE
+                mAddFabButton?.visibility = View.VISIBLE
+                mAddFabButton?.setOnClickListener { fragment.addFabClicked() }
+            }
+        } else {
+            hideFabs()
+        }
     }
 
     private fun hideFabs() {
@@ -97,5 +95,31 @@ class MainActivity : AppCompatActivity() {
         }
 
         return super.dispatchTouchEvent(motionEvent)
+    }
+
+    fun createGame() {
+        navigateToFragment(CreateGameFragment())
+    }
+
+    fun editGame(game: Game) {
+        val bundle = Bundle()
+        bundle.putParcelable("Game", game)
+
+        val fragment = CreateGameFragment()
+        fragment.arguments = bundle
+
+        navigateToFragment(fragment)
+    }
+
+    override fun onBackPressed() {
+        if(mCurrentFragment != null) {
+            when(mCurrentFragment) {
+                is CreateGameFragment -> navigateToFragment(GamesFragment())
+                else -> super.onBackPressed()
+            }
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 }

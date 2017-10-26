@@ -19,7 +19,6 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import com.github.clans.fab.FloatingActionButton
-import com.google.firebase.firestore.FirebaseFirestore
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
@@ -28,7 +27,7 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
 class PlayersFragment : BaseFragment() {
-    private var db = FirebaseFirestore.getInstance()
+//    private var db = FirebaseFirestore.getInstance()
 
     private var snackbar: Snackbar? = null
 
@@ -60,28 +59,28 @@ class PlayersFragment : BaseFragment() {
 
         setContentShown(false)
 
-        db.collection("players")
-                .orderBy("name")
-                .get()
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        for (document in task.result) {
-                            var player = Player()
-                            player.id = document.id
-                            player.name = document.get("name").toString()
-                            players.add(player)
-                        }
-
-                        val playerNameWidth = getLongestNameLength(players)
-
-                        recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
-                        recyclerView?.adapter?.notifyDataSetChanged()
-                    } else {
-                        Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
-                    }
-
-                    setContentShown(true)
-                }
+//        db.collection("players")
+//                .orderBy("name")
+//                .get()
+//                .addOnCompleteListener { task ->
+//                    if (task.isSuccessful) {
+//                        for (document in task.result) {
+//                            var player = Player()
+//                            player.id = document.id
+//                            player.name = document.get("name").toString()
+//                            players.add(player)
+//                        }
+//
+//                        val playerNameWidth = getLongestNameLength(players)
+//
+//                        recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
+//                        recyclerView?.adapter?.notifyDataSetChanged()
+//                    } else {
+//                        Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
+//                    }
+//
+//                    setContentShown(true)
+//                }
     }
 
     override fun getFabButtons(context: Context): List<FloatingActionButton> {
@@ -156,21 +155,21 @@ class PlayersFragment : BaseFragment() {
         var player = HashMap<String, Any>()
         player.put("name", playerName)
 
-        db.collection("players")
-            .add(player)
-            .addOnSuccessListener { documentReference ->
-                run {
-                    snackbar?.dismiss()
-
-                    getPlayers()
-                }
-            }
-            .addOnFailureListener({
-                run {
-                    snackbar?.dismiss()
-                    Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show()
-                }
-            })
+//        db.collection("players")
+//            .add(player)
+//            .addOnSuccessListener { documentReference ->
+//                run {
+//                    snackbar?.dismiss()
+//
+//                    getPlayers()
+//                }
+//            }
+//            .addOnFailureListener({
+//                run {
+//                    snackbar?.dismiss()
+//                    Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show()
+//                }
+//            })
 
     }
 

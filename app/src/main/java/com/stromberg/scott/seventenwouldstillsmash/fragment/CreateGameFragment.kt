@@ -2,36 +2,38 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.*
-import com.google.firebase.firestore.FirebaseFirestore
+import com.github.clans.fab.FloatingActionButton
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-class CreateGameFragment : Fragment() {
-    private var db = FirebaseFirestore.getInstance()
+class CreateGameFragment : BaseFragment() {
+//    private var db = FirebaseFirestore.getInstance()
     var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
 
     private var game: Game = Game()
     private var royaleToggleWidth: Int = 0
     private var suddenDeathToggleWidth: Int = 0
+    private var isEdit: Boolean = false
     private var players = ArrayList<Player>()
     private var playersAdapter: CreateGamePlayersListAdapter? = null
 
@@ -39,6 +41,8 @@ class CreateGameFragment : Fragment() {
     private var dateTextView: TextView? = null
     private var royaleToggle: Button? = null
     private var suddenDeathToggle: Button? = null
+    private var createButton: Button? = null
+    private var deleteButton: Button? = null
     private var playersList: RecyclerView? = null
     private var addPlayerButton: TextView? = null
     private var addPlayerDialog: AlertDialog? = null
@@ -51,16 +55,28 @@ class CreateGameFragment : Fragment() {
         suddenDeathToggle = contentView!!.findViewById(R.id.create_game_sudden_death_royale_toggle)
         playersList = contentView!!.findViewById(R.id.create_game_players_list)
         addPlayerButton = contentView!!.findViewById(R.id.create_game_players_title)
+        createButton = contentView!!.findViewById(R.id.create_game_create_button)
+        deleteButton = contentView!!.findViewById(R.id.create_game_delete_button)
 
-        dateTextView!!.text = dateFormatter.format(Calendar.getInstance().time)
+        isEdit = arguments?.containsKey("Game") ?: false
+
+        if(isEdit) {
+            game = arguments.getParcelable("Game")
+        }
+        else {
+            game.gameType = GameType.ROYALE.toString()
+            game.date = Calendar.getInstance().time.time
+        }
+
+        dateTextView!!.text = dateFormatter.format(Date(game.date))
         dateTextView!!.setOnClickListener({
             var datePicker = DatePickerDialog(activity)
             datePicker.setOnDateSetListener { view, year, month, day ->
                 val cal = Calendar.getInstance()
                 cal.set(year, month, day)
-                game.date = cal.time
+                game.date = cal.time.time
 
-                dateTextView!!.text = dateFormatter.format(game.date)
+                dateTextView!!.text = dateFormatter.format(Date(game.date))
             }
             datePicker.show()
         })
@@ -75,10 +91,60 @@ class CreateGameFragment : Fragment() {
         val dividerItemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
         playersList!!.addItemDecoration(dividerItemDecoration)
 
+        contentView!!.findViewById<View>(R.id.create_game_cancel_button).setOnClickListener({ activity.onBackPressed() })
+
+        if(isEdit) {
+            deleteButton?.setOnClickListener({ deleteGame(true) })
+            deleteButton?.visibility = View.VISIBLE
+
+            createButton!!.setOnClickListener({ updateGame() })
+            createButton!!.text = "Save Game"
+        }
+        else {
+            createButton!!.setOnClickListener({ createGame() })
+        }
+
         setContentShown(false)
         getPlayers()
 
         return contentView
+    }
+
+    private fun updateGame() {
+        deleteGame(false)
+        createGame()
+    }
+
+    private fun deleteGame(goBack: Boolean) {
+        setContentShown(false)
+
+//        db.collection("games")
+//            .document(game.id!!)
+//            .delete()
+//            .addOnCompleteListener( { if(goBack) { activity.onBackPressed() } })
+    }
+
+    private fun createMissingPlayers() {
+        game.players.forEach({  })
+    }
+
+    private fun createGame() {
+        if(game.players.size > 1) {
+            setContentShown(false)
+
+//            db.collection("games")
+//            .add(game)
+//            .addOnCompleteListener { task ->
+//                if (task.isSuccessful) {
+//                    activity.onBackPressed()
+//                } else {
+//                    Snackbar.make(contentView!!, "Failed to create game", Snackbar.LENGTH_SHORT).show()
+//                }
+//            }
+        }
+        else {
+            Snackbar.make(contentView!!, "Add some players", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     private fun addPlayer(editingPlayer: GamePlayer?) {
@@ -100,13 +166,46 @@ class CreateGameFragment : Fragment() {
         val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerList.map { it.name })
         playerNameText.threshold = 1
         playerNameText.setAdapter<ArrayAdapter<String>>(playerAdapter)
-        playerNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long -> gamePlayer.player = playerList.find { it.name.equals((view as TextView).text.toString()) } } )
+        playerNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long ->
+            run {
+                gamePlayer.player = playerList.find { it.name.equals((view as TextView).text.toString()) }
+                characterNameText.requestFocus()
+            }
+        })
+
+        playerNameText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if(hasFocus) {
+                playerNameText.showDropDown()
+            }
+        }
+
+        playerNameText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(text: Editable?) {
+                playerNameText.showDropDown()
+            }
+            override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) { }
+        })
 
         val characterNames = (0..57).map { CharacterHelper.getName(it) }
         val characterAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, characterNames)
         characterNameText.threshold = 1
         characterNameText.setAdapter<ArrayAdapter<String>>(characterAdapter)
         characterNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long -> gamePlayer.characterId = CharacterHelper.getId((view as TextView).text.toString()) } )
+
+        characterNameText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
+            if(hasFocus) {
+                characterNameText.showDropDown()
+            }
+        }
+
+        characterNameText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(text: Editable?) {
+                characterNameText.showDropDown()
+            }
+            override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) { }
+            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) { }
+        })
 
         isWinnerCheckbox.setOnCheckedChangeListener { view, isChecked -> gamePlayer.winner = isChecked }
 
@@ -121,7 +220,41 @@ class CreateGameFragment : Fragment() {
         builder.setView(layout)
 
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
-        builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player", { dialog, _ -> if(editingPlayer == null) addPlayerToGame(gamePlayer); else playersList!!.adapter.notifyDataSetChanged(); dialog.dismiss() })
+        builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player", { dialog, _ ->
+            run {
+//                if(gamePlayer.player == null) {
+//                    var player = Player()
+//                    player.name = playerNameText.text.toString()
+//                    gamePlayer.player = player
+//
+//                    db.collection("players")
+//                    .add(player)
+//                    .addOnSuccessListener { documentReference ->
+//                        run {
+//                            if(editingPlayer == null) {
+//                                addPlayerToGame(gamePlayer)
+//                            }
+//                            else {
+//                                playersList!!.adapter.notifyDataSetChanged()
+//                            }
+//
+//                            dialog.dismiss()
+//                        }
+//                    }
+//                    .addOnFailureListener({ Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show() })
+//                }
+//                else {
+                    if(editingPlayer == null) {
+                        addPlayerToGame(gamePlayer)
+                    }
+                    else {
+                        playersList!!.adapter.notifyDataSetChanged()
+                    }
+
+                    dialog.dismiss()
+//                }
+            }
+        })
 
         if(editingPlayer != null) {
             builder.setNeutralButton("Delete", { dialog, _ -> game.players.remove(editingPlayer); playersList!!.adapter.notifyDataSetChanged(); dialog.dismiss() })
@@ -175,6 +308,15 @@ class CreateGameFragment : Fragment() {
             suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_primary))
             fixTogglePadding()
         })
+
+        if(isEdit) {
+            if(game.gameType.equals(GameType.ROYALE.toString())) {
+                royaleToggle?.performClick()
+            }
+            else {
+                suddenDeathToggle?.performClick()
+            }
+        }
     }
 
     private fun fixTogglePadding() {
@@ -197,28 +339,38 @@ class CreateGameFragment : Fragment() {
     }
 
     private fun getPlayers() {
-        db.collection("players")
-        .orderBy("name")
-        .get()
-        .addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                for (document in task.result) {
-                    var player = Player()
-                    player.id = document.id
-                    player.name = document.get("name").toString()
-                    players.add(player)
-                }
-            } else {
-                Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
-            }
-
-            setContentShown(true)
-        }
+//        db.collection("players")
+//        .orderBy("name")
+//        .get()
+//        .addOnCompleteListener { task ->
+//            if (task.isSuccessful) {
+//                for (document in task.result) {
+//                    var player = Player()
+//                    player.id = document.id
+//                    player.name = document.get("name").toString()
+//                    players.add(player)
+//                }
+//            } else {
+//                Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
+//            }
+//
+//            setContentShown(true)
+//        }
     }
 
-    private fun setContentShown(show: Boolean) {
+    override fun setContentShown(show: Boolean) {
         contentView!!.findViewById<View>(R.id.progress).visibility = if(show) View.GONE else View.VISIBLE
         contentView!!.findViewById<View>(R.id.content).visibility = if(show) View.VISIBLE else View.GONE
+    }
+
+    override fun addFabClicked() {}
+
+    override fun hasFab(): Boolean {
+        return false
+    }
+
+    override fun getFabButtons(context: Context): List<FloatingActionButton> {
+        return ArrayList<FloatingActionButton>()
     }
 
 //    private fun isEdit(): Boolean {
