@@ -360,6 +360,8 @@ class CreateGameFragment : BaseFragment() {
                         players.add(player)
                     }
 
+                    players.sortBy { it.name }
+
                     setContentShown(true)
                 }
             })
