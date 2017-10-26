@@ -87,16 +87,6 @@ class MainActivity : AppCompatActivity() {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
     }
 
-    override fun dispatchTouchEvent(motionEvent: MotionEvent?): Boolean {
-        if (motionEvent?.action == MotionEvent.ACTION_DOWN) {
-            if(mCurrentFragment is PlayersFragment) {
-                (mCurrentFragment as PlayersFragment).dismissSnackbar(motionEvent)
-            }
-        }
-
-        return super.dispatchTouchEvent(motionEvent)
-    }
-
     fun createGame() {
         navigateToFragment(CreateGameFragment())
     }

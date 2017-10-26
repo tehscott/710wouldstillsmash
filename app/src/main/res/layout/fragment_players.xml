@@ -6,14 +6,6 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <ProgressBar
-        android:id="@+id/progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:theme="@style/ProgressBar"
-        android:visibility="gone"/>
-
     <android.support.v7.widget.SearchView
         android:id="@+id/players_search_view"
         android:layout_width="match_parent"
@@ -21,12 +13,18 @@
         app:queryHint="Search"
         android:elevation="5dp"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/players_recyclerview"
+    <com.ajguan.library.EasyRefreshLayout
+        android:id="@+id/players_pull_to_refresh"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#EDEDED"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"/>
+        android:layout_weight="1">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/players_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#EDEDED"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"/>
+    </com.ajguan.library.EasyRefreshLayout>
 </LinearLayout>

@@ -81,7 +81,6 @@ class GamesFragment : BaseFragment() {
         recyclerView!!.adapter = adapter
     }
 
-
     private fun getGames(queryLimit: Int) {
         db.reference
             .child("games")

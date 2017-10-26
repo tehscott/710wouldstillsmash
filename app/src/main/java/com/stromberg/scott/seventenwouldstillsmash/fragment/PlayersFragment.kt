@@ -1,25 +1,22 @@
 package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.content.Context
-import android.content.DialogInterface
 import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ProgressBar
+import com.ajguan.library.EasyRefreshLayout
+import com.ajguan.library.LoadModel
+import com.chad.library.adapter.base.BaseQuickAdapter
 import com.github.clans.fab.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,21 +32,28 @@ import java.util.*
 class PlayersFragment : BaseFragment() {
     private var db = FirebaseDatabase.getInstance()
 
-    private var snackbar: Snackbar? = null
-
     private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
-    private var progressBar: ProgressBar? = null
+    private var pullToRefreshView: EasyRefreshLayout? = null
     private var searchView: SearchView? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
 
+        pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
         recyclerView = contentView!!.findViewById<RecyclerView>(R.id.players_recyclerview)
         recyclerView!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
 
-        progressBar = contentView!!.findViewById<ProgressBar>(R.id.progress)
         searchView = contentView!!.findViewById<SearchView>(R.id.players_search_view)
+
+        pullToRefreshView!!.loadMoreModel = LoadModel.NONE
+        pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
+            override fun onRefreshing() {
+                getPlayers()
+            }
+
+            override fun onLoadMore() {}
+        })
 
         return contentView
     }
@@ -61,8 +65,6 @@ class PlayersFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        var players = ArrayList<Player>()
-
         setContentShown(false)
 
         db.reference
@@ -72,15 +74,25 @@ class PlayersFragment : BaseFragment() {
                 override fun onCancelled(error: DatabaseError?) { }
 
                 override fun onDataChange(snapshot: DataSnapshot?) {
+                    val players = ArrayList<Player>()
+
                     snapshot?.children?.reversed()?.forEach {
-                        var player: Player = it.getValue(Player::class.java)!!
+                        val player: Player = it.getValue(Player::class.java)!!
                         player.id = it.key
                         players.add(player)
                     }
 
                     val playerNameWidth = getLongestNameLength(players)
 
-                    recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
+                    val adapter = PlayersListAdapter(players, playerNameWidth)
+                    recyclerView!!.adapter = adapter
+
+                    adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+                        editPlayer(players[position])
+                    }
+
+                    adapter.setEnableLoadMore(false)
+
                     recyclerView?.adapter?.notifyDataSetChanged()
 
                     setContentShown(true)
@@ -95,9 +107,7 @@ class PlayersFragment : BaseFragment() {
     }
 
     override fun setContentShown(shown: Boolean) {
-        progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
-        recyclerView!!.visibility = if(shown) View.VISIBLE else View.GONE
-        searchView!!.visibility = if(shown) View.VISIBLE else View.GONE
+        pullToRefreshView?.isRefreshing = !shown
     }
 
     fun getLongestNameLength(players: ArrayList<Player>): Int {
@@ -129,43 +139,69 @@ class PlayersFragment : BaseFragment() {
     }
 
     override fun addFabClicked() {
-//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_snackbar, null)
-//
-//        inputLayout.findViewById<ImageButton>(R.id.cancel).setOnClickListener({ snackbar?.dismiss() })
-//        inputLayout.findViewById<ImageButton>(R.id.add).setOnClickListener({
-//            run {
-//                var playerName = inputLayout.findViewById<EditText>(R.id.player_name_text).text.toString()
-//
-//                if(playerName.isNotEmpty()) {
-//                    addPlayer(inputLayout, playerName)
-//                }
-//            }
-//        })
-//
-//        snackbar = Snackbar.make(contentView!!, "", Snackbar.LENGTH_INDEFINITE)
-//        val group = snackbar!!.view as ViewGroup
-//        group.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.white))
-//
-//        val layout = snackbar!!.view as Snackbar.SnackbarLayout
-//        layout.addView(inputLayout, 0);
-//        snackbar!!.show();
-
         var builder = AlertDialog.Builder(activity)
         builder.setTitle("Add Player")
 
         val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
 
         builder.setView(inputLayout)
-        builder.setPositiveButton("Add") { dialog, _ -> run {
-            var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
-            if(playerName.isNotEmpty()) {
-                dialog.dismiss()
-                addPlayer(playerName)
+        builder.setPositiveButton("Add") { dialog, _ ->
+            run {
+                var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
+                if (playerName.isNotEmpty()) {
+                    dialog.dismiss()
+                    addPlayer(playerName)
+                }
             }
-        }}
+        }
         builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
         builder.setCancelable(true)
         builder.show()
+    }
+
+    private fun editPlayer(player: Player) {
+        var builder = AlertDialog.Builder(activity)
+        builder.setTitle("Edit " + player.name)
+
+        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
+        inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).setText(player.name)
+
+        builder.setView(inputLayout)
+        builder.setPositiveButton("Save") { dialog, _ ->
+            run {
+                var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
+                if (playerName.isNotEmpty()) {
+                    dialog.dismiss()
+
+                    player.name = playerName
+
+                    db.reference
+                        .child("players")
+                        .child(player.id)
+                        .setValue(player)
+                        .addOnCompleteListener( {
+                            getPlayers()
+                        })
+                }
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+        builder.setNeutralButton("Delete Player") { dialog, _ -> run {
+            deletePlayer(player)
+            dialog.cancel()
+        } }
+        builder.setCancelable(true)
+        builder.show()
+    }
+
+    private fun deletePlayer(player: Player) {
+        db.reference
+                .child("players")
+                .child(player.id)
+                .removeValue()
+                .addOnCompleteListener( {
+                    getPlayers()
+                })
     }
 
     private fun addPlayer(playerName: String) {
@@ -181,24 +217,11 @@ class PlayersFragment : BaseFragment() {
             .child(player.id)
             .setValue(player)
             .addOnCompleteListener( {
-                snackbar?.dismiss()
                 getPlayers()
             })
     }
 
     override fun hasFab(): Boolean {
         return true
-    }
-
-    fun dismissSnackbar(motionEvent: MotionEvent) {
-        if (snackbar != null && snackbar!!.isShown) {
-            val sRect = Rect()
-            snackbar!!.view.getHitRect(sRect)
-
-            if (!sRect.contains(motionEvent.x.toInt(), motionEvent.y.toInt())) {
-                contentView?.hideKeyboard()
-                snackbar!!.dismiss()
-            }
-        }
     }
 }
