@@ -1,12 +1,14 @@
 package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
@@ -127,33 +129,49 @@ class PlayersFragment : BaseFragment() {
     }
 
     override fun addFabClicked() {
-        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_snackbar, null)
+//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_snackbar, null)
+//
+//        inputLayout.findViewById<ImageButton>(R.id.cancel).setOnClickListener({ snackbar?.dismiss() })
+//        inputLayout.findViewById<ImageButton>(R.id.add).setOnClickListener({
+//            run {
+//                var playerName = inputLayout.findViewById<EditText>(R.id.player_name_text).text.toString()
+//
+//                if(playerName.isNotEmpty()) {
+//                    addPlayer(inputLayout, playerName)
+//                }
+//            }
+//        })
+//
+//        snackbar = Snackbar.make(contentView!!, "", Snackbar.LENGTH_INDEFINITE)
+//        val group = snackbar!!.view as ViewGroup
+//        group.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.white))
+//
+//        val layout = snackbar!!.view as Snackbar.SnackbarLayout
+//        layout.addView(inputLayout, 0);
+//        snackbar!!.show();
 
-        inputLayout.findViewById<ImageButton>(R.id.cancel).setOnClickListener({ snackbar?.dismiss() })
-        inputLayout.findViewById<ImageButton>(R.id.add).setOnClickListener({
-            run {
-                var playerName = inputLayout.findViewById<EditText>(R.id.player_name_text).text.toString()
+        var builder = AlertDialog.Builder(activity)
+        builder.setTitle("Add Player")
 
-                if(playerName.isNotEmpty()) {
-                    addPlayer(inputLayout, playerName)
-                }
+        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
+
+        builder.setView(inputLayout)
+        builder.setPositiveButton("Add") { dialog, _ -> run {
+            var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
+            if(playerName.isNotEmpty()) {
+                dialog.dismiss()
+                addPlayer(playerName)
             }
-        })
-
-        snackbar = Snackbar.make(contentView!!, "", Snackbar.LENGTH_INDEFINITE)
-        val group = snackbar!!.view as ViewGroup
-        group.setBackgroundColor(ContextCompat.getColor(activity, android.R.color.white))
-
-        val layout = snackbar!!.view as Snackbar.SnackbarLayout
-        layout.addView(inputLayout, 0);
-        snackbar!!.show();
+        }}
+        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+        builder.setCancelable(true)
+        builder.show()
     }
 
-    private fun addPlayer(contentView: View, playerName: String) {
+    private fun addPlayer(playerName: String) {
         this.contentView?.hideKeyboard()
 
-        contentView.findViewById<View>(R.id.content).visibility = View.GONE
-        contentView.findViewById<View>(R.id.progress).visibility = View.VISIBLE
+        setContentShown(false)
 
         var player = Player()
         player.id = Calendar.getInstance().timeInMillis.toString()

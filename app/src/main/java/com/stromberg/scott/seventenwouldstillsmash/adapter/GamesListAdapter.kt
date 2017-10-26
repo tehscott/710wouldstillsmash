@@ -59,11 +59,5 @@ class GamesListAdapter(games: List<Game>) : BaseQuickAdapter<Game, BaseViewHolde
         }
 
         viewHolder.setText(R.id.game_list_item_date, dateFormatter.format(Date(item.date)))
-        viewHolder.setOnClickListener(R.id.game_list_item_delete_button, View.OnClickListener {
-//            FirebaseFirestore.getInstance().collection("games")
-//                .document(item.id!!)
-//                .delete()
-//                .addOnCompleteListener( { /*if(goBack) { activity.onBackPressed() }*/ })
-        })
     }
 }
