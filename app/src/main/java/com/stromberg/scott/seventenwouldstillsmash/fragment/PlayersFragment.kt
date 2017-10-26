@@ -82,6 +82,8 @@ class PlayersFragment : BaseFragment() {
                         players.add(player)
                     }
 
+                    players.sortBy { it.name }
+
                     val playerNameWidth = getLongestNameLength(players)
 
                     val adapter = PlayersListAdapter(players, playerNameWidth)
@@ -95,6 +97,7 @@ class PlayersFragment : BaseFragment() {
 
                     recyclerView?.adapter?.notifyDataSetChanged()
 
+                    pullToRefreshView!!.refreshComplete()
                     setContentShown(true)
                 }
             })
