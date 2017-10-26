@@ -19,6 +19,10 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import com.github.clans.fab.FloatingActionButton
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
@@ -27,7 +31,7 @@ import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
 class PlayersFragment : BaseFragment() {
-//    private var db = FirebaseFirestore.getInstance()
+    private var db = FirebaseDatabase.getInstance()
 
     private var snackbar: Snackbar? = null
 
@@ -59,28 +63,27 @@ class PlayersFragment : BaseFragment() {
 
         setContentShown(false)
 
-//        db.collection("players")
-//                .orderBy("name")
-//                .get()
-//                .addOnCompleteListener { task ->
-//                    if (task.isSuccessful) {
-//                        for (document in task.result) {
-//                            var player = Player()
-//                            player.id = document.id
-//                            player.name = document.get("name").toString()
-//                            players.add(player)
-//                        }
-//
-//                        val playerNameWidth = getLongestNameLength(players)
-//
-//                        recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
-//                        recyclerView?.adapter?.notifyDataSetChanged()
-//                    } else {
-//                        Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
-//                    }
-//
-//                    setContentShown(true)
-//                }
+        db.reference
+            .child("players")
+            .orderByKey()
+            .addListenerForSingleValueEvent( object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError?) { }
+
+                override fun onDataChange(snapshot: DataSnapshot?) {
+                    snapshot?.children?.reversed()?.forEach {
+                        var player: Player = it.getValue(Player::class.java)!!
+                        player.id = it.key
+                        players.add(player)
+                    }
+
+                    val playerNameWidth = getLongestNameLength(players)
+
+                    recyclerView!!.adapter = PlayersListAdapter(players, playerNameWidth)
+                    recyclerView?.adapter?.notifyDataSetChanged()
+
+                    setContentShown(true)
+                }
+            })
     }
 
     override fun getFabButtons(context: Context): List<FloatingActionButton> {
@@ -152,25 +155,17 @@ class PlayersFragment : BaseFragment() {
         contentView.findViewById<View>(R.id.content).visibility = View.GONE
         contentView.findViewById<View>(R.id.progress).visibility = View.VISIBLE
 
-        var player = HashMap<String, Any>()
-        player.put("name", playerName)
-
-//        db.collection("players")
-//            .add(player)
-//            .addOnSuccessListener { documentReference ->
-//                run {
-//                    snackbar?.dismiss()
-//
-//                    getPlayers()
-//                }
-//            }
-//            .addOnFailureListener({
-//                run {
-//                    snackbar?.dismiss()
-//                    Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show()
-//                }
-//            })
-
+        var player = Player()
+        player.id = Calendar.getInstance().timeInMillis.toString()
+        player.name = playerName
+        db.reference
+            .child("players")
+            .child(player.id)
+            .setValue(player)
+            .addOnCompleteListener( {
+                snackbar?.dismiss()
+                getPlayers()
+            })
     }
 
     override fun hasFab(): Boolean {

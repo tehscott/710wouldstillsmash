@@ -16,8 +16,13 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.*
 import com.github.clans.fab.FloatingActionButton
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
+import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
@@ -27,7 +32,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class CreateGameFragment : BaseFragment() {
-//    private var db = FirebaseFirestore.getInstance()
+    private var db = FirebaseDatabase.getInstance()
     var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
 
     private var game: Game = Game()
@@ -118,10 +123,11 @@ class CreateGameFragment : BaseFragment() {
     private fun deleteGame(goBack: Boolean) {
         setContentShown(false)
 
-//        db.collection("games")
-//            .document(game.id!!)
-//            .delete()
-//            .addOnCompleteListener( { if(goBack) { activity.onBackPressed() } })
+        db.reference
+            .child("games")
+            .child(game.id)
+            .removeValue()
+            .addOnCompleteListener( { if(goBack) { activity.onBackPressed() } } )
     }
 
     private fun createMissingPlayers() {
@@ -132,15 +138,16 @@ class CreateGameFragment : BaseFragment() {
         if(game.players.size > 1) {
             setContentShown(false)
 
-//            db.collection("games")
-//            .add(game)
-//            .addOnCompleteListener { task ->
-//                if (task.isSuccessful) {
-//                    activity.onBackPressed()
-//                } else {
-//                    Snackbar.make(contentView!!, "Failed to create game", Snackbar.LENGTH_SHORT).show()
-//                }
-//            }
+            db.reference
+                .child("games")
+                .child(Calendar.getInstance().timeInMillis.toString())
+                .setValue(game)
+                .addOnCompleteListener({
+                    activity.onBackPressed()
+                })
+                .addOnFailureListener({
+                    Snackbar.make(contentView!!, "Failed to create game", Snackbar.LENGTH_SHORT).show()
+                })
         }
         else {
             Snackbar.make(contentView!!, "Add some players", Snackbar.LENGTH_SHORT).show()
@@ -222,28 +229,30 @@ class CreateGameFragment : BaseFragment() {
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
         builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player", { dialog, _ ->
             run {
-//                if(gamePlayer.player == null) {
-//                    var player = Player()
-//                    player.name = playerNameText.text.toString()
-//                    gamePlayer.player = player
-//
-//                    db.collection("players")
-//                    .add(player)
-//                    .addOnSuccessListener { documentReference ->
-//                        run {
-//                            if(editingPlayer == null) {
-//                                addPlayerToGame(gamePlayer)
-//                            }
-//                            else {
-//                                playersList!!.adapter.notifyDataSetChanged()
-//                            }
-//
-//                            dialog.dismiss()
-//                        }
-//                    }
-//                    .addOnFailureListener({ Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show() })
-//                }
-//                else {
+                if(gamePlayer.player == null) {
+                    var player = Player()
+                    player.name = playerNameText.text.toString()
+                    gamePlayer.player = player
+
+                    db.reference
+                        .child("games")
+                        .child(Calendar.getInstance().timeInMillis.toString())
+                        .setValue(player)
+                        .addOnCompleteListener({
+                            if(editingPlayer == null) {
+                                addPlayerToGame(gamePlayer)
+                            }
+                            else {
+                                playersList!!.adapter.notifyDataSetChanged()
+                            }
+
+                            dialog.dismiss()
+                        })
+                        .addOnFailureListener({
+                            Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show()
+                        })
+                }
+                else {
                     if(editingPlayer == null) {
                         addPlayerToGame(gamePlayer)
                     }
@@ -252,7 +261,7 @@ class CreateGameFragment : BaseFragment() {
                     }
 
                     dialog.dismiss()
-//                }
+                }
             }
         })
 
@@ -339,23 +348,22 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-//        db.collection("players")
-//        .orderBy("name")
-//        .get()
-//        .addOnCompleteListener { task ->
-//            if (task.isSuccessful) {
-//                for (document in task.result) {
-//                    var player = Player()
-//                    player.id = document.id
-//                    player.name = document.get("name").toString()
-//                    players.add(player)
-//                }
-//            } else {
-//                Snackbar.make(contentView!!, "Failed to load player data", Snackbar.LENGTH_SHORT).show()
-//            }
-//
-//            setContentShown(true)
-//        }
+        db.reference
+            .child("players")
+            .orderByKey()
+            .addListenerForSingleValueEvent( object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError?) { }
+
+                override fun onDataChange(snapshot: DataSnapshot?) {
+                    snapshot?.children?.reversed()?.forEach {
+                        var player: Player = it.getValue(Player::class.java)!!
+                        player.id = it.key
+                        players.add(player)
+                    }
+
+                    setContentShown(true)
+                }
+            })
     }
 
     override fun setContentShown(show: Boolean) {
