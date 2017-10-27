@@ -5,6 +5,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.github.clans.fab.FloatingActionButton
@@ -18,6 +19,7 @@ import com.stromberg.scott.seventenwouldstillsmash.fragment.CreateGameFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.GamesFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.PlayersFragment
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
@@ -27,6 +29,11 @@ class MainActivity : AppCompatActivity() {
     private var mCurrentFragment: BaseFragment? = null
     private var mAddFabMenu: FloatingActionMenu? = null
     private var mAddFabButton: FloatingActionButton? = null
+
+    private val db = FirebaseDatabase.getInstance()
+    private val games = ArrayList<Game>()
+    private val players = ArrayList<Player>()
+    private val gamesForPlayers = HashMap<Player, List<Game>>()
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
@@ -130,14 +137,14 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this@MainActivity, "Updating statistics", Toast.LENGTH_SHORT).show()
 
         Thread({
-            val db = FirebaseDatabase.getInstance()
+            players.clear()
+            games.clear()
 
-            val players = ArrayList<Player>()
-            getPlayers(db, players)
+            getPlayers()
         }).start()
     }
 
-    private fun getPlayers(db: FirebaseDatabase, players: ArrayList<Player>) {
+    private fun getPlayers() {
         db.reference
             .child("players")
             .orderByKey()
@@ -151,13 +158,12 @@ class MainActivity : AppCompatActivity() {
                         players.add(player)
                     }
 
-                    val games = ArrayList<Game>()
-                    getGames(db, games, players)
+                    getGames()
                 }
             })
     }
 
-    private fun getGames(db: FirebaseDatabase, games: ArrayList<Game>, players: ArrayList<Player>) {
+    private fun getGames() {
         db.reference
             .child("games")
             .orderByKey()
@@ -170,25 +176,46 @@ class MainActivity : AppCompatActivity() {
                         game.id = it.key
                         games.add(game)
                     }
+
+                    gameDataFetched()
                 }
             })
     }
 
-    private fun gameDataFetched(games: ArrayList<Game>, players: ArrayList<Player>) {
+    private fun gameDataFetched() {
         if(games.size > 0 && players.size > 0) {
-            calculateWinRates(games, players)
+            players.forEach {
+                val playerId = it.id
+
+                val gamesForPlayer = games.filter {
+                    it.players.any { it.player!!.id == playerId }
+                }
+
+                gamesForPlayers.put(it, gamesForPlayer)
+            }
+
+            calculateWinRates()
         }
     }
 
-    private fun calculateWinRates(games: ArrayList<Game>, players: ArrayList<Player>) {
-        players.forEach {
-            var playerId = it.id
+    private fun calculateWinRates() {
+        gamesForPlayers.forEach {
+            val playerId = it.key.id
 
-            games.forEach {
-                it.players.firstOrNull {
-                    it.player!!.id == playerId
-                }
-            }
+            val royaleGamesPlayed: Float = (it.value.count { it.players.any { it.player!!.id == playerId } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
+            val royaleGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
+            val royaleGamesLost: Float = it.value.size - royaleGamesWon
+            val suddenDeathGamesPlayed: Float = (it.value.count { it.players.any { it.player!!.id == playerId } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
+            val suddenDeathGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
+            val suddenDeathGamesLost: Float = it.value.size - suddenDeathGamesWon
+
+            val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_played", royaleGamesPlayed).apply()
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_won", royaleGamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_lost", royaleGamesLost).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_played", suddenDeathGamesPlayed).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_won", suddenDeathGamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_lost", suddenDeathGamesLost).apply()
         }
     }
 }

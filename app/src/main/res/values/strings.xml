@@ -1,4 +1,5 @@
 <resources>
+    <string name="shared_prefs_key">710wouldstillsmash</string>
     <string name="app_name">7/10 would still smash</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
