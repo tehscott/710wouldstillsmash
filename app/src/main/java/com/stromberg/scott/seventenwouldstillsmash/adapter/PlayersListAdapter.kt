@@ -30,8 +30,8 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
         val royaleWinPercentage = if(royaleGamesPlayed > 0) royaleGamesWon / royaleGamesPlayed else 0f
         val suddenDeathWinPercentage = if(suddenDeathGamesPlayed > 0) suddenDeathGamesWon / suddenDeathGamesPlayed else 0f
 
-        viewHolder?.setText(R.id.player_list_item_royale_wins_text, Math.round(royaleWinPercentage * 100).toString() + "%")
-        viewHolder?.setText(R.id.player_list_item_sudden_death_wins_text, Math.round(suddenDeathWinPercentage * 100).toString() + "%")
+        viewHolder?.setText(R.id.player_list_item_royale_wins_text, (Math.round(royaleWinPercentage * 100).toString() + "%") + " (" + royaleGamesWon.toInt() + "/" + royaleGamesPlayed.toInt() + ")")
+        viewHolder?.setText(R.id.player_list_item_sudden_death_wins_text, (Math.round(suddenDeathWinPercentage * 100).toString() + "%") + " (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesPlayed.toInt() + ")")
 
 //        // best character
 //        val hashMapType = object : TypeToken<HashMap<String, CharacterStats>>() {}.type
