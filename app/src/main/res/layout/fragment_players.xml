@@ -6,13 +6,6 @@
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <android.support.v7.widget.SearchView
-        android:id="@+id/players_search_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:queryHint="Search"
-        android:elevation="5dp"/>
-
     <com.ajguan.library.EasyRefreshLayout
         android:id="@+id/players_pull_to_refresh"
         android:layout_width="match_parent"

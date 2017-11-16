@@ -24,6 +24,7 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import java.text.DateFormatSymbols
 import java.util.*
 
 
@@ -50,12 +51,13 @@ class GamesFragment : BaseFragment() {
         progressBar = contentView!!.findViewById(R.id.progress)
         searchView = contentView!!.findViewById(R.id.games_search_view)
 
-        setupAdapter()
+        setupAdapter(games)
+        setupSearchView()
 
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
-                getGames(quantityToLoad)
+                getGames()
             }
 
             override fun onLoadMore() {}
@@ -67,52 +69,116 @@ class GamesFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
 
-        getGames(quantityToLoad)
+        getGames()
 //        importGames()
     }
 
-    private fun setupAdapter() {
+    private fun setupAdapter(games: List<Game>) {
         adapter = GamesListAdapter(games)
 
         adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
             (activity as MainActivity).editGame(games[position])
         }
 
-        adapter!!.setEnableLoadMore(true)
-        adapter!!.setOnLoadMoreListener(BaseQuickAdapter.RequestLoadMoreListener { getMoreGames(lastGameLoaded, quantityToLoad) })
+//        adapter!!.setEnableLoadMore(true)
+//        adapter!!.setOnLoadMoreListener(BaseQuickAdapter.RequestLoadMoreListener { getMoreGames(lastGameLoaded, quantityToLoad) })
 
         recyclerView!!.adapter = adapter
     }
 
-    private fun getGames(queryLimit: Int) {
+    private fun setupSearchView() {
+        searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if(newText != null) {
+                    var searchCriteria = newText.split(",")
+
+                    var filteredGames = findGames(searchCriteria[0].trim(), games)
+
+                    searchCriteria.forEachIndexed { index, criteria ->
+                        if(index > 0) {
+                            filteredGames = ArrayList(findGames(criteria.trim(), games).intersect(filteredGames))
+                        }
+                    }
+
+                    setupAdapter(filteredGames)
+                }
+
+                return true
+            }
+
+        })
+    }
+
+    private fun findGames(queryText: String, gamesToSearchWithin: ArrayList<Game>): ArrayList<Game> {
+        return ArrayList(gamesToSearchWithin.filter {
+            try {
+                it.id!!.contains(queryText, true)
+                    || it.gameType!!.contains(queryText, true)
+                    || hasDateMatch(it.date, queryText)
+                    || it.players.any {
+                        it.characterId.toString().contains(queryText, true)
+                        || CharacterHelper.getName(it.characterId).contains(queryText, true)
+                        || it.player!!.id.toString().contains(queryText, true)
+                        || it.player!!.name!!.contains(queryText, true)
+                    }
+            } catch(_: Exception) {
+                false
+            }
+        })
+    }
+
+    private fun hasDateMatch(date1: Long, queryText: String): Boolean {
+        val cal1 = Calendar.getInstance()
+        cal1.timeInMillis = date1
+
+        var dayEquals = cal1[Calendar.DAY_OF_MONTH].toString().equals(queryText, true) // number
+        dayEquals = dayEquals || cal1[Calendar.DAY_OF_WEEK].toString().contains(queryText, true) // name
+
+        val monthName = DateFormatSymbols().months[cal1[Calendar.MONTH]]
+
+        var monthEquals = cal1[Calendar.MONTH].toString().equals(queryText, true) // number
+        monthEquals = monthEquals || monthName.contains(queryText, true) // name
+
+        var yearEquals = cal1[Calendar.YEAR].toString().contains(queryText, true)
+
+        return dayEquals || monthEquals || yearEquals
+    }
+
+    private fun getGames() {
+        // todo show loading indicator
+
         db.reference
             .child("games")
             .orderByKey()
-            .limitToLast(queryLimit)
+//            .limitToLast(queryLimit)
             .addListenerForSingleValueEvent( object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError?) { }
 
                 override fun onDataChange(snapshot: DataSnapshot?) {
-                    handleSnapshot(snapshot, snapshot!!.children.count() == queryLimit)
+                    handleSnapshot(snapshot)
                 }
             })
     }
 
-    private fun getMoreGames(startAfter: String?, queryLimit: Int) {
-        db.getReference("games")
-                .orderByKey()
-                .endAt(startAfter)
-                .limitToLast(queryLimit)
-                .addListenerForSingleValueEvent( object : ValueEventListener {
-                    override fun onCancelled(error: DatabaseError?) { }
+//    private fun getMoreGames(startAfter: String?, queryLimit: Int) {
+//        db.getReference("games")
+//                .orderByKey()
+//                .endAt(startAfter)
+//                .limitToLast(queryLimit)
+//                .addListenerForSingleValueEvent( object : ValueEventListener {
+//                    override fun onCancelled(error: DatabaseError?) { }
+//
+//                    override fun onDataChange(snapshot: DataSnapshot?) {
+//                        handleSnapshot(snapshot, snapshot!!.children.count() == queryLimit)
+//                    }
+//                })
+//    }
 
-                    override fun onDataChange(snapshot: DataSnapshot?) {
-                        handleSnapshot(snapshot, snapshot!!.children.count() == queryLimit)
-                    }
-                })
-    }
-
-    fun handleSnapshot(snapshot: DataSnapshot?, shouldShowMore: Boolean) {
+    fun handleSnapshot(snapshot: DataSnapshot?) {
         snapshot?.children?.reversed()?.forEach {
             var game: Game = it.getValue(Game::class.java)!!
             game.id = it.key
@@ -123,12 +189,12 @@ class GamesFragment : BaseFragment() {
 
         adapter!!.loadMoreComplete()
 
-        if(shouldShowMore) {
-            lastGameLoaded = games.last().id
-        }
-        else {
-            adapter!!.setEnableLoadMore(false)
-        }
+//        if(shouldShowMore) {
+//            lastGameLoaded = games.last().id
+//        }
+//        else {
+//            adapter!!.setEnableLoadMore(false)
+//        }
 
         recyclerView?.adapter?.notifyDataSetChanged()
 

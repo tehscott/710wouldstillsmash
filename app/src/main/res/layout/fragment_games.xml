@@ -18,7 +18,7 @@
         android:id="@+id/games_search_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:queryHint="Search"
+        app:queryHint="Search (comma separated criteria)"
         android:elevation="5dp"/>
 
     <com.ajguan.library.EasyRefreshLayout

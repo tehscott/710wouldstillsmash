@@ -35,7 +35,6 @@ class PlayersFragment : BaseFragment() {
     private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
     private var pullToRefreshView: EasyRefreshLayout? = null
-    private var searchView: SearchView? = null
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
@@ -43,8 +42,6 @@ class PlayersFragment : BaseFragment() {
         pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
         recyclerView = contentView!!.findViewById<RecyclerView>(R.id.players_recyclerview)
         recyclerView!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-
-        searchView = contentView!!.findViewById<SearchView>(R.id.players_search_view)
 
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
