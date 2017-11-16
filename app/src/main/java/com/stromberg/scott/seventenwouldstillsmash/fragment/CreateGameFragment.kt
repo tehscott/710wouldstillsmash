@@ -129,10 +129,6 @@ class CreateGameFragment : BaseFragment() {
             .addOnCompleteListener( { if(goBack) { activity.onBackPressed() } } )
     }
 
-    private fun createMissingPlayers() {
-        game.players.forEach({  })
-    }
-
     private fun createGame() {
         if(game.players.size > 1) {
             setContentShown(false)
@@ -160,14 +156,7 @@ class CreateGameFragment : BaseFragment() {
         val characterNameText = layout.findViewById<AutoCompleteTextView>(R.id.create_game_players_dialog_character_name)
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
 
-        val playerList = ArrayList<Player>()
-        players.forEach { player ->
-            val playerInUse = game.players.any { it.player!! == player }
-
-            if(!playerInUse) {
-                playerList.add(player)
-            }
-        }
+        val playerList = getUnusedPlayers()
 
         val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerList.map { it.name })
         playerNameText.threshold = 1
@@ -187,6 +176,7 @@ class CreateGameFragment : BaseFragment() {
 
         playerNameText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
+                gamePlayer.player = null
                 playerNameText.showDropDown()
             }
             override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) { }
@@ -231,15 +221,20 @@ class CreateGameFragment : BaseFragment() {
                 if(gamePlayer.player == null) {
                     var player = Player()
                     player.name = playerNameText.text.toString()
+                    player.id = Calendar.getInstance().timeInMillis.toString()
                     gamePlayer.player = player
 
                     db.reference
-                        .child("games")
-                        .child(Calendar.getInstance().timeInMillis.toString())
+                        .child("players")
+                        .child(player.id)
                         .setValue(player)
                         .addOnCompleteListener({
                             if(editingPlayer == null) {
                                 addPlayerToGame(gamePlayer)
+
+                                if(!players.any { it.id.equals(gamePlayer.player!!.id) }) {
+                                    players.add(gamePlayer.player!!)
+                                }
                             }
                             else {
                                 playersList!!.adapter.notifyDataSetChanged()
@@ -270,6 +265,18 @@ class CreateGameFragment : BaseFragment() {
 
         addPlayerDialog = builder.create()
         addPlayerDialog!!.show()
+    }
+
+    private fun getUnusedPlayers(): ArrayList<Player> {
+        val playerList = ArrayList<Player>()
+        players.forEach { player ->
+            val playerInUse = game.players.any { it.player!! == player }
+
+            if (!playerInUse) {
+                playerList.add(player)
+            }
+        }
+        return playerList
     }
 
     private fun addPlayerToGame(player: GamePlayer) {

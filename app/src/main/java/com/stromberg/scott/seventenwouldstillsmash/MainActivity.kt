@@ -5,7 +5,6 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.github.clans.fab.FloatingActionButton
@@ -14,16 +13,27 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.fragment.BaseFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.CreateGameFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.GamesFragment
 import com.stromberg.scott.seventenwouldstillsmash.fragment.PlayersFragment
+import com.stromberg.scott.seventenwouldstillsmash.model.CharacterStats
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 import java.util.ArrayList
+import kotlin.collections.HashMap
+import kotlin.collections.List
+import kotlin.collections.any
+import kotlin.collections.count
+import kotlin.collections.filter
+import kotlin.collections.find
+import kotlin.collections.forEach
+import kotlin.collections.isNotEmpty
+import kotlin.collections.reversed
 
 class MainActivity : AppCompatActivity() {
     private var mCurrentFragment: BaseFragment? = null
@@ -195,7 +205,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             calculateWinRates()
+            calculateCharacterStats()
         }
+
+        Toast.makeText(this@MainActivity, "Done updating statistics", Toast.LENGTH_SHORT).show()
     }
 
     private fun calculateWinRates() {
@@ -218,4 +231,37 @@ class MainActivity : AppCompatActivity() {
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_lost", suddenDeathGamesLost).apply()
         }
     }
+
+    private fun calculateCharacterStats() {
+        var playerStats = HashMap<String, CharacterStats>()
+
+        gamesForPlayers.forEach {
+            val playerId = it.key.id
+
+            it.value.forEach {
+                val myPlayer = it.players.find { it.player!!.id == playerId }
+                val characterId = myPlayer!!.characterId
+                val key = playerId + "_" + characterId
+
+                var characterStats = playerStats[key]
+
+                if (characterStats == null) {
+                    characterStats = CharacterStats()
+                    playerStats.put(key, characterStats)
+                    characterStats.playerId = playerId!!
+                    characterStats.characterId = characterId
+                }
+
+                if (myPlayer.winner) {
+                    characterStats.wins++
+                } else {
+                    characterStats.losses++
+                }
+            }
+        }
+
+        val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        prefs.edit().putString("PlayerStatsJson", Gson().toJson(playerStats)).apply()
+    }
 }
+

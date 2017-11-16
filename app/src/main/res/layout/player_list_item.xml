@@ -37,9 +37,8 @@
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:orientation="vertical"
             android:gravity="center_vertical"
             android:paddingTop="8dp"
@@ -48,7 +47,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="wins"
+                android:text="win rate"
                 android:textSize="16sp"
                 android:gravity="center"
                 android:layout_marginBottom="8dp"
@@ -68,88 +67,6 @@
 
             <TextView
                 android:id="@+id/player_list_item_sudden_death_wins_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="40.03%"
-                android:textSize="16sp"
-                android:drawableLeft="@drawable/ic_sudden_death"
-                android:drawableTint="@color/text_secondary"
-                android:drawablePadding="8dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="best"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:layout_marginBottom="8dp"
-                fontPath="Quicksand-Bold.ttf"
-                tools:ignore="MissingPrefix"/>
-
-            <TextView
-                android:id="@+id/player_list_item_best_one_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="50.03%"
-                android:textSize="16sp"
-                android:drawableLeft="@drawable/ic_royale"
-                android:drawableTint="@color/text_secondary"
-                android:drawablePadding="8dp"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/player_list_item_best_two_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="40.03%"
-                android:textSize="16sp"
-                android:drawableLeft="@drawable/ic_sudden_death"
-                android:drawableTint="@color/text_secondary"
-                android:drawablePadding="8dp"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="center_vertical"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="worst"
-                android:textSize="16sp"
-                android:gravity="center"
-                android:layout_marginBottom="8dp"
-                fontPath="Quicksand-Bold.ttf"
-                tools:ignore="MissingPrefix"/>
-
-            <TextView
-                android:id="@+id/player_list_item_worst_one_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="50.03%"
-                android:textSize="16sp"
-                android:drawableLeft="@drawable/ic_royale"
-                android:drawableTint="@color/text_secondary"
-                android:drawablePadding="8dp"
-                android:layout_marginBottom="8dp"/>
-
-            <TextView
-                android:id="@+id/player_list_item_worst_two_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="40.03%"

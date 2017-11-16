@@ -18,6 +18,8 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
         playerName?.layoutParams = layoutParams
 
         val prefs = mContext.getSharedPreferences(mContext.getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+
+        // player win/loss
         val royaleGamesPlayed = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_played", 0f)
         val royaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_won", 0f)
         val royaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_lost", 0f)
@@ -30,5 +32,29 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
 
         viewHolder?.setText(R.id.player_list_item_royale_wins_text, Math.round(royaleWinPercentage * 100).toString() + "%")
         viewHolder?.setText(R.id.player_list_item_sudden_death_wins_text, Math.round(suddenDeathWinPercentage * 100).toString() + "%")
+
+//        // best character
+//        val hashMapType = object : TypeToken<HashMap<String, CharacterStats>>() {}.type
+//        val playerStats = Gson().fromJson<HashMap<String, CharacterStats>>(prefs.getString("PlayerStatsJson", null), hashMapType)
+//
+//        var thisPlayerStats = playerStats.filter { it.key.contains(item.id!!, true) }
+//
+//        var best = thisPlayerStats.values
+//                .filter { it.wins + it.losses > 1 }
+//                .maxBy { it.wins.toFloat() / (it.wins.toFloat() + it.losses.toFloat()) }
+//
+//        var worst = thisPlayerStats.values
+//                .filter { it.wins + it.losses > 1 }
+//                .maxBy { it.losses.toFloat() / (it.wins.toFloat() + it.losses.toFloat()) }
+//
+//        var bestOneWinRate = best!!.wins.toFloat() / (best!!.wins.toFloat() + best!!.losses.toFloat())
+//        var bestTwoWinRate = best!!.wins.toFloat() / (best!!.wins.toFloat() + best!!.losses.toFloat())
+//        var worstOneWinRate = worst!!.losses.toFloat() / (worst!!.wins.toFloat() + worst!!.losses.toFloat())
+//        var worstTwoWinRate = worst!!.losses.toFloat() / (worst!!.wins.toFloat() + worst!!.losses.toFloat())
+//        viewHolder?.setText(R.id.player_list_item_best_one_text, (bestOneWinRate * 100).toString() + "%")
+//        viewHolder?.setImageResource(R.id.player_list_item_best_one_image, CharacterHelper.getImage(best!!.characterId))
+//
+//        viewHolder?.setText(R.id.player_list_item_worst_one_text, (worstOneWinRate * 100).toString() + "%")
+//        viewHolder?.setImageResource(R.id.player_list_item_worst_one_image, CharacterHelper.getImage(worst!!.characterId))
     }
 }
