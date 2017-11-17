@@ -76,7 +76,7 @@ class StatisticsFragment : BaseFragment() {
             gamesForPlayers.put(it, gamesForPlayer)
         }
 
-        for(id in 0..63) {
+        for(id in 0..57) {
             val gamesForCharacter = games.filter {
                 it.players.any { it.characterId == id }
             }
@@ -96,11 +96,31 @@ class StatisticsFragment : BaseFragment() {
         list!!.addView(createSpace())
         addMostAndLeastGames(gamesForPlayers, gamesForCharacters, GameType.ROYALE)
         list!!.addView(createSpace())
+        addUnplayedCharacters(gamesForCharacters, GameType.ROYALE)
+        list!!.addView(createSpace())
+        addUnplayedCharacters(gamesForCharacters, GameType.SUDDEN_DEATH)
+        list!!.addView(createSpace())
 
         // best win rate
         // worst win rate
 
         setContentShown(true)
+    }
+
+    private fun addUnplayedCharacters(gamesForCharacters: HashMap<Int, List<Game>>, gameType: GameType) {
+        val unplayedCharacters = (0..57).filterNot { gamesForCharacters.containsKey(it) }
+
+        val unplayedCharactersParent: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
+        unplayedCharactersParent.layoutParams = createLinearLayoutParams()
+        unplayedCharactersParent.findViewById<TextView>(R.id.statistics_parent_title).text = "Unplayed Characters In " + gameType.prettyName()
+        list!!.addView(unplayedCharactersParent)
+
+        unplayedCharacters.forEach {
+            val unplayedCharactersChild = layoutInflater.inflate(R.layout.statistics_child_list_item, null)
+            unplayedCharactersChild.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(it))
+            unplayedCharactersChild.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(it)
+            unplayedCharactersParent.findViewById<LinearLayout>(R.id.statistics_parent_list).addView(unplayedCharactersChild)
+        }
     }
 
     private fun addMostAndLeastGames(gamesForPlayers: HashMap<Player, List<Game>>, gamesForCharacters: HashMap<Int, List<Game>>, gameType: GameType) {
@@ -331,8 +351,8 @@ class StatisticsFragment : BaseFragment() {
             }
         }
 
-        for (characterId in (0..63)) {
-            var characterStats = playerStats.filter { it.key.split("_")[1] == characterId.toString() }
+        for (characterId in (0..57)) {
+            val characterStats = playerStats.filter { it.key.split("_")[1] == characterId.toString() }
 
             var wins = 0
             var losses = 0
