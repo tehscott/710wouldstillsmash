@@ -94,13 +94,87 @@ class StatisticsFragment : BaseFragment() {
         list!!.addView(createSpace())
         addLongestStreak(gamesForPlayers, gamesForCharacters, GameType.SUDDEN_DEATH)
         list!!.addView(createSpace())
+        addMostAndLeastGames(gamesForPlayers, gamesForCharacters, GameType.ROYALE)
+        list!!.addView(createSpace())
 
-        // most games
-        // least games
         // best win rate
         // worst win rate
 
         setContentShown(true)
+    }
+
+    private fun addMostAndLeastGames(gamesForPlayers: HashMap<Player, List<Game>>, gamesForCharacters: HashMap<Int, List<Game>>, gameType: GameType) {
+        var mostGamesPlayer: Player? = null
+        var mostPlayerGames = 0
+        var mostGamesCharacterId: Int? = null
+        var mostCharacterGames = 0
+
+        gamesForPlayers.forEach {
+            var player = it.key
+            var filteredGames = it.value.filter { it.gameType.equals(gameType.toString()) }
+
+            if(filteredGames.size > mostPlayerGames) {
+                mostPlayerGames = filteredGames.size
+                mostGamesPlayer = player
+            }
+        }
+
+        gamesForCharacters.forEach {
+            var characterId = it.key
+            var filteredGames = it.value.filter { it.gameType.equals(gameType.toString()) }
+
+            if(filteredGames.size > mostCharacterGames) {
+                mostCharacterGames = filteredGames.size
+                mostGamesCharacterId = characterId
+            }
+        }
+
+        var leastGamesPlayer: Player? = null
+        var leastPlayerGames = Int.MAX_VALUE
+        var leastGamesCharacterId: Int? = null
+        var leastCharacterGames = Int.MAX_VALUE
+
+        gamesForPlayers.forEach {
+            var player = it.key
+            var filteredGames = it.value.filter { it.gameType.equals(gameType.toString()) }
+
+            if(filteredGames.size < leastPlayerGames) {
+                leastPlayerGames = filteredGames.size
+                leastGamesPlayer = player
+            }
+        }
+
+        gamesForCharacters.forEach {
+            var characterId = it.key
+            var filteredGames = it.value.filter { it.gameType.equals(gameType.toString()) }
+
+            if(filteredGames.size > 0 && filteredGames.size < leastCharacterGames) {
+                leastCharacterGames = filteredGames.size
+                leastGamesCharacterId = characterId
+            }
+        }
+
+        val mostGamesParent: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
+        mostGamesParent.layoutParams = createLinearLayoutParams()
+        mostGamesParent.findViewById<TextView>(R.id.statistics_parent_title).text = "Most " + gameType.prettyName() + " Games"
+
+        val mostGamesChild = layoutInflater.inflate(R.layout.statistics_child_list_item, mostGamesParent.findViewById(R.id.statistics_parent_list))
+        mostGamesChild.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostGamesPlayer!!.name + " (${mostPlayerGames})"
+        mostGamesChild.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(mostGamesCharacterId!!))
+        mostGamesChild.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(mostGamesCharacterId!!) + " (${mostCharacterGames})"
+        list!!.addView(mostGamesParent)
+
+        list!!.addView(createSpace())
+
+        val leastGamesParent: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
+        leastGamesParent.layoutParams = createLinearLayoutParams()
+        leastGamesParent.findViewById<TextView>(R.id.statistics_parent_title).text = "Least " + gameType.prettyName() + " Games"
+
+        val leastGamesChild = layoutInflater.inflate(R.layout.statistics_child_list_item, leastGamesParent.findViewById(R.id.statistics_parent_list))
+        leastGamesChild.findViewById<TextView>(R.id.statistics_child_player_stat).text = leastGamesPlayer!!.name + " (${leastPlayerGames})"
+        leastGamesChild.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(leastGamesCharacterId!!))
+        leastGamesChild.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(leastGamesCharacterId!!) + " (${leastCharacterGames})"
+        list!!.addView(leastGamesParent)
     }
 
     private fun addLongestStreak(gamesForPlayers: HashMap<Player, List<Game>>, gamesForCharacters: HashMap<Int, List<Game>>, gameType: GameType) {
