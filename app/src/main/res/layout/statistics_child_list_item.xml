@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:id="@+id/statistics_child_player_stat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix"
+        tools:text="Chad (113)"/>
+
+    <android.support.v4.widget.Space
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <ImageView
+        android:id="@+id/statistics_child_character_image"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:src="@drawable/ic_character_ryu"
+        android:adjustViewBounds="true"
+        android:scaleType="fitEnd"
+        android:layout_marginRight="8dp"/>
+
+    <TextView
+        android:id="@+id/statistics_child_character_stat"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:textSize="16sp"
+        android:textColor="@color/text_secondary"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix"
+        tools:text="Ryu (113)"/>
+</LinearLayout>

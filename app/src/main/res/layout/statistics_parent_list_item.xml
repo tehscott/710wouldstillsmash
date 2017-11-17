@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:elevation="5dp"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@+id/statistics_parent_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary"
+        android:textSize="24sp"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix"
+        tools:text="Most Wins"/>
+
+    <LinearLayout
+        android:id="@+id/statistics_parent_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"/>
+</LinearLayout>

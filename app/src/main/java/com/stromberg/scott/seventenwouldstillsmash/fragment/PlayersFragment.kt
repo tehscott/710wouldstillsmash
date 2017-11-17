@@ -100,12 +100,6 @@ class PlayersFragment : BaseFragment() {
             })
     }
 
-    override fun getFabButtons(context: Context): List<FloatingActionButton> {
-        var fabs = ArrayList<FloatingActionButton>()
-
-        return fabs
-    }
-
     override fun setContentShown(shown: Boolean) {
         pullToRefreshView?.isRefreshing = !shown
     }

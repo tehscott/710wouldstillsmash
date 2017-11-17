@@ -2,7 +2,6 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
-import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.DividerItemDecoration
@@ -15,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.*
-import com.github.clans.fab.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -115,8 +113,13 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun updateGame() {
-        deleteGame(false)
-        createGame()
+        if(game.players.size > 1) {
+            deleteGame(false)
+            createGame()
+        }
+        else {
+            showDialog("There must be more than one player.")
+        }
     }
 
     private fun deleteGame(goBack: Boolean) {
@@ -145,7 +148,7 @@ class CreateGameFragment : BaseFragment() {
                 })
         }
         else {
-            Snackbar.make(contentView!!, "Add some players", Snackbar.LENGTH_SHORT).show()
+            showDialog("There must be more than one player.")
         }
     }
 
@@ -243,7 +246,7 @@ class CreateGameFragment : BaseFragment() {
                             dialog.dismiss()
                         })
                         .addOnFailureListener({
-                            Snackbar.make(contentView!!, "Failed to add player", Snackbar.LENGTH_LONG).show()
+                            showDialog("Failed to add player.")
                         })
                 }
                 else {
@@ -379,25 +382,11 @@ class CreateGameFragment : BaseFragment() {
         contentView!!.findViewById<View>(R.id.content).visibility = if(show) View.VISIBLE else View.GONE
     }
 
-    override fun addFabClicked() {}
-
-    override fun hasFab(): Boolean {
-        return false
+    private fun showDialog(message: String) {
+        val builder = AlertDialog.Builder(activity)
+        builder.setTitle(null)
+        builder.setMessage(message)
+        builder.setPositiveButton(android.R.string.ok, { dialog, _ -> dialog.dismiss() })
+        builder.show()
     }
-
-    override fun getFabButtons(context: Context): List<FloatingActionButton> {
-        return ArrayList<FloatingActionButton>()
-    }
-
-//    private fun isEdit(): Boolean {
-//        return arguments != null && arguments.containsKey("isEdit") && arguments.getBoolean("isEdit")
-//    }
-//
-//    private fun getGamePlayer(): GamePlayer {
-//        if(arguments != null && arguments.containsKey("gamePlayer")) {
-//            return arguments.get("gamePlayer") as GamePlayer
-//        }
-//
-//        return GamePlayer()
-//    }
 }

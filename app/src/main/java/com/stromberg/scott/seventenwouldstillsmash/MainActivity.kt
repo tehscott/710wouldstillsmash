@@ -14,10 +14,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
-import com.stromberg.scott.seventenwouldstillsmash.fragment.BaseFragment
-import com.stromberg.scott.seventenwouldstillsmash.fragment.CreateGameFragment
-import com.stromberg.scott.seventenwouldstillsmash.fragment.GamesFragment
-import com.stromberg.scott.seventenwouldstillsmash.fragment.PlayersFragment
+import com.stromberg.scott.seventenwouldstillsmash.fragment.*
 import com.stromberg.scott.seventenwouldstillsmash.model.CharacterStats
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
@@ -54,7 +51,7 @@ class MainActivity : AppCompatActivity() {
                 navigateToFragment(PlayersFragment())
             }
             R.id.navigation_statistics -> {
-//                mCurrentFragment = null
+                navigateToFragment(StatisticsFragment())
             }
             R.id.navigation_settings -> {
 //                mCurrentFragment = null
