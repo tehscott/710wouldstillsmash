@@ -10,5 +10,16 @@ enum class GameType {
         override fun toString(): String {
             return "sudden_death"
         }
+    };
+
+    fun prettyName(): String {
+        return when (this) {
+            ROYALE -> {
+                "Royale"
+            }
+            SUDDEN_DEATH -> {
+                "Sudden Death"
+            }
+        }
     }
 }

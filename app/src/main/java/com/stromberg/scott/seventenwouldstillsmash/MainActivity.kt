@@ -250,9 +250,19 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (myPlayer.winner) {
-                    characterStats.wins++
+                    if(it.gameType == GameType.ROYALE.toString()) {
+                        characterStats.royaleWins++
+                    }
+                    else {
+                        characterStats.suddenDeathWins++
+                    }
                 } else {
-                    characterStats.losses++
+                    if(it.gameType == GameType.ROYALE.toString()) {
+                        characterStats.royaleLosses++
+                    }
+                    else {
+                        characterStats.suddenDeathLosses++
+                    }
                 }
             }
         }

@@ -3,8 +3,6 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.widget.Space
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.CharacterStats
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.util.*
@@ -62,7 +61,165 @@ class StatisticsFragment : BaseFragment() {
 
     private fun getStatistics() {
         val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val hashMapType = object : TypeToken<HashMap<String, CharacterStats>>() {}.type
+        val playerStats: HashMap<String, CharacterStats> = Gson().fromJson<HashMap<String, CharacterStats>>(prefs.getString("PlayerStatsJson", null), hashMapType)
+        val gamesForPlayers = HashMap<Player, List<Game>>()
+        val gamesForCharacters = HashMap<Int, List<Game>>()
 
+        players.forEach {
+            val playerId = it.id
+
+            val gamesForPlayer = games.filter {
+                it.players.any { it.player!!.id == playerId }
+            }
+
+            gamesForPlayers.put(it, gamesForPlayer)
+        }
+
+        for(id in 0..63) {
+            val gamesForCharacter = games.filter {
+                it.players.any { it.characterId == id }
+            }
+
+            if(gamesForCharacter.isNotEmpty()) {
+                gamesForCharacters.put(id, gamesForCharacter)
+            }
+        }
+
+        addMostWinsAndLosses(playerStats, GameType.ROYALE)
+        list!!.addView(createSpace())
+        addMostWinsAndLosses(playerStats, GameType.SUDDEN_DEATH)
+        list!!.addView(createSpace())
+        addLongestStreak(gamesForPlayers, gamesForCharacters, GameType.ROYALE)
+        list!!.addView(createSpace())
+        addLongestStreak(gamesForPlayers, gamesForCharacters, GameType.SUDDEN_DEATH)
+        list!!.addView(createSpace())
+
+        // most games
+        // least games
+        // best win rate
+        // worst win rate
+
+        setContentShown(true)
+    }
+
+    private fun addLongestStreak(gamesForPlayers: HashMap<Player, List<Game>>, gamesForCharacters: HashMap<Int, List<Game>>, gameType: GameType) {
+        var mostWinsPlayer: Player? = null
+        var mostPlayerWins = 0
+        var mostLossesPlayer: Player? = null
+        var mostPlayerLosses = 0
+
+        gamesForPlayers.forEach {
+            val player = it.key
+            var winCount = 0
+            var longestWinStreak = 0
+            var lossCount = 0
+            var longestLossStreak = 0
+
+            Log.d("streak", "starting " + player.name)
+
+            var sortedGames = it.value.filter { it.gameType.equals(gameType.toString(), true) }.sortedBy { it.date }
+            sortedGames.forEach {
+                if (it.players.first { it.player!!.id!! == player.id }.winner) {
+                    winCount++
+                    lossCount = 0
+                } else {
+                    lossCount++
+                    winCount = 0
+                }
+
+                if (winCount > longestWinStreak) {
+                    longestWinStreak = winCount
+                }
+
+                if (longestWinStreak > mostPlayerWins) {
+                    mostWinsPlayer = player
+                    mostPlayerWins = winCount
+//                    Log.d("streak", "mostPlayerWins: $mostPlayerWins by " + mostWinsPlayer!!.name)
+                }
+
+                if (lossCount > longestLossStreak) {
+                    longestLossStreak = lossCount
+//                    Log.d("streak", "longestLossStreak: $longestLossStreak by " + player.name)
+                }
+
+                if (longestLossStreak > mostPlayerLosses) {
+                    mostLossesPlayer = player
+                    mostPlayerLosses = lossCount
+//                    Log.d("streak", "mostPlayerLosses: $mostPlayerLosses by " + mostLossesPlayer!!.name)
+//                    Log.d("streak", "last game " + it.date + " as " + CharacterHelper.getName(it.players.first { it.player!!.id!! == player.id }.characterId))
+                }
+            }
+        }
+
+        var mostWinsCharacterId: Int? = null
+        var mostCharacterWins = 0
+        var mostLossesCharacterId: Int? = null
+        var mostCharacterLosses = 0
+
+        gamesForCharacters.forEach {
+            val characterId = it.key
+            var winCount = 0
+            var longestWinStreak = 0
+            var lossCount = 0
+            var longestLossStreak = 0
+
+            var sortedGames = it.value.filter { it.gameType.equals(gameType.toString(), true) }.sortedBy { it.date }
+            sortedGames.forEach {
+                if (it.players.first { it.characterId == characterId }.winner) {
+                    winCount++
+                    lossCount = 0
+                } else {
+                    lossCount++
+                    winCount = 0
+                }
+
+                if (winCount > longestWinStreak) {
+                    longestWinStreak = winCount
+                }
+
+                if (longestWinStreak > mostCharacterWins) {
+                    mostWinsCharacterId = characterId
+                    mostCharacterWins = winCount
+//                    Log.d("streak", "mostCharacterWins: $mostCharacterWins by " + CharacterHelper.getName(mostWinsCharacterId!!))
+                }
+
+                if (lossCount > longestLossStreak) {
+                    longestLossStreak = lossCount
+                }
+
+                if (longestLossStreak > mostCharacterLosses) {
+                    mostLossesCharacterId = characterId
+                    mostCharacterLosses = lossCount
+//                    Log.d("streak", "mostCharacterLosses: $mostCharacterLosses by " + CharacterHelper.getName(mostLossesCharacterId!!))
+                }
+            }
+        }
+
+        val mostWinsParent: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
+        mostWinsParent.layoutParams = createLinearLayoutParams()
+        mostWinsParent.findViewById<TextView>(R.id.statistics_parent_title).text = "Longest " + gameType.prettyName() + " Win Streak"
+
+        val mostWinsChild = layoutInflater.inflate(R.layout.statistics_child_list_item, mostWinsParent.findViewById(R.id.statistics_parent_list))
+        mostWinsChild.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostWinsPlayer!!.name + " ($mostPlayerWins)"
+        mostWinsChild.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(mostWinsCharacterId!!))
+        mostWinsChild.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(mostWinsCharacterId!!) + " ($mostPlayerWins)"
+        list!!.addView(mostWinsParent)
+
+        list!!.addView(createSpace())
+
+        val mostLossesParent: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
+        mostLossesParent.layoutParams = createLinearLayoutParams()
+        mostLossesParent.findViewById<TextView>(R.id.statistics_parent_title).text = "Longest " + gameType.prettyName() + " Loss Streak"
+
+        val mostLossesChild = layoutInflater.inflate(R.layout.statistics_child_list_item, mostLossesParent.findViewById(R.id.statistics_parent_list))
+        mostLossesChild.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostLossesPlayer!!.name + " ($mostPlayerLosses)"
+        mostLossesChild.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(mostLossesCharacterId!!))
+        mostLossesChild.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(mostLossesCharacterId!!) + " ($mostCharacterLosses)"
+        list!!.addView(mostLossesParent)
+    }
+
+    private fun addMostWinsAndLosses(playerStats: HashMap<String, CharacterStats>, gameType: GameType) {
         var mostPlayerWins = 0
         var mostCharacterWins = 0
         var mostWinsPlayer: Player? = null
@@ -73,83 +230,80 @@ class StatisticsFragment : BaseFragment() {
         var mostLossesPlayer: Player? = null
         var mostLossesCharacterId = ""
 
-        val hashMapType = object : TypeToken<HashMap<String, CharacterStats>>() {}.type
-        val playerStats: HashMap<String, CharacterStats> = Gson().fromJson<HashMap<String, CharacterStats>>(prefs.getString("PlayerStatsJson", null), hashMapType)
 
         for (player in players) {
             val thisPlayerStats = playerStats.filter { it.key.contains(player.id!!, true) }
 
-            val wins = thisPlayerStats.values.sumBy { it.wins }
-            val losses = thisPlayerStats.values.sumBy { it.losses }
+            var wins = 0
+            var losses = 0
 
-            if(wins > mostPlayerWins) {
+            if(gameType == GameType.ROYALE) {
+                wins = thisPlayerStats.values.sumBy { it.royaleWins }
+                losses = thisPlayerStats.values.sumBy { it.royaleLosses }
+            }
+            else {
+                wins = thisPlayerStats.values.sumBy { it.suddenDeathWins }
+                losses = thisPlayerStats.values.sumBy { it.suddenDeathLosses }
+            }
+
+            if (wins > mostPlayerWins) {
                 mostPlayerWins = wins
                 mostWinsPlayer = player
             }
 
-            if(losses > mostPlayerLosses) {
+            if (losses > mostPlayerLosses) {
                 mostPlayerLosses = losses
                 mostLossesPlayer = player
             }
         }
 
-//        val key = playerId + "_" + characterId
         for (characterId in (0..63)) {
             var characterStats = playerStats.filter { it.key.split("_")[1] == characterId.toString() }
 
-            val wins = characterStats.values.sumBy { it.wins }
-            val losses = characterStats.values.sumBy { it.losses }
+            var wins = 0
+            var losses = 0
 
-            if(wins > mostCharacterWins) {
+            if(gameType == GameType.ROYALE) {
+                wins = characterStats.values.sumBy { it.royaleWins }
+                losses = characterStats.values.sumBy { it.royaleLosses }
+            }
+            else {
+                wins = characterStats.values.sumBy { it.suddenDeathWins }
+                losses = characterStats.values.sumBy { it.suddenDeathLosses }
+            }
+
+            if (wins > mostCharacterWins) {
                 mostCharacterWins = wins
                 mostWinsCharacterId = characterId.toString()
             }
 
-            if(losses > mostCharacterLosses) {
+            if (losses > mostCharacterLosses) {
                 mostCharacterLosses = losses
                 mostLossesCharacterId = characterId.toString()
             }
         }
 
-        Log.d("stats", "wins: " + mostPlayerWins + " by " + mostWinsPlayer!!.name)
-        Log.d("stats", "losses: " + mostPlayerLosses + " by " + mostLossesPlayer!!.name)
-        Log.d("stats", "wins: $mostCharacterWins by $mostWinsCharacterId")
-        Log.d("stats", "losses: $mostCharacterLosses by $mostLossesCharacterId")
-
         val mostWinsParentView: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
         mostWinsParentView.layoutParams = createLinearLayoutParams()
-        mostWinsParentView.findViewById<TextView>(R.id.statistics_parent_title).text = "Most Wins"
+        mostWinsParentView.findViewById<TextView>(R.id.statistics_parent_title).text = "Most " + gameType.prettyName() + " Wins"
 
         val mostWinsChildView = layoutInflater.inflate(R.layout.statistics_child_list_item, mostWinsParentView.findViewById(R.id.statistics_parent_list))
-        mostWinsChildView.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostWinsPlayer.name + " ($mostPlayerWins)"
+        mostWinsChildView.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostWinsPlayer!!.name + " ($mostPlayerWins)"
         mostWinsChildView.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(mostWinsCharacterId.toInt()))
         mostWinsChildView.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(mostWinsCharacterId.toInt()) + " ($mostCharacterWins)"
         list!!.addView(mostWinsParentView)
 
-        var space = createSpace()
-
-        list!!.addView(space)
+        list!!.addView(createSpace())
 
         val mostLossesParentView: LinearLayout = layoutInflater.inflate(R.layout.statistics_parent_list_item, null) as LinearLayout
         mostLossesParentView.layoutParams = createLinearLayoutParams()
-        mostLossesParentView.findViewById<TextView>(R.id.statistics_parent_title).text = "Most Losses"
+        mostLossesParentView.findViewById<TextView>(R.id.statistics_parent_title).text = "Most " + gameType.prettyName() + " Losses"
 
         val mostLossesChildView = layoutInflater.inflate(R.layout.statistics_child_list_item, mostLossesParentView.findViewById(R.id.statistics_parent_list))
-        mostLossesChildView.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostLossesPlayer.name + " ($mostPlayerLosses)"
+        mostLossesChildView.findViewById<TextView>(R.id.statistics_child_player_stat).text = mostLossesPlayer!!.name + " ($mostPlayerLosses)"
         mostLossesChildView.findViewById<ImageView>(R.id.statistics_child_character_image).setImageResource(CharacterHelper.getImage(mostLossesCharacterId.toInt()))
         mostLossesChildView.findViewById<TextView>(R.id.statistics_child_character_stat).text = CharacterHelper.getName(mostLossesCharacterId.toInt()) + " ($mostCharacterLosses)"
         list!!.addView(mostLossesParentView)
-
-        // most wins
-
-        // most losses
-        // longest streak
-        // most games
-        // least games
-        // best win rate
-        // worst win rate
-
-        setContentShown(true)
     }
 
     private fun createLinearLayoutParams(): LinearLayout.LayoutParams {
