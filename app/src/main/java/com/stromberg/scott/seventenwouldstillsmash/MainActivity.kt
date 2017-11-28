@@ -33,6 +33,7 @@ import kotlin.collections.isNotEmpty
 import kotlin.collections.reversed
 
 class MainActivity : AppCompatActivity() {
+    private var mLastFragment: BaseFragment? = null
     private var mCurrentFragment: BaseFragment? = null
     private var mAddFabMenu: FloatingActionMenu? = null
     private var mAddFabButton: FloatingActionButton? = null
@@ -63,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun navigateToFragment(fragment: BaseFragment) {
+        mLastFragment = mCurrentFragment
         mCurrentFragment = fragment
 
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment).commit()
@@ -123,10 +125,25 @@ class MainActivity : AppCompatActivity() {
         navigateToFragment(fragment)
     }
 
+    fun createPlayer() {
+        navigateToFragment(CreatePlayerFragment())
+    }
+
+    fun editPlayer(player: Player) {
+        var bundle = Bundle()
+        bundle.putSerializable("player", player)
+
+        val fragment = CreatePlayerFragment()
+        fragment.arguments = bundle
+
+        navigateToFragment(fragment)
+    }
+
     override fun onBackPressed() {
         if(mCurrentFragment != null) {
             when(mCurrentFragment) {
-                is CreateGameFragment -> navigateToFragment(GamesFragment())
+                is CreateGameFragment -> navigateToFragment(mLastFragment ?: GamesFragment())
+                is CreatePlayerFragment -> navigateToFragment(PlayersFragment())
                 else -> super.onBackPressed()
             }
         }

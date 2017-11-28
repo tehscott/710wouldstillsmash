@@ -9,7 +9,7 @@
         android:layout_height="wrap_content">
 
         <EditText
-            android:id="@+id/add_player_dialog_player_name"
+            android:id="@+id/create_player_name"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:hint="player name"

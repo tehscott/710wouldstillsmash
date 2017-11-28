@@ -5,27 +5,23 @@ import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Bundle
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import com.ajguan.library.EasyRefreshLayout
 import com.ajguan.library.LoadModel
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.github.clans.fab.FloatingActionButton
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.stromberg.scott.seventenwouldstillsmash.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.util.hideKeyboard
 import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
@@ -133,87 +129,83 @@ class PlayersFragment : BaseFragment() {
     }
 
     override fun addFabClicked() {
-        var builder = AlertDialog.Builder(activity)
-        builder.setTitle("Add Player")
+        (activity as MainActivity).createPlayer()
 
-        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
-
-        builder.setView(inputLayout)
-        builder.setPositiveButton("Add") { dialog, _ ->
-            run {
-                var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
-                if (playerName.isNotEmpty()) {
-                    dialog.dismiss()
-                    addPlayer(playerName)
-                }
-            }
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        builder.setCancelable(true)
-        builder.show()
+//        var builder = AlertDialog.Builder(activity)
+//        builder.setTitle("Add Player")
+//
+//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
+//
+//        builder.setView(inputLayout)
+//        builder.setPositiveButton("Add") { dialog, _ ->
+//            run {
+//                var playerName = inputLayout.findViewById<EditText>(R.id.create_player_name).text.toString()
+//                if (playerName.isNotEmpty()) {
+//                    dialog.dismiss()
+//                    addPlayer(playerName)
+//                }
+//            }
+//        }
+//        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+//        builder.setCancelable(true)
+//        builder.show()
     }
 
     private fun editPlayer(player: Player) {
-        var builder = AlertDialog.Builder(activity)
-        builder.setTitle("Edit " + player.name)
+        (activity as MainActivity).editPlayer(player)
 
-        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
-        inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).setText(player.name)
-
-        builder.setView(inputLayout)
-        builder.setPositiveButton("Save") { dialog, _ ->
-            run {
-                var playerName = inputLayout.findViewById<EditText>(R.id.add_player_dialog_player_name).text.toString()
-                if (playerName.isNotEmpty()) {
-                    dialog.dismiss()
-
-                    player.name = playerName
-
-                    db.reference
-                        .child("players")
-                        .child(player.id)
-                        .setValue(player)
-                        .addOnCompleteListener( {
-                            getPlayers()
-                        })
-                }
-            }
-        }
-        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-        builder.setNeutralButton("Delete Player") { dialog, _ -> run {
-            deletePlayer(player)
-            dialog.cancel()
-        } }
-        builder.setCancelable(true)
-        builder.show()
+//        var builder = AlertDialog.Builder(activity)
+//        builder.setTitle("Edit " + player.name)
+//
+//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
+//        inputLayout.findViewById<EditText>(R.id.create_player_name).setText(player.name)
+//
+//        builder.setView(inputLayout)
+//        builder.setPositiveButton("Save") { dialog, _ ->
+//            run {
+//                var playerName = inputLayout.findViewById<EditText>(R.id.create_player_name).text.toString()
+//                if (playerName.isNotEmpty()) {
+//                    dialog.dismiss()
+//
+//                    player.name = playerName
+//
+//                    db.reference
+//                        .child("players")
+//                        .child(player.id)
+//                        .setValue(player)
+//                        .addOnCompleteListener( {
+//                            getPlayers()
+//                        })
+//                }
+//            }
+//        }
+//        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
+//        builder.setNeutralButton("Delete Player") { dialog, _ -> run {
+//            deletePlayer(player)
+//            dialog.cancel()
+//        } }
+//        builder.setCancelable(true)
+//        builder.show()
     }
 
-    private fun deletePlayer(player: Player) {
-        db.reference
-                .child("players")
-                .child(player.id)
-                .removeValue()
-                .addOnCompleteListener( {
-                    getPlayers()
-                })
-    }
-
-    private fun addPlayer(playerName: String) {
-        this.contentView?.hideKeyboard()
-
-        setContentShown(false)
-
-        var player = Player()
-        player.id = Calendar.getInstance().timeInMillis.toString()
-        player.name = playerName
-        db.reference
-            .child("players")
-            .child(player.id)
-            .setValue(player)
-            .addOnCompleteListener( {
-                getPlayers()
-            })
-    }
+//    private fun addPlayer(playerName: String) {
+//        this.contentView?.hideKeyboard()
+//
+//        (activity as MainActivity).createPlayer()
+//
+////        setContentShown(false)
+////
+////        var player = Player()
+////        player.id = Calendar.getInstance().timeInMillis.toString()
+////        player.name = playerName
+////        db.reference
+////            .child("players")
+////            .child(player.id)
+////            .setValue(player)
+////            .addOnCompleteListener( {
+////                getPlayers()
+////            })
+//    }
 
     override fun hasFab(): Boolean {
         return true

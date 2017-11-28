@@ -149,7 +149,7 @@ class GamesFragment : BaseFragment() {
 
         db.reference
             .child("games")
-            .orderByKey()
+            .orderByChild("date")
 //            .limitToLast(queryLimit)
             .addListenerForSingleValueEvent( object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError?) { }
