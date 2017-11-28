@@ -112,13 +112,10 @@ class GamesFragment : BaseFragment() {
     private fun findGames(queryText: String, gamesToSearchWithin: ArrayList<Game>): ArrayList<Game> {
         return ArrayList(gamesToSearchWithin.filter {
             try {
-                it.id!!.contains(queryText, true)
-                    || it.gameType!!.contains(queryText, true)
+                it.gameType!!.contains(queryText, true)
                     || hasDateMatch(it.date, queryText)
                     || it.players.any {
-                        it.characterId.toString().contains(queryText, true)
-                        || CharacterHelper.getName(it.characterId).contains(queryText, true)
-                        || it.player!!.id.toString().contains(queryText, true)
+                        CharacterHelper.getName(it.characterId).contains(queryText, true)
                         || it.player!!.name!!.contains(queryText, true)
                     }
             } catch(_: Exception) {
