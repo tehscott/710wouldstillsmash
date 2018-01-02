@@ -16,4 +16,5 @@
     <string name="header_pull_over">let go to refresh</string>
     <string name="header_refreshing">loading...</string>
     <string name="header_completed">done!</string>
+    <string name="characters">Characters</string>
 </resources>

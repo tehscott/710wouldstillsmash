@@ -23,7 +23,7 @@ class GamesListAdapter(games: List<Game>) : BaseQuickAdapter<Game, BaseViewHolde
         val gameTypeImage = viewHolder.getView<ImageView>(R.id.game_list_item_game_type_image)
 
         playersList.removeAllViews()
-        item?.players?.sortedBy({ it.player?.name })?.forEach({ player ->
+        item?.players?.sortedWith(compareBy({ !it.winner }, { it.player?.name }))?.forEach({ player ->
             run {
                 val playerLayout: FrameLayout = LayoutInflater.from(mContext).inflate(R.layout.game_list_item_image, null) as FrameLayout
                 playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.characterId))

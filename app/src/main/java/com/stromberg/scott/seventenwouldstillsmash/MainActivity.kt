@@ -54,8 +54,8 @@ class MainActivity : AppCompatActivity() {
             R.id.navigation_statistics -> {
                 navigateToFragment(StatisticsFragment())
             }
-            R.id.navigation_settings -> {
-//                mCurrentFragment = null
+            R.id.navigation_characters -> {
+                navigateToFragment(CharactersFragment())
             }
             else -> hideFabs()
         }
@@ -134,6 +134,16 @@ class MainActivity : AppCompatActivity() {
         bundle.putSerializable("player", player)
 
         val fragment = CreatePlayerFragment()
+        fragment.arguments = bundle
+
+        navigateToFragment(fragment)
+    }
+
+    fun viewCharacter(characterId: Int) {
+        var bundle = Bundle()
+        bundle.putSerializable("characterId", characterId)
+
+        val fragment = CharacterFragment()
         fragment.arguments = bundle
 
         navigateToFragment(fragment)
