@@ -23,14 +23,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 import java.util.ArrayList
 import kotlin.collections.HashMap
-import kotlin.collections.List
-import kotlin.collections.any
-import kotlin.collections.count
-import kotlin.collections.filter
-import kotlin.collections.find
-import kotlin.collections.forEach
-import kotlin.collections.isNotEmpty
-import kotlin.collections.reversed
 
 class MainActivity : AppCompatActivity() {
     private var mLastFragment: BaseFragment? = null
@@ -154,6 +146,7 @@ class MainActivity : AppCompatActivity() {
             when(mCurrentFragment) {
                 is CreateGameFragment -> navigateToFragment(mLastFragment ?: GamesFragment())
                 is CreatePlayerFragment -> navigateToFragment(PlayersFragment())
+                is CharacterFragment -> navigateToFragment(CharactersFragment())
                 else -> super.onBackPressed()
             }
         }

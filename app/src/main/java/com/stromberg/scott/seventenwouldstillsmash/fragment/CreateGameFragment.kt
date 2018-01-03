@@ -2,6 +2,8 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
+import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.widget.DividerItemDecoration
@@ -153,6 +155,7 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun addPlayer(editingPlayer: GamePlayer?) {
+        val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val gamePlayer = editingPlayer ?: GamePlayer()
         val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
         val playerNameText = layout.findViewById<AutoCompleteTextView>(R.id.create_game_players_dialog_player_name)
@@ -186,20 +189,27 @@ class CreateGameFragment : BaseFragment() {
             override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) { }
         })
 
-        val characterNames = (0..57).map { CharacterHelper.getName(it) }
-        val characterAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, characterNames)
-        characterNameText.threshold = 1
-        characterNameText.setAdapter<ArrayAdapter<String>>(characterAdapter)
-        characterNameText.onItemClickListener = AdapterView.OnItemClickListener( { _: AdapterView<*>, view: View, position: Int, _: Long -> gamePlayer.characterId = CharacterHelper.getId((view as TextView).text.toString()) } )
+        playerNameText.setOnClickListener({
+            playerNameText.showDropDown()
+        })
+
+        setupCharacterDropdown(characterNameText, gamePlayer, prefs)
+
+        characterNameText.setOnClickListener({
+            setupCharacterDropdown(characterNameText, gamePlayer, prefs)
+            characterNameText.showDropDown()
+        })
 
         characterNameText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
             if(hasFocus) {
+                setupCharacterDropdown(characterNameText, gamePlayer, prefs)
                 characterNameText.showDropDown()
             }
         }
 
         characterNameText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
+                setupCharacterDropdown(characterNameText, gamePlayer, prefs)
                 characterNameText.showDropDown()
             }
             override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) { }
@@ -268,6 +278,28 @@ class CreateGameFragment : BaseFragment() {
 
         addPlayerDialog = builder.create()
         addPlayerDialog!!.show()
+    }
+
+    private fun setupCharacterDropdown(characterNameText: AutoCompleteTextView, gamePlayer: GamePlayer, prefs: SharedPreferences) {
+        val lastPickedKey = "lp_" + gamePlayer.player?.id + "_" + game.gameType?.toLowerCase()
+
+        val lastPickedCharacterId = prefs.getInt(lastPickedKey, -1)
+
+        val characterNames = (0..57).mapNotNull { if(it == lastPickedCharacterId) null else CharacterHelper.getName(it) } as ArrayList<String>
+
+        if(lastPickedCharacterId > 0) {
+            characterNames.add(0, CharacterHelper.getName(lastPickedCharacterId))
+        }
+
+        val characterAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, characterNames)
+        characterNameText.threshold = 1
+        characterNameText.setAdapter<ArrayAdapter<String>>(characterAdapter)
+        characterNameText.onItemClickListener = AdapterView.OnItemClickListener({ _: AdapterView<*>, view: View, position: Int, _: Long ->
+            run {
+                gamePlayer.characterId = CharacterHelper.getId((view as TextView).text.toString())
+                prefs.edit().putInt(lastPickedKey, gamePlayer.characterId).apply()
+            }
+        })
     }
 
     private fun getUnusedPlayers(): ArrayList<Player> {

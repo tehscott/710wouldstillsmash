@@ -86,9 +86,7 @@ class CharactersFragment : BaseFragment() {
                 it.players.any { it.characterId == id }
             }
 
-            if(gamesForCharacter.isNotEmpty()) {
-                gamesForCharacters.put(id, gamesForCharacter)
-            }
+            gamesForCharacters.put(id, gamesForCharacter)
         }
 
         val adapter = CharactersListAdapter(ArrayList(gamesForCharacters.keys), gamesForCharacters)
