@@ -1,6 +1,5 @@
 package com.stromberg.scott.seventenwouldstillsmash.adapter
 
-import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.TextView
 import com.chad.library.adapter.base.BaseQuickAdapter

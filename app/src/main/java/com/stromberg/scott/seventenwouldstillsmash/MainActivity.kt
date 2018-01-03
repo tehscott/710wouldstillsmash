@@ -291,4 +291,3 @@ class MainActivity : AppCompatActivity() {
         prefs.edit().putString("PlayerStatsJson", Gson().toJson(playerStats)).apply()
     }
 }
-
