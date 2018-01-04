@@ -20,12 +20,12 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
         val prefs = mContext.getSharedPreferences(mContext.getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
 
         // player win/loss
-        val royaleGamesPlayed = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_played", 0f)
         val royaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_won", 0f)
         val royaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_lost", 0f)
-        val suddenDeathGamesPlayed = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "_games_played", 0f)
+        val royaleGamesPlayed = royaleGamesWon + royaleGamesLost;
         val suddenDeathGamesWon = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "_games_won", 0f)
         val suddenDeathGamesLost = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "_games_lost", 0f)
+        val suddenDeathGamesPlayed = suddenDeathGamesWon + suddenDeathGamesLost;
 
         val royaleWinPercentage = if(royaleGamesPlayed > 0) royaleGamesWon / royaleGamesPlayed else 0f
         val suddenDeathWinPercentage = if(suddenDeathGamesPlayed > 0) suddenDeathGamesWon / suddenDeathGamesPlayed else 0f
