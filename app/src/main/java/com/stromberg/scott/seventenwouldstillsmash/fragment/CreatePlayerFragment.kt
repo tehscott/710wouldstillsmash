@@ -185,23 +185,42 @@ class CreatePlayerFragment : BaseFragment() {
         val suddenDeathGamesWon: Float = (games.count { it.players.any { it.player!!.id == editingPlayer!!.id && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
         val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
 
-        // Overall win rate
-        val overallWinRate = Statistic()
-        overallWinRate.playerId = editingPlayer!!.id!!
-        overallWinRate.playerValue = " Overall win rate: " + Math.round(((royaleGamesWon + suddenDeathGamesWon) / (royaleGamesLost + suddenDeathGamesLost)) * 100).toString() + "% (" + (royaleGamesWon + suddenDeathGamesWon).toInt() + "/" + games.size + ")"
-        statistics.add(overallWinRate)
+        val overallWinRate = Math.round(((royaleGamesWon + suddenDeathGamesWon) / (games.size)) * 100).toString() + "% (" + (royaleGamesWon + suddenDeathGamesWon).toInt() + "/" + games.size + ")"
+        val royaleWinRate = Math.round((royaleGamesWon / royaleGamesCount) * 100).toString() + "% (" + royaleGamesWon.toInt() + "/" + royaleGamesCount + ")"
+        val suddenDeathWinRate = Math.round((suddenDeathGamesWon / suddenDeathGamesCount) * 100).toString() + "% (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesCount + ")"
 
-        // Royale win rate
-        val royaleWinRate = Statistic()
-        royaleWinRate.playerId = editingPlayer!!.id!!
-        royaleWinRate.playerValue = " Royale win rate: " + Math.round((royaleGamesWon / royaleGamesCount) * 100).toString() + "% (" + royaleGamesWon.toInt() + "/" + royaleGamesCount + ")"
-        statistics.add(royaleWinRate)
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, -30)
+        val thirtyDaysAgo = calendar.timeInMillis
 
-        // Sudden Death win rate
-        val suddenDeathWinRate = Statistic()
-        suddenDeathWinRate.playerId = editingPlayer!!.id!!
-        suddenDeathWinRate.playerValue = " Sudden Death win rate: " + Math.round((suddenDeathGamesWon / suddenDeathGamesCount) * 100).toString() + "% (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesCount + ")"
-        statistics.add(suddenDeathWinRate)
+        val games30Days = games.filter { it.date >= thirtyDaysAgo }
+        val royaleGames30DaysCount = games30Days.count { it.gameType.equals(GameType.ROYALE.toString()) }
+        val suddenDeathGames30DaysCount = games30Days.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
+        val royaleGames30DaysWon: Float = (games30Days.count { it.players.any { it.player!!.id == editingPlayer!!.id && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
+        val royaleGames30DaysLost: Float = royaleGames30DaysCount - royaleGames30DaysWon
+        val suddenDeathGames30DaysWon: Float = (games30Days.count { it.players.any { it.player!!.id == editingPlayer!!.id && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
+        val suddenDeathGames30DaysLost: Float = suddenDeathGames30DaysCount - suddenDeathGames30DaysWon
+
+        val thirtyDaysOverallWinRate = Math.round(((royaleGames30DaysWon + suddenDeathGames30DaysWon) / (games30Days.size)) * 100).toString() + "% (" + (royaleGames30DaysWon + suddenDeathGames30DaysWon).toInt() + "/" + games30Days.size + ")"
+        val thirtyDaysRoyaleWinRate = Math.round((royaleGames30DaysWon / royaleGames30DaysCount) * 100).toString() + "% (" + royaleGames30DaysWon.toInt() + "/" + royaleGames30DaysCount + ")"
+        val thirtyDaysSuddenDeathWinRate = Math.round((suddenDeathGames30DaysWon / suddenDeathGames30DaysCount) * 100).toString() + "% (" + suddenDeathGames30DaysWon.toInt() + "/" + suddenDeathGames30DaysCount + ")"
+
+        // Win rates
+        val allTimeWinRates = Statistic()
+        allTimeWinRates.playerId = editingPlayer!!.id!!
+        allTimeWinRates.playerValue = " Win rates (all time):\n\t " +
+                "Overall: " + overallWinRate + "\n\t " +
+                "Royale: " + royaleWinRate + "\n\t " +
+                "Sudden Death: " + suddenDeathWinRate
+        statistics.add(allTimeWinRates)
+
+        val thirtyDayWinRates = Statistic()
+        thirtyDayWinRates.playerId = editingPlayer!!.id!!
+        thirtyDayWinRates.playerValue = " Win rates (30 days):\n\t " +
+                "Overall: " + thirtyDaysOverallWinRate + "\n\t " +
+                "Royale: " + thirtyDaysRoyaleWinRate + "\n\t " +
+                "Sudden Death: " + thirtyDaysSuddenDeathWinRate
+        statistics.add(thirtyDayWinRates)
 
         // Longest win streak (all games)
         val longestWinStreakAllGames = Statistic()
