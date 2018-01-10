@@ -178,27 +178,29 @@ class CreatePlayerFragment : BaseFragment() {
     private fun getStatistics() {
         val statistics = ArrayList<Statistic>()
 
+        val royaleGamesCount = games.count { it.gameType.equals(GameType.ROYALE.toString()) }
+        val suddenDeathGamesCount = games.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
         val royaleGamesWon: Float = (games.count { it.players.any { it.player!!.id == editingPlayer!!.id && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-        val royaleGamesLost: Float = games.size - royaleGamesWon
+        val royaleGamesLost: Float = royaleGamesCount - royaleGamesWon
         val suddenDeathGamesWon: Float = (games.count { it.players.any { it.player!!.id == editingPlayer!!.id && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-        val suddenDeathGamesLost: Float = games.size - suddenDeathGamesWon
+        val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
 
         // Overall win rate
         val overallWinRate = Statistic()
         overallWinRate.playerId = editingPlayer!!.id!!
-        overallWinRate.playerValue = " Overall win rate: " + Math.round(((royaleGamesWon + suddenDeathGamesWon) / (royaleGamesLost + suddenDeathGamesLost)) * 100).toString() + "% (" + (royaleGamesWon + suddenDeathGamesWon).toInt() + "/" + (royaleGamesLost + suddenDeathGamesLost).toInt() + ")"
+        overallWinRate.playerValue = " Overall win rate: " + Math.round(((royaleGamesWon + suddenDeathGamesWon) / (royaleGamesLost + suddenDeathGamesLost)) * 100).toString() + "% (" + (royaleGamesWon + suddenDeathGamesWon).toInt() + "/" + games.size + ")"
         statistics.add(overallWinRate)
 
         // Royale win rate
         val royaleWinRate = Statistic()
         royaleWinRate.playerId = editingPlayer!!.id!!
-        royaleWinRate.playerValue = " Royale win rate: " + Math.round((royaleGamesWon / royaleGamesLost) * 100).toString() + "% (" + royaleGamesWon.toInt() + "/" + royaleGamesLost.toInt() + ")"
+        royaleWinRate.playerValue = " Royale win rate: " + Math.round((royaleGamesWon / royaleGamesCount) * 100).toString() + "% (" + royaleGamesWon.toInt() + "/" + royaleGamesCount + ")"
         statistics.add(royaleWinRate)
 
         // Sudden Death win rate
         val suddenDeathWinRate = Statistic()
         suddenDeathWinRate.playerId = editingPlayer!!.id!!
-        suddenDeathWinRate.playerValue = " Sudden Death win rate: " + Math.round((suddenDeathGamesWon / suddenDeathGamesLost) * 100).toString() + "% (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesLost.toInt() + ")"
+        suddenDeathWinRate.playerValue = " Sudden Death win rate: " + Math.round((suddenDeathGamesWon / suddenDeathGamesCount) * 100).toString() + "% (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesCount + ")"
         statistics.add(suddenDeathWinRate)
 
         // Longest win streak (all games)
@@ -237,33 +239,34 @@ class CreatePlayerFragment : BaseFragment() {
         longestSuddenDeathLosingStreak.playerValue = " Longest Sudden Death losing streak: " + getLongestLosingStreak(GameType.SUDDEN_DEATH)
         statistics.add(longestSuddenDeathLosingStreak)
 
-        getCharacterStatistics()
-
-        val royaleCharacters = Statistic()
-        royaleCharacters.playerId = editingPlayer!!.id!!
-        royaleCharacters.playerValue = " Best Royale characters:\n\t " + bestRoyaleCharacters.take(5).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getRoyaleWinRate() * 100) + "%)" }
-        statistics.add(royaleCharacters)
-
-        val suddenDeathCharacters = Statistic()
-        suddenDeathCharacters.playerId = editingPlayer!!.id!!
-        suddenDeathCharacters.playerValue = " Best Sudden Death characters:\n\t " + bestSuddenDeathCharacters.take(5).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getSuddenDeathWinRate() * 100) + "%)" }
-        statistics.add(suddenDeathCharacters)
-
-        // Most played characters (top 3)
-        // Least played character (bottom 3)
-        // Best character
-//        games.sortBy { it. }
-//
-//        val bestCharacter = Statistic()
-//        bestCharacter.playerId = editingPlayer!!.id!!
-//        bestCharacter.playerValue = " Best character: " +
-//        statistics.add(bestCharacter)
-
-        // Worst character
         // Best vs character
         // Worst vs character
         // Best vs player
+
+
         // Worst vs player
+
+        getCharacterStatistics()
+
+        val bestRoyaleCharacters = Statistic()
+        bestRoyaleCharacters.playerId = editingPlayer!!.id!!
+        bestRoyaleCharacters.playerValue = " Best Royale characters:\n\t " + this.bestRoyaleCharacters.take(5).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getRoyaleWinRate() * 100) + "%) (" + it.royaleWins.toInt() + "/" + it.getTotalRoyaleGames().toInt() + ")" }
+        statistics.add(bestRoyaleCharacters)
+
+        val bestSuddenDeathCharacters = Statistic()
+        bestSuddenDeathCharacters.playerId = editingPlayer!!.id!!
+        bestSuddenDeathCharacters.playerValue = " Best Sudden Death characters:\n\t " + this.bestSuddenDeathCharacters.take(5).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getSuddenDeathWinRate() * 100) + "%) (" + it.suddenDeathWins.toInt() + "/" + it.getTotalSuddenDeathGames().toInt() + ")" }
+        statistics.add(bestSuddenDeathCharacters)
+
+        val allRoyaleCharacters = Statistic()
+        allRoyaleCharacters.playerId = editingPlayer!!.id!!
+        allRoyaleCharacters.playerValue = " All Royale characters:\n\t " + ArrayList(characterStats.filter { it.hasRoyaleGames() }).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getRoyaleWinRate() * 100) + "%) (" + it.royaleWins.toInt() + "/" + it.getTotalRoyaleGames().toInt() + ")" }
+        statistics.add(allRoyaleCharacters)
+
+        val allSuddenDeathCharacters = Statistic()
+        allSuddenDeathCharacters.playerId = editingPlayer!!.id!!
+        allSuddenDeathCharacters.playerValue = " All Sudden Death characters:\n\t " + ArrayList(characterStats.filter { it.hasSuddenDeathGames() }).joinToString("\n\t ") { CharacterHelper.getName(it.characterId) + " (" + Math.round(it.getSuddenDeathWinRate() * 100) + "%) (" + it.suddenDeathWins.toInt() + "/" + it.getTotalSuddenDeathGames().toInt() + ")" }
+        statistics.add(allSuddenDeathCharacters)
 
         setupStatisticsAdapter(statistics)
     }

@@ -143,10 +143,12 @@ class PlayersFragment : BaseFragment() {
         gamesForPlayers.forEach {
             val playerId = it.key.id
 
+            val royaleGamesCount = it.value.count { it.gameType.equals(GameType.ROYALE.toString()) }
+            val suddenDeathGamesCount = it.value.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
             val royaleGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-            val royaleGamesLost: Float = it.value.size - it.value.count { it.gameType!! == GameType.ROYALE.toString() }.toFloat()
+            val royaleGamesLost: Float = royaleGamesCount - royaleGamesWon
             val suddenDeathGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-            val suddenDeathGamesLost: Float = it.value.size - it.value.count { it.gameType!! == GameType.SUDDEN_DEATH.toString() }.toFloat()
+            val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
 
             val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_won", royaleGamesWon).apply()
