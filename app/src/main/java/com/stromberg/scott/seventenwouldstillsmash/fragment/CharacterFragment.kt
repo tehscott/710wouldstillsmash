@@ -41,6 +41,25 @@ class CharacterFragment : BaseFragment() {
     private var characterImage: ImageView? = null
     private var tabs: BottomNavigationView? = null
 
+    enum class GameResult {
+        UNKNOWN,
+        WIN,
+        LOSS;
+
+        fun toString(gameCount: Int): String {
+            return when (this) {
+                UNKNOWN -> {
+                    "unknown"
+                }
+                WIN -> {
+                    if(gameCount != 1) "wins" else "win"
+                }
+                LOSS -> {
+                    if(gameCount != 1) "losses" else "loss"
+                }
+            }
+        }
+    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.character, null)
@@ -279,18 +298,52 @@ class CharacterFragment : BaseFragment() {
         }
 
         // Streaks
+        val allGamesStreak = getCurrentStreak(null)
+        val royaleStreak = getCurrentStreak(GameType.ROYALE)
+        val suddenDeathStreak = getCurrentStreak(GameType.SUDDEN_DEATH)
+
         val streaks = Statistic()
         streaks.characterId = mCharacterId
         streaks.playerValue = " Streaks:\n\t " +
+                "Current streak (all games): " + allGamesStreak.first + " " + allGamesStreak.second.toString(allGamesStreak.first) + "\n\t " +
                 "Win streak (all games): " + getLongestWinStreak(null) + "\n\t " +
                 "Losing streak (all games): " + getLongestLosingStreak(null) + "\n\t " +
+                "Current Royale streak: " + royaleStreak.first + " " + royaleStreak.second.toString(royaleStreak.first) + "\n\t " +
                 "Royale win streak: " + getLongestWinStreak(GameType.ROYALE) + "\n\t " +
                 "Royale losing streak: " + getLongestLosingStreak(GameType.ROYALE) + "\n\t " +
+                "Current Sudden Death streak: " + suddenDeathStreak.first + " " + suddenDeathStreak.second.toString(suddenDeathStreak.first) + "\n\t " +
                 "Sudden Death win streak: " + getLongestWinStreak(GameType.SUDDEN_DEATH) + "\n\t " +
                 "Sudden Death losing streak: " + getLongestLosingStreak(GameType.SUDDEN_DEATH)
         statistics.add(streaks)
 
         setupStatisticsAdapter(statistics)
+    }
+
+    private fun getCurrentStreak(gameType: GameType?): Pair<Int, GameResult> {
+        var gameCount = 0
+        var lastGameResult = GameResult.UNKNOWN
+        val sortedGames: List<Game>
+
+        if(gameType != null) {
+            sortedGames = games.filter { it.gameType.equals(gameType.toString(), true) }.sortedByDescending { it.date }
+        }
+        else {
+            sortedGames = games.sortedByDescending { it.date }
+        }
+
+        sortedGames.forEach {
+            val didIWin = it.players.any { it.characterId == mCharacterId && it.winner }
+
+            if(lastGameResult == GameResult.UNKNOWN || (lastGameResult == GameResult.WIN && didIWin) || (lastGameResult == GameResult.LOSS && !didIWin)) {
+                gameCount++
+                lastGameResult = if(didIWin) GameResult.WIN else GameResult.LOSS
+            }
+            else {
+                return Pair(gameCount, lastGameResult)
+            }
+        }
+
+        return Pair(gameCount, lastGameResult)
     }
 
     private fun getLongestWinStreak(gameType: GameType?): Int {
