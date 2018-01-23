@@ -1,4 +1,4 @@
-package com.stromberg.scott.seventenwouldstillsmash
+package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
+import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.fragment.*
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player

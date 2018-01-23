@@ -14,7 +14,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.MainActivity
+import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
