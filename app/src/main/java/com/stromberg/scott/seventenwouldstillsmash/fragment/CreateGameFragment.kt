@@ -162,6 +162,12 @@ class CreateGameFragment : BaseFragment() {
         val characterNameText = layout.findViewById<AutoCompleteTextView>(R.id.create_game_players_dialog_character_name)
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
 
+        if(editingPlayer != null) {
+            playerNameText.setText(editingPlayer.player!!.name!!)
+            characterNameText.setText(CharacterHelper.getName(editingPlayer.characterId))
+            isWinnerCheckbox.isChecked = editingPlayer.winner
+        }
+
         val playerList = getUnusedPlayers()
 
         val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerList.map { it.name })
@@ -182,7 +188,7 @@ class CreateGameFragment : BaseFragment() {
 
         playerNameText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(text: Editable?) {
-                gamePlayer.player = null
+                gamePlayer.player = null // todo: is this a problem when editing an existing game's player? YES
                 playerNameText.showDropDown()
             }
             override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) { }
@@ -217,12 +223,6 @@ class CreateGameFragment : BaseFragment() {
         })
 
         isWinnerCheckbox.setOnCheckedChangeListener { view, isChecked -> gamePlayer.winner = isChecked }
-
-        if(editingPlayer != null) {
-            playerNameText.setText(editingPlayer.player!!.name!!)
-            characterNameText.setText(CharacterHelper.getName(editingPlayer.characterId))
-            isWinnerCheckbox.isChecked = editingPlayer.winner
-        }
 
         val builder = AlertDialog.Builder(activity)
         builder.setTitle(if(editingPlayer != null) "Edit Player" else "Add Player")

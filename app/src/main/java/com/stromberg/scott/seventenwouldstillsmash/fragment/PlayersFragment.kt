@@ -21,12 +21,17 @@ import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
+import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
 class PlayersFragment : BaseFragment() {
-    private var db = FirebaseDatabase.getInstance()
+    private val db = FirebaseDatabase.getInstance()
+    private val games = ArrayList<Game>()
+    private val players = ArrayList<Player>()
+    private val gamesForPlayers = HashMap<Player, List<Game>>()
 
     private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
@@ -57,6 +62,43 @@ class PlayersFragment : BaseFragment() {
         getPlayers()
     }
 
+    private fun getGames() {
+        db.reference
+            .child("games")
+            .orderByKey()
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError?) {}
+
+                override fun onDataChange(snapshot: DataSnapshot?) {
+                    games.clear()
+
+                    snapshot?.children?.reversed()?.forEach {
+                        val game: Game = it.getValue(Game::class.java)!!
+                        game.id = it.key
+                        games.add(game)
+                    }
+
+                    gameDataFetched()
+                }
+            })
+    }
+
+    private fun gameDataFetched() {
+        if(games.size > 0 && players.size > 0) {
+            players.forEach {
+                val playerId = it.id
+
+                val gamesForPlayer = games.filter {
+                    it.players.any { it.player!!.id == playerId }
+                }
+
+                gamesForPlayers.put(it, gamesForPlayer)
+            }
+
+            calculateWinRates()
+        }
+    }
+
     private fun getPlayers() {
         setContentShown(false)
 
@@ -67,7 +109,7 @@ class PlayersFragment : BaseFragment() {
                 override fun onCancelled(error: DatabaseError?) { }
 
                 override fun onDataChange(snapshot: DataSnapshot?) {
-                    val players = ArrayList<Player>()
+                    players.clear()
 
                     snapshot?.children?.reversed()?.forEach {
                         val player: Player = it.getValue(Player::class.java)!!
@@ -88,16 +130,36 @@ class PlayersFragment : BaseFragment() {
 
                     adapter.setEnableLoadMore(false)
 
-                    recyclerView?.adapter?.notifyDataSetChanged()
-
-                    pullToRefreshView!!.refreshComplete()
-                    setContentShown(true)
+                    getGames()
                 }
             })
     }
 
     override fun setContentShown(shown: Boolean) {
         pullToRefreshView?.isRefreshing = !shown
+    }
+
+    private fun calculateWinRates() {
+        gamesForPlayers.forEach {
+            val playerId = it.key.id
+
+            val royaleGamesCount = it.value.count { it.gameType.equals(GameType.ROYALE.toString()) }
+            val suddenDeathGamesCount = it.value.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
+            val royaleGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
+            val royaleGamesLost: Float = royaleGamesCount - royaleGamesWon
+            val suddenDeathGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
+            val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
+
+            val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_won", royaleGamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "_games_lost", royaleGamesLost).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_won", suddenDeathGamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "_games_lost", suddenDeathGamesLost).apply()
+        }
+
+        recyclerView?.adapter?.notifyDataSetChanged()
+        pullToRefreshView!!.refreshComplete()
+        setContentShown(true)
     }
 
     fun getLongestNameLength(players: ArrayList<Player>): Int {
@@ -130,82 +192,11 @@ class PlayersFragment : BaseFragment() {
 
     override fun addFabClicked() {
         (activity as MainActivity).createPlayer()
-
-//        var builder = AlertDialog.Builder(activity)
-//        builder.setTitle("Add Player")
-//
-//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
-//
-//        builder.setView(inputLayout)
-//        builder.setPositiveButton("Add") { dialog, _ ->
-//            run {
-//                var playerName = inputLayout.findViewById<EditText>(R.id.create_player_name).text.toString()
-//                if (playerName.isNotEmpty()) {
-//                    dialog.dismiss()
-//                    addPlayer(playerName)
-//                }
-//            }
-//        }
-//        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-//        builder.setCancelable(true)
-//        builder.show()
     }
 
     private fun editPlayer(player: Player) {
         (activity as MainActivity).editPlayer(player)
-
-//        var builder = AlertDialog.Builder(activity)
-//        builder.setTitle("Edit " + player.name)
-//
-//        val inputLayout = LayoutInflater.from(activity).inflate(R.layout.add_player_dialog, null)
-//        inputLayout.findViewById<EditText>(R.id.create_player_name).setText(player.name)
-//
-//        builder.setView(inputLayout)
-//        builder.setPositiveButton("Save") { dialog, _ ->
-//            run {
-//                var playerName = inputLayout.findViewById<EditText>(R.id.create_player_name).text.toString()
-//                if (playerName.isNotEmpty()) {
-//                    dialog.dismiss()
-//
-//                    player.name = playerName
-//
-//                    db.reference
-//                        .child("players")
-//                        .child(player.id)
-//                        .setValue(player)
-//                        .addOnCompleteListener( {
-//                            getPlayers()
-//                        })
-//                }
-//            }
-//        }
-//        builder.setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
-//        builder.setNeutralButton("Delete Player") { dialog, _ -> run {
-//            deletePlayer(player)
-//            dialog.cancel()
-//        } }
-//        builder.setCancelable(true)
-//        builder.show()
     }
-
-//    private fun addPlayer(playerName: String) {
-//        this.contentView?.hideKeyboard()
-//
-//        (activity as MainActivity).createPlayer()
-//
-////        setContentShown(false)
-////
-////        var player = Player()
-////        player.id = Calendar.getInstance().timeInMillis.toString()
-////        player.name = playerName
-////        db.reference
-////            .child("players")
-////            .child(player.id)
-////            .setValue(player)
-////            .addOnCompleteListener( {
-////                getPlayers()
-////            })
-//    }
 
     override fun hasFab(): Boolean {
         return true
