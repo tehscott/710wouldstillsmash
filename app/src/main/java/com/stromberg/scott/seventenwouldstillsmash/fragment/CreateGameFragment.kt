@@ -27,6 +27,8 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -127,7 +129,7 @@ class CreateGameFragment : BaseFragment() {
     private fun deleteGame(goBack: Boolean) {
         setContentShown(false)
 
-        db.reference
+        db.getReference(activity)
             .child("games")
             .child(game.id)
             .removeValue()
@@ -138,7 +140,7 @@ class CreateGameFragment : BaseFragment() {
         if(game.players.size > 1) {
             setContentShown(false)
 
-            db.reference
+            db.getReference(activity)
                 .child("games")
                 .child(Calendar.getInstance().timeInMillis.toString())
                 .setValue(game)
@@ -237,7 +239,7 @@ class CreateGameFragment : BaseFragment() {
                     player.id = Calendar.getInstance().timeInMillis.toString()
                     gamePlayer.player = player
 
-                    db.reference
+                    db.getReference(activity)
                         .child("players")
                         .child(player.id)
                         .setValue(player)
@@ -389,7 +391,7 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.reference
+        db.getReference(activity)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -412,13 +414,5 @@ class CreateGameFragment : BaseFragment() {
     override fun setContentShown(show: Boolean) {
         contentView!!.findViewById<View>(R.id.progress).visibility = if(show) View.GONE else View.VISIBLE
         contentView!!.findViewById<View>(R.id.content).visibility = if(show) View.VISIBLE else View.GONE
-    }
-
-    private fun showDialog(message: String) {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle(null)
-        builder.setMessage(message)
-        builder.setPositiveButton(android.R.string.ok, { dialog, _ -> dialog.dismiss() })
-        builder.show()
     }
 }

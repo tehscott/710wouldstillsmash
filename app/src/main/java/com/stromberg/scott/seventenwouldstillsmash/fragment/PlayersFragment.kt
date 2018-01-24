@@ -18,12 +18,13 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.MainActivity
+import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
@@ -63,7 +64,7 @@ class PlayersFragment : BaseFragment() {
     }
 
     private fun getGames() {
-        db.reference
+        db.getReference(activity)
             .child("games")
             .orderByKey()
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -102,7 +103,7 @@ class PlayersFragment : BaseFragment() {
     private fun getPlayers() {
         setContentShown(false)
 
-        db.reference
+        db.getReference(activity)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {

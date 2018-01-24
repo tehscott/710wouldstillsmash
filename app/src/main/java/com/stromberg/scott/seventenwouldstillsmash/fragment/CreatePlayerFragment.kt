@@ -16,12 +16,14 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.MainActivity
+import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.util.*
 
 class CreatePlayerFragment : BaseFragment() {
@@ -145,7 +147,7 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.reference
+        db.getReference(activity)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -168,7 +170,7 @@ class CreatePlayerFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.reference
+        db.getReference(activity)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -387,7 +389,7 @@ class CreatePlayerFragment : BaseFragment() {
             player.name = playerName
             player.id = Calendar.getInstance().timeInMillis.toString()
 
-            db.reference
+            db.getReference(activity)
                 .child("players")
                 .child(player.id)
                 .setValue(player)
@@ -404,7 +406,7 @@ class CreatePlayerFragment : BaseFragment() {
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
 
-            db.reference
+            db.getReference(activity)
                 .child("players")
                 .child(editingPlayer!!.id)
                 .setValue(editingPlayer)
@@ -415,7 +417,7 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun deletePlayer() {
-        db.reference
+        db.getReference(activity)
             .child("players")
             .child(editingPlayer!!.id)
             .removeValue()
@@ -427,14 +429,6 @@ class CreatePlayerFragment : BaseFragment() {
     override fun setContentShown(shown: Boolean) {
         progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
         recyclerView!!.visibility = if(shown) View.VISIBLE else View.GONE
-    }
-
-    private fun showDialog(message: String) {
-        val builder = AlertDialog.Builder(activity)
-        builder.setTitle(null)
-        builder.setMessage(message)
-        builder.setPositiveButton(android.R.string.ok, { dialog, _ -> dialog.dismiss() })
-        builder.show()
     }
 
     private fun getCharacterStatistics() {
