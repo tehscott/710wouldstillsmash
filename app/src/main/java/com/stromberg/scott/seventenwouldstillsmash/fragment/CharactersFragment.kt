@@ -18,6 +18,7 @@ import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.util.*
 
 class CharactersFragment : BaseFragment() {
@@ -55,7 +56,7 @@ class CharactersFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.reference
+        db.getReference(activity)
             .child("games")
             .addListenerForSingleValueEvent( object : ValueEventListener {
                 override fun onCancelled(error: DatabaseError?) { }

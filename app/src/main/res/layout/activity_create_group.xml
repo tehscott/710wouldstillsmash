@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="com.stromberg.scott.seventenwouldstillsmash.activity.JoinGroupActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/primary"
+        android:gravity="center"
+        android:paddingBottom="32dp"
+        android:paddingTop="32dp"
+        android:text="@string/app_name"
+        android:textColor="@color/text_primary"
+        android:textSize="30sp"
+        fontPath="Quicksand-Bold.ttf"
+        tools:ignore="MissingPrefix" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_gravity="center"
+        android:theme="@style/ProgressBar"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp">
+
+        <TextView
+            android:id="@+id/create_group_code_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/light_gray"
+            android:textAllCaps="true"
+            android:textSize="40sp"
+            android:gravity="center"
+            android:typeface="monospace"
+            android:enabled="false"/>
+
+        <EditText
+            android:id="@+id/create_group_name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Enter your group name."
+            android:gravity="center_horizontal"
+            android:textColor="@color/text_secondary"/>
+
+        <Button
+            android:id="@+id/create_group_create_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/MyCustomButton"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:text="Create Group"/>
+    </LinearLayout>
+</LinearLayout>
