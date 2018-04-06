@@ -57,7 +57,10 @@ class JoinGroupActivity : AppCompatActivity() {
         val group = prefs.getString(getString(R.string.shared_prefs_group_code), null)
 
         if(group != null) {
-            startActivity(Intent(this@JoinGroupActivity, MainActivity::class.java))
+            val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finish()
         }
     }
 
