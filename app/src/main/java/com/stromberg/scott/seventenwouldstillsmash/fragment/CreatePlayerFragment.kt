@@ -417,13 +417,20 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun deletePlayer() {
-        db.getReference(activity)
-            .child("players")
-            .child(editingPlayer!!.id)
-            .removeValue()
-            .addOnCompleteListener( {
-                activity.onBackPressed()
-            })
+        val builder = AlertDialog.Builder(context)
+        builder.setTitle("Delete " + editingPlayer?.name)
+        builder.setMessage("You can't undo this. Are you sure?")
+        builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
+            db.getReference(activity)
+                    .child("players")
+                    .child(editingPlayer!!.id)
+                    .removeValue()
+                    .addOnCompleteListener( {
+                        activity.onBackPressed()
+                    })
+        })
+        builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+        builder.show()
     }
 
     override fun setContentShown(shown: Boolean) {
