@@ -175,15 +175,13 @@ class GamesFragment : BaseFragment() {
 //    }
 
     fun handleSnapshot(snapshot: DataSnapshot?) {
+        games.clear()
+
         snapshot?.children?.reversed()?.forEach {
             var game: Game = it.getValue(Game::class.java)!!
             game.id = it.key
             games.add(game)
         }
-
-        pullToRefreshView!!.refreshComplete()
-
-        adapter!!.loadMoreComplete()
 
 //        if(shouldShowMore) {
 //            lastGameLoaded = games.last().id
@@ -192,7 +190,12 @@ class GamesFragment : BaseFragment() {
 //            adapter!!.setEnableLoadMore(false)
 //        }
 
+        setupAdapter(games)
         recyclerView?.adapter?.notifyDataSetChanged()
+
+        pullToRefreshView!!.refreshComplete()
+
+        adapter!!.loadMoreComplete()
 
 //        if(toggleContentShown) {
             setContentShown(true)
