@@ -19,42 +19,32 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
 
         val prefs = mContext.getSharedPreferences(mContext.getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
 
-        // player win/loss
-        val royaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_won", 0f)
-        val royaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "_games_lost", 0f)
-        val royaleGamesPlayed = royaleGamesWon + royaleGamesLost;
-        val suddenDeathGamesWon = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "_games_won", 0f)
-        val suddenDeathGamesLost = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "_games_lost", 0f)
-        val suddenDeathGamesPlayed = suddenDeathGamesWon + suddenDeathGamesLost;
+        // 30 DAY
+        val thirtyDayRoyaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "30_day_games_won", 0f)
+        val thirtyDayRoyaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "30_day_games_lost", 0f)
+        val thirtyDayRoyaleGamesPlayed = thirtyDayRoyaleGamesWon + thirtyDayRoyaleGamesLost;
+        val thirtyDaySuddenDeathGamesWon = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "30_day_games_won", 0f)
+        val thirtyDaySuddenDeathGamesLost = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "30_day_games_lost", 0f)
+        val thirtyDaySuddenDeathGamesPlayed = thirtyDaySuddenDeathGamesWon + thirtyDaySuddenDeathGamesLost;
 
-        val royaleWinPercentage = if(royaleGamesPlayed > 0) royaleGamesWon / royaleGamesPlayed else 0f
-        val suddenDeathWinPercentage = if(suddenDeathGamesPlayed > 0) suddenDeathGamesWon / suddenDeathGamesPlayed else 0f
+        val thirtyDayRoyaleWinPercentage = if(thirtyDayRoyaleGamesPlayed > 0) thirtyDayRoyaleGamesWon / thirtyDayRoyaleGamesPlayed else 0f
+        val thirtyDaySuddenDeathWinPercentage = if(thirtyDaySuddenDeathGamesPlayed > 0) thirtyDaySuddenDeathGamesWon / thirtyDaySuddenDeathGamesPlayed else 0f
 
-        viewHolder?.setText(R.id.player_list_item_royale_wins_text, (Math.round(royaleWinPercentage * 100).toString() + "%") + " (" + royaleGamesWon.toInt() + "/" + royaleGamesPlayed.toInt() + ")")
-        viewHolder?.setText(R.id.player_list_item_sudden_death_wins_text, (Math.round(suddenDeathWinPercentage * 100).toString() + "%") + " (" + suddenDeathGamesWon.toInt() + "/" + suddenDeathGamesPlayed.toInt() + ")")
+        viewHolder?.setText(R.id.player_list_item_30_day_royale_wins_text, (Math.round(thirtyDayRoyaleWinPercentage * 100).toString() + "%") + " (" + thirtyDayRoyaleGamesWon.toInt() + "/" + thirtyDayRoyaleGamesPlayed.toInt() + ")")
+        viewHolder?.setText(R.id.player_list_item_30_day_sudden_death_wins_text, (Math.round(thirtyDaySuddenDeathWinPercentage * 100).toString() + "%") + " (" + thirtyDaySuddenDeathGamesWon.toInt() + "/" + thirtyDaySuddenDeathGamesPlayed.toInt() + ")")
 
-//        // best character
-//        val hashMapType = object : TypeToken<HashMap<String, CharacterStats>>() {}.type
-//        val playerStats = Gson().fromJson<HashMap<String, CharacterStats>>(prefs.getString("PlayerStatsJson", null), hashMapType)
-//
-//        var thisPlayerStats = playerStats.filter { it.key.contains(item.id!!, true) }
-//
-//        var best = thisPlayerStats.values
-//                .filter { it.wins + it.losses > 1 }
-//                .maxBy { it.wins.toFloat() / (it.wins.toFloat() + it.losses.toFloat()) }
-//
-//        var worst = thisPlayerStats.values
-//                .filter { it.wins + it.losses > 1 }
-//                .maxBy { it.losses.toFloat() / (it.wins.toFloat() + it.losses.toFloat()) }
-//
-//        var bestOneWinRate = best!!.wins.toFloat() / (best!!.wins.toFloat() + best!!.losses.toFloat())
-//        var bestTwoWinRate = best!!.wins.toFloat() / (best!!.wins.toFloat() + best!!.losses.toFloat())
-//        var worstOneWinRate = worst!!.losses.toFloat() / (worst!!.wins.toFloat() + worst!!.losses.toFloat())
-//        var worstTwoWinRate = worst!!.losses.toFloat() / (worst!!.wins.toFloat() + worst!!.losses.toFloat())
-//        viewHolder?.setText(R.id.player_list_item_best_one_text, (bestOneWinRate * 100).toString() + "%")
-//        viewHolder?.setImageResource(R.id.player_list_item_best_one_image, CharacterHelper.getImage(best!!.characterId))
-//
-//        viewHolder?.setText(R.id.player_list_item_worst_one_text, (worstOneWinRate * 100).toString() + "%")
-//        viewHolder?.setImageResource(R.id.player_list_item_worst_one_image, CharacterHelper.getImage(worst!!.characterId))
+        // ALL TIME
+        val allTimeRoyaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "all_time_games_won", 0f)
+        val allTimeRoyaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "all_time_games_lost", 0f)
+        val allTimeRoyaleGamesPlayed = allTimeRoyaleGamesWon + allTimeRoyaleGamesLost;
+        val allTimeSuddenDeathGamesWon = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", 0f)
+        val allTimeSuddenDeathGamesLost = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "all_time_games_lost", 0f)
+        val allTimeSuddenDeathGamesPlayed = allTimeSuddenDeathGamesWon + allTimeSuddenDeathGamesLost;
+
+        val allTimeRoyaleWinPercentage = if(allTimeRoyaleGamesPlayed > 0) allTimeRoyaleGamesWon / allTimeRoyaleGamesPlayed else 0f
+        val allTimeSuddenDeathWinPercentage = if(allTimeSuddenDeathGamesPlayed > 0) allTimeSuddenDeathGamesWon / allTimeSuddenDeathGamesPlayed else 0f
+
+        viewHolder?.setText(R.id.player_list_item_all_time_royale_wins_text, (Math.round(allTimeRoyaleWinPercentage * 100).toString() + "%") + " (" + allTimeRoyaleGamesWon.toInt() + "/" + allTimeRoyaleGamesPlayed.toInt() + ")")
+        viewHolder?.setText(R.id.player_list_item_all_time_sudden_death_wins_text, (Math.round(allTimeSuddenDeathWinPercentage * 100).toString() + "%") + " (" + allTimeSuddenDeathGamesWon.toInt() + "/" + allTimeSuddenDeathGamesPlayed.toInt() + ")")
     }
 }
