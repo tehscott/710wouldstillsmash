@@ -3,15 +3,13 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 import android.app.AlertDialog
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.ProgressBar
+import android.widget.*
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -43,9 +41,11 @@ class CreatePlayerFragment : BaseFragment() {
     private var nameEditText: EditText? = null
     private var tabs: BottomNavigationView? = null
     private lateinit var visibilityToggle: ImageView
+    private lateinit var priorityToggle: ImageView
 
     private var editingPlayer: Player? = null
     private var isPlayerHidden = true
+    private var isPlayerLowPriority = false
     private var isFirstLoad = true
     private val characterStats = ArrayList<CharacterStats>()
     private var bestRoyaleCharacters = ArrayList<CharacterStats>()
@@ -60,6 +60,7 @@ class CreatePlayerFragment : BaseFragment() {
             if(arguments.containsKey("player")) {
                 editingPlayer = arguments.getSerializable("player") as Player?
                 isPlayerHidden = editingPlayer?.isHidden ?: false
+                isPlayerLowPriority = editingPlayer?.isLowPriority ?: false
             }
 
             if(arguments.containsKey("players")) {
@@ -82,9 +83,11 @@ class CreatePlayerFragment : BaseFragment() {
         visibilityToggle.setOnClickListener(View.OnClickListener {
             if(isPlayerHidden) {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
+                Toast.makeText(context, "Set player to visible", Toast.LENGTH_SHORT).show()
             }
             else {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
+                Toast.makeText(context, "Set player to hidden", Toast.LENGTH_SHORT).show()
             }
 
             isPlayerHidden = !isPlayerHidden
@@ -95,6 +98,27 @@ class CreatePlayerFragment : BaseFragment() {
         }
         else {
             visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
+        }
+
+        priorityToggle = contentView!!.findViewById(R.id.create_player_priority_button)
+        priorityToggle.setOnClickListener(View.OnClickListener {
+            if(isPlayerLowPriority) {
+                priorityToggle.setImageResource(R.drawable.ic_priority_high)
+                Toast.makeText(context, "Set player to normal priority", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                priorityToggle.setImageResource(R.drawable.ic_priority_low)
+                Toast.makeText(context, "Set player to low priority", Toast.LENGTH_SHORT).show()
+            }
+
+            isPlayerLowPriority = !isPlayerLowPriority
+        })
+
+        if(isPlayerLowPriority) {
+            priorityToggle.setImageResource(R.drawable.ic_priority_low)
+        }
+        else {
+            priorityToggle.setImageResource(R.drawable.ic_priority_high)
         }
 
         return contentView
@@ -412,6 +436,7 @@ class CreatePlayerFragment : BaseFragment() {
             player.name = playerName
             player.id = Calendar.getInstance().timeInMillis.toString()
             player.isHidden = isPlayerHidden
+            player.isLowPriority = isPlayerLowPriority
 
             db.getReference(activity)
                 .child("players")
@@ -430,6 +455,7 @@ class CreatePlayerFragment : BaseFragment() {
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
             editingPlayer!!.isHidden = isPlayerHidden
+            editingPlayer!!.isLowPriority = isPlayerLowPriority
 
             db.getReference(activity)
                 .child("players")

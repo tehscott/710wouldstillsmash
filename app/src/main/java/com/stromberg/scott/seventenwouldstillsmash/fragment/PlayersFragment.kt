@@ -119,8 +119,8 @@ class PlayersFragment : BaseFragment() {
                     }
 
                     players.sortBy { it.name }
+                    players.sortBy { it.isLowPriority }
                     players.sortBy { it.isHidden }
-                    //todo sort by games played too
 
                     val playerNameWidth = getLongestNameLength(players)
 

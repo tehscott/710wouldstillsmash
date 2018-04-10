@@ -40,6 +40,14 @@
                 android:src="@drawable/ic_visibility_on"
                 android:padding="8dp"
                 android:background="?android:attr/selectableItemBackground"/>
+
+            <ImageView
+                android:id="@+id/create_player_priority_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_priority_high"
+                android:padding="8dp"
+                android:background="?android:attr/selectableItemBackground"/>
         </LinearLayout>
 
         <android.support.design.widget.BottomNavigationView
