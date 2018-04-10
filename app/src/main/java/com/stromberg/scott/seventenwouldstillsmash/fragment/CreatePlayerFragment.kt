@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.ProgressBar
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.google.firebase.database.DataSnapshot
@@ -41,9 +42,11 @@ class CreatePlayerFragment : BaseFragment() {
     private var saveButton: Button? = null
     private var nameEditText: EditText? = null
     private var tabs: BottomNavigationView? = null
+    private lateinit var visibilityToggle: ImageView
 
     private var editingPlayer: Player? = null
-    private var isFirstLoad = true;
+    private var isPlayerHidden = true
+    private var isFirstLoad = true
     private val characterStats = ArrayList<CharacterStats>()
     private var bestRoyaleCharacters = ArrayList<CharacterStats>()
     private var bestSuddenDeathCharacters = ArrayList<CharacterStats>()
@@ -56,6 +59,7 @@ class CreatePlayerFragment : BaseFragment() {
         if(arguments != null) {
             if(arguments.containsKey("player")) {
                 editingPlayer = arguments.getSerializable("player") as Player?
+                isPlayerHidden = editingPlayer?.isHidden ?: false
             }
 
             if(arguments.containsKey("players")) {
@@ -73,6 +77,25 @@ class CreatePlayerFragment : BaseFragment() {
 
         nameEditText = contentView!!.findViewById(R.id.create_player_name)
         nameEditText?.setText(editingPlayer?.name ?: "")
+
+        visibilityToggle = contentView!!.findViewById(R.id.create_player_visibility_button)
+        visibilityToggle.setOnClickListener(View.OnClickListener {
+            if(isPlayerHidden) {
+                visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
+            }
+            else {
+                visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
+            }
+
+            isPlayerHidden = !isPlayerHidden
+        })
+
+        if(isPlayerHidden) {
+            visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
+        }
+        else {
+            visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
+        }
 
         return contentView
     }
@@ -257,7 +280,7 @@ class CreatePlayerFragment : BaseFragment() {
         val averageGamesPlayedByPlayers = games.size / players.size
 
         players.forEachIndexed { index, player ->
-            if(player.id != editingPlayer!!.id) {
+            if(player.id != editingPlayer!!.id && !player.isHidden) {
                 val numGamesWithThisPlayer = games.count { it.players.any { it.player?.id == player.id } }
                 val numGamesThisPlayerWon: Float = games.count { it.players.any { it.player?.id == player.id && it.winner } }.toFloat()
                 val numGamesIWonVsThisPlayer: Float = games.count { it.players.any { it.player?.id == player.id } && it.players.any { it.player?.id == editingPlayer!!.id && it.winner } }.toFloat()
@@ -388,6 +411,7 @@ class CreatePlayerFragment : BaseFragment() {
             var player = Player()
             player.name = playerName
             player.id = Calendar.getInstance().timeInMillis.toString()
+            player.isHidden = isPlayerHidden
 
             db.getReference(activity)
                 .child("players")
@@ -405,6 +429,7 @@ class CreatePlayerFragment : BaseFragment() {
         var playerName = nameEditText!!.text.toString()
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
+            editingPlayer!!.isHidden = isPlayerHidden
 
             db.getReference(activity)
                 .child("players")

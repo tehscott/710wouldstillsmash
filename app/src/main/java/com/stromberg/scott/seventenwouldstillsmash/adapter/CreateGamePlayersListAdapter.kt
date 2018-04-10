@@ -28,7 +28,6 @@ class CreateGamePlayersListAdapter(private var players: List<GamePlayer>, privat
         h.image.setImageResource(CharacterHelper.getImage(item.characterId))
         h.name.text = item.player?.name
         h.trophy.visibility = if(item.winner) View.VISIBLE else View.GONE
-
         h.parent.setOnClickListener({ itemClicked(position) })
     }
 

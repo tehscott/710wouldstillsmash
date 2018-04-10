@@ -309,7 +309,7 @@ class CreateGameFragment : BaseFragment() {
         players.forEach { player ->
             val playerInUse = game.players.any { it.player!! == player }
 
-            if (!playerInUse) {
+            if (!playerInUse && !player.isHidden) {
                 playerList.add(player)
             }
         }

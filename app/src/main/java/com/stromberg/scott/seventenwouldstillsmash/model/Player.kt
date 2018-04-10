@@ -7,4 +7,5 @@ class Player : Serializable {
     @Exclude
     var id: String? = null
     var name: String? = null
+    var isHidden: Boolean = false
 }
