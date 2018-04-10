@@ -3,7 +3,6 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 import android.app.AlertDialog
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
-import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -138,7 +137,7 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun setupGamesAdapter(games: List<Game>) {
-        gamesAdapter = GamesListAdapter(games)
+        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
             (activity as MainActivity).editGame(games[position])

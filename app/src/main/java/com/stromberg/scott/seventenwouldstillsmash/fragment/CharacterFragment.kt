@@ -118,7 +118,7 @@ class CharacterFragment : BaseFragment() {
     }
 
     private fun setupGamesAdapter(games: List<Game>) {
-        gamesAdapter = GamesListAdapter(games)
+        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
             (activity as MainActivity).editGame(games[position])

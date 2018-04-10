@@ -73,7 +73,7 @@ class GamesFragment : BaseFragment() {
     }
 
     private fun setupAdapter(games: List<Game>) {
-        adapter = GamesListAdapter(games)
+        adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
 
         adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
             (activity as MainActivity).editGame(games[position])

@@ -10,20 +10,35 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
+import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GamesListAdapter(games: List<Game>) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games) {
+class GamesListAdapter(games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games) {
     private var dateFormatter = SimpleDateFormat("MM/dd/yy")
+
+    enum class SortBy {
+        WINNER,
+        PLAYER;
+    }
 
     override fun convert(viewHolder: BaseViewHolder?, item: Game?) {
         val playersList = viewHolder!!.getView<LinearLayout>(R.id.player_list)
         val gameTypeImage = viewHolder.getView<ImageView>(R.id.game_list_item_game_type_image)
 
         playersList.removeAllViews()
-        item?.players?.sortedWith(compareBy({ !it.winner }, { it.player?.name }))?.forEach({ player ->
+
+        var players = ArrayList<GamePlayer>()
+
+        when(sortBy) {
+            SortBy.WINNER -> players = ArrayList(item?.players?.sortedWith(compareBy({ !it.winner }, { it.player?.name })))
+            SortBy.PLAYER -> players = ArrayList(item?.players?.sortedWith(compareBy({ it.player?.name })))
+        }
+
+        players.forEach({ player ->
             run {
                 val playerLayout: FrameLayout = LayoutInflater.from(mContext).inflate(R.layout.game_list_item_image, null) as FrameLayout
                 playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.characterId))
