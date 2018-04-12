@@ -140,7 +140,7 @@ class CreatePlayerFragment : BaseFragment() {
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
-            (activity as MainActivity).editGame(games[position])
+            (activity as MainActivity).editGame(games[position], games)
         }
 
         recyclerView!!.adapter = gamesAdapter

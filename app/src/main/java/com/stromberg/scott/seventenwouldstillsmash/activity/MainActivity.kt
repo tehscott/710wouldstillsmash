@@ -88,13 +88,34 @@ class MainActivity : AppCompatActivity() {
         mAddFabButton?.visibility = View.GONE
     }
 
-    fun createGame() {
-        navigateToFragment(CreateGameFragment())
+    fun createGame(games: ArrayList<Game>) {
+        val allPlayers = ArrayList<Player>()
+
+        games.forEach {
+            val players = it.players.map { it.player!! }
+
+            players.forEach {
+                val player = it
+
+               if(allPlayers.find { it.id.equals(player.id) } == null) {
+                   allPlayers.add(player)
+               }
+            }
+        }
+
+        val bundle = Bundle()
+        bundle.putSerializable("TopCharacters", getTopCharacters(allPlayers, games))
+
+        val fragment = CreateGameFragment()
+        fragment.arguments = bundle
+
+        navigateToFragment(fragment)
     }
 
-    fun editGame(game: Game) {
+    fun editGame(game: Game, games: List<Game>) {
         val bundle = Bundle()
         bundle.putParcelable("Game", game)
+        bundle.putSerializable("TopCharacters", getTopCharacters(game.players.map { it.player!! }, games))
 
         val fragment = CreateGameFragment()
         fragment.arguments = bundle
@@ -137,6 +158,30 @@ class MainActivity : AppCompatActivity() {
         }
         else {
             super.onBackPressed()
+        }
+    }
+
+    companion object {
+        fun getTopCharacters(players: List<Player>, games: List<Game>): HashMap<String, ArrayList<Int>> {
+            val topFiveCharacters = HashMap<String, ArrayList<Int>>()
+
+            players.forEach {
+                val gamesWithCharacters = HashMap<Int, Int>()
+                val player = it
+                (0..57).forEachIndexed { index, characterId ->
+                    val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id == player.id } }
+                    gamesWithCharacters[characterId] = numGamesWithThisCharacter
+                }
+
+                val characterIds = ArrayList<Int>()
+
+                gamesWithCharacters.entries.sortedByDescending { it.value }.take(5).forEach {
+                    characterIds.add(it.key)
+                }
+
+                topFiveCharacters[player.id!!] = characterIds
+            }
+            return topFiveCharacters
         }
     }
 }
