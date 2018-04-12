@@ -300,26 +300,33 @@ class CreateGameFragment : BaseFragment() {
         builder.setTitle("Player name")
         builder.setView(linearLayout)
         builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
-            if(gamePlayer.player == null) {
-                gamePlayer.player = Player()
+            if(editText.text.toString().trim().isNotEmpty()) {
+                if (gamePlayer.player == null) {
+                    gamePlayer.player = Player()
+                }
+
+                gamePlayer.player!!.name = editText.text.toString()
+
+                players.add(gamePlayer.player!!)
+                players.sortByDescending { it.name }
+
+                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+                val playerList = getUnusedPlayers(gamePlayer)
+                val playerNames = ArrayList<String>(playerList.map { it.name })
+                playerNames.add(0, "")
+                playerNames.add(1, "Add Player")
+
+                val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerNames)
+                playerSpinner.adapter = playerAdapter
+                playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
+
+                dialog.dismiss()
             }
-
-            gamePlayer.player!!.name = editText.text.toString()
-
-            players.add(gamePlayer.player!!)
-            players.sortByDescending { it.name }
-
-            val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-            val playerList = getUnusedPlayers(gamePlayer)
-            val playerNames = ArrayList<String>(playerList.map { it.name })
-            playerNames.add(0, "")
-            playerNames.add(1, "Add Player")
-
-            val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerNames)
-            playerSpinner.adapter = playerAdapter
-            playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
-
-            dialog.dismiss()
+            else {
+                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+                playerSpinner.setSelection(0)
+                dialog.dismiss()
+            }
         })
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ ->
             val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
