@@ -19,4 +19,11 @@
     <string name="characters">Characters</string>
     <string name="shared_prefs_group_code">GroupCode</string>
     <string name="shared_prefs_group_name">GroupName</string>
+
+    <string-array name="character_sort_options">
+        <item>Name</item>
+        <item>Popularity</item>
+        <item>Win Rate (Royale)</item>
+        <item>Win Rate (Sudden Death)</item>
+    </string-array>
 </resources>
