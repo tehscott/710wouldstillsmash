@@ -101,7 +101,7 @@ class CreateGameFragment : BaseFragment() {
         contentView!!.findViewById<View>(R.id.create_game_cancel_button).setOnClickListener({ activity.onBackPressed() })
 
         if(isEdit) {
-            deleteButton?.setOnClickListener({ deleteGame(true) })
+            deleteButton?.setOnClickListener({ deleteGame(true,false) })
             deleteButton?.visibility = View.VISIBLE
 
             createButton!!.setOnClickListener({ updateGame() })
@@ -119,7 +119,7 @@ class CreateGameFragment : BaseFragment() {
 
     private fun updateGame() {
         if(game.players.size > 1) {
-            deleteGame(false)
+            deleteGame(false, true)
             createGame()
         }
         else {
@@ -127,14 +127,34 @@ class CreateGameFragment : BaseFragment() {
         }
     }
 
-    private fun deleteGame(goBack: Boolean) {
+    private fun deleteGame(goBack: Boolean, force: Boolean) {
+        if(force) {
+            doDeleteGame(goBack)
+        }
+        else {
+            val builder = AlertDialog.Builder(context)
+            builder.setTitle("Delete game")
+            builder.setMessage("You can't undo this. Are you sure?")
+            builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
+                doDeleteGame(goBack)
+            })
+            builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+            builder.show()
+        }
+    }
+
+    private fun doDeleteGame(goBack: Boolean) {
         setContentShown(false)
 
         db.getReference(activity)
-            .child("games")
-            .child(game.id)
-            .removeValue()
-            .addOnCompleteListener( { if(goBack) { activity.onBackPressed() } } )
+                .child("games")
+                .child(game.id)
+                .removeValue()
+                .addOnCompleteListener({
+                    if (goBack) {
+                        activity.onBackPressed()
+                    }
+                })
     }
 
     private fun createGame() {
