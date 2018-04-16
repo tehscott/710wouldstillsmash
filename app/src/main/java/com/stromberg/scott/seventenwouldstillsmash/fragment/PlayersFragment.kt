@@ -54,6 +54,8 @@ class PlayersFragment : BaseFragment() {
             override fun onLoadMore() {}
         })
 
+        contentView!!.findViewById<View>(R.id.sort_by_container).visibility = View.GONE
+
         return contentView
     }
 

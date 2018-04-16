@@ -151,7 +151,7 @@ class CharactersFragment : BaseFragment() {
         adapter.setEnableLoadMore(false)
 
         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
-            (activity as MainActivity).viewCharacter(position)
+            (activity as MainActivity).viewCharacter(characterIds[position])
         }
 
         recyclerView?.adapter?.notifyDataSetChanged()
