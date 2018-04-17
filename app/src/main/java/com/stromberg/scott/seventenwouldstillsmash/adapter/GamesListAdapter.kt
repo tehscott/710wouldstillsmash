@@ -8,6 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
@@ -17,8 +18,9 @@ import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GamesListAdapter(games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games) {
+class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games), FastScrollRecyclerView.SectionedAdapter {
     private var dateFormatter = SimpleDateFormat("MM/dd/yy")
+    private var sectionDateFormatter = SimpleDateFormat("MMM yy")
 
     enum class SortBy {
         WINNER,
@@ -70,5 +72,9 @@ class GamesListAdapter(games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter
         }
 
         viewHolder.setText(R.id.game_list_item_date, dateFormatter.format(Date(item.date)))
+    }
+
+    override fun getSectionName(position: Int): String {
+        return sectionDateFormatter.format(Date(games[position].date))
     }
 }

@@ -46,10 +46,18 @@
             android:theme="@style/ProgressBar"
             android:visibility="gone"/>
 
-        <android.support.v7.widget.RecyclerView
+        <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/character_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            app:fastScrollPopupBgColor="@color/accent"
+            app:fastScrollPopupTextColor="@color/text_primary"
+            app:fastScrollThumbColor="@color/accent"
+            app:fastScrollPopupBackgroundSize="48dp"
+            app:fastScrollPopupTextSize="26sp"
+            android:background="#EDEDED"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
     </LinearLayout>
 </LinearLayout>

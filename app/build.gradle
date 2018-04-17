@@ -37,6 +37,7 @@ dependencies {
     implementation('com.alibaba.android:ultraviewpager:1.0.6.1@aar') {
         transitive = true
     }
+    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.17'
 }
 
 apply plugin: 'com.google.gms.google-services'
