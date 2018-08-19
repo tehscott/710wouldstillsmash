@@ -4,7 +4,6 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Statistic
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 
 class StatisticsListAdapter(statistics: List<Statistic>) : BaseQuickAdapter<Statistic, BaseViewHolder>(R.layout.statistics_child_list_item, statistics) {
     override fun convert(viewHolder: BaseViewHolder?, item: Statistic) {

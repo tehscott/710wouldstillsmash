@@ -6,27 +6,30 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v4.view.ViewPager
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.*
+import android.widget.AdapterView.OnItemSelectedListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.*
+import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
+import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.text.SimpleDateFormat
 import java.util.*
-import android.widget.AdapterView
-import android.widget.AdapterView.OnItemSelectedListener
-
 
 
 class CreateGameFragment : BaseFragment() {
@@ -51,7 +54,7 @@ class CreateGameFragment : BaseFragment() {
     private var addPlayerButton: TextView? = null
     private var addPlayerDialog: AlertDialog? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.create_game, null)
 
         dateTextView = contentView!!.findViewById(R.id.create_game_date)
@@ -64,19 +67,21 @@ class CreateGameFragment : BaseFragment() {
 
         isEdit = arguments?.containsKey("Game") ?: false
 
-        if(isEdit) {
-            game = arguments.getParcelable("Game")
+        if(isEdit && arguments != null) {
+            game = arguments!!.getParcelable("Game")
         }
         else {
             game.gameType = GameType.ROYALE.toString()
             game.date = Calendar.getInstance().time.time
         }
 
-        topFiveCharacters = arguments.getSerializable("TopCharacters") as HashMap<String, ArrayList<Int>>
-        topFiveCharacters.forEach { it.value.sort() }
+        if(arguments != null) {
+            topFiveCharacters = arguments!!.getSerializable("TopCharacters") as HashMap<String, ArrayList<Int>>
+            topFiveCharacters.forEach { it.value.sort() }
+        }
 
         dateTextView!!.text = dateFormatter.format(Date(game.date))
-        dateTextView!!.setOnClickListener({
+        dateTextView!!.setOnClickListener {
             var datePicker = DatePickerDialog(activity)
             datePicker.setOnDateSetListener { view, year, month, day ->
                 val cal = Calendar.getInstance()
@@ -86,7 +91,7 @@ class CreateGameFragment : BaseFragment() {
                 dateTextView!!.text = dateFormatter.format(Date(game.date))
             }
             datePicker.show()
-        })
+        }
 
         setupToggle()
 
@@ -98,7 +103,7 @@ class CreateGameFragment : BaseFragment() {
         val dividerItemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
         playersList!!.addItemDecoration(dividerItemDecoration)
 
-        contentView!!.findViewById<View>(R.id.create_game_cancel_button).setOnClickListener({ activity.onBackPressed() })
+        contentView!!.findViewById<View>(R.id.create_game_cancel_button).setOnClickListener { activity!!.onBackPressed() }
 
         if(isEdit) {
             deleteButton?.setOnClickListener({ deleteGame(true,false) })
@@ -135,10 +140,10 @@ class CreateGameFragment : BaseFragment() {
             val builder = AlertDialog.Builder(context)
             builder.setTitle("Delete game")
             builder.setMessage("You can't undo this. Are you sure?")
-            builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
+            builder.setPositiveButton(android.R.string.ok) { _, _ ->
                 doDeleteGame(goBack)
-            })
-            builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+            }
+            builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
             builder.show()
         }
     }
@@ -146,31 +151,31 @@ class CreateGameFragment : BaseFragment() {
     private fun doDeleteGame(goBack: Boolean) {
         setContentShown(false)
 
-        db.getReference(activity)
-                .child("games")
-                .child(game.id)
-                .removeValue()
-                .addOnCompleteListener({
-                    if (goBack) {
-                        activity.onBackPressed()
-                    }
-                })
+        db.getReference(context = activity!!)
+            .child("games")
+            .child(game.id)
+            .removeValue()
+            .addOnCompleteListener {
+                if (goBack) {
+                    activity!!.onBackPressed()
+                }
+            }
     }
 
     private fun createGame() {
         if(game.players.size > 1) {
             setContentShown(false)
 
-            db.getReference(activity)
+            db.getReference(context = activity!!)
                 .child("games")
                 .child(Calendar.getInstance().timeInMillis.toString())
                 .setValue(game)
-                .addOnCompleteListener({
-                    activity.onBackPressed()
-                })
-                .addOnFailureListener({
+                .addOnCompleteListener {
+                    activity!!.onBackPressed()
+                }
+                .addOnFailureListener {
                     Snackbar.make(contentView!!, "Failed to create game", Snackbar.LENGTH_SHORT).show()
-                })
+                }
         }
         else {
             showDialog("There must be more than one player.")
@@ -178,7 +183,7 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun addPlayer(editingPlayer: GamePlayer?) {
-        val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val gamePlayer = editingPlayer ?: GamePlayer()
         val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
         val playerSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
@@ -226,36 +231,35 @@ class CreateGameFragment : BaseFragment() {
         builder.setTitle(if(editingPlayer != null) "Edit Player" else "Add Player")
         builder.setView(layout)
 
-        builder.setNegativeButton(android.R.string.cancel, { dialog, _ ->
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
             gamePlayer.characterId = editingCharacterId
             dialog.dismiss()
-        })
-        builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player", { dialog, _ ->
+        }
+        builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player") { dialog, _ ->
             run {
                 if(gamePlayer.player!!.id == null) {
                     gamePlayer.player!!.id = Calendar.getInstance().timeInMillis.toString()
 
-                db.getReference(activity)
-                    .child("players")
-                    .child(gamePlayer.player!!.id)
-                    .setValue(gamePlayer.player)
-                    .addOnCompleteListener({
-                        if(editingPlayer == null) {
-                            addPlayerToGame(gamePlayer)
+                    db.getReference(context = activity!!)
+                            .child("players")
+                            .child(gamePlayer.player!!.id!!)
+                            .setValue(gamePlayer.player)
+                            .addOnCompleteListener {
+                                if(editingPlayer == null) {
+                                    addPlayerToGame(gamePlayer)
 
-                            if(!players.any { it.id.equals(gamePlayer.player!!.id) }) {
-                                players.add(gamePlayer.player!!)
+                                    if(!players.any { it.id.equals(gamePlayer.player!!.id) }) {
+                                        players.add(gamePlayer.player!!)
+                                    }
+                                } else {
+                                    playersList!!.adapter.notifyDataSetChanged()
+                                }
+
+                                dialog.dismiss()
                             }
-                        }
-                        else {
-                            playersList!!.adapter.notifyDataSetChanged()
-                        }
-
-                        dialog.dismiss()
-                    })
-                    .addOnFailureListener({
-                        showDialog("Failed to add player.")
-                    })
+                            .addOnFailureListener {
+                                showDialog("Failed to add player.")
+                            }
                 }
                 else {
                     if(editingPlayer == null) {
@@ -268,7 +272,7 @@ class CreateGameFragment : BaseFragment() {
                     dialog.dismiss()
                 }
             }
-        })
+        }
 
         if(editingPlayer != null) {
             builder.setNeutralButton("Delete", { dialog, _ ->
@@ -299,7 +303,7 @@ class CreateGameFragment : BaseFragment() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Player name")
         builder.setView(linearLayout)
-        builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
             if(editText.text.toString().trim().isNotEmpty()) {
                 if (gamePlayer.player == null) {
                     gamePlayer.player = Player()
@@ -327,20 +331,20 @@ class CreateGameFragment : BaseFragment() {
                 playerSpinner.setSelection(0)
                 dialog.dismiss()
             }
-        })
-        builder.setNegativeButton(android.R.string.cancel, { dialog, _ ->
+        }
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
             val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
             playerSpinner.setSelection(0)
             dialog.dismiss()
-        })
+        }
         builder.show()
     }
 
     private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer, prefs: SharedPreferences) {
-        val characterNames = (0..57).mapNotNull { CharacterHelper.getName(it) } as ArrayList<String>
+        val characterNames = (0..CharacterHelper.getNumberOfCharacters()).mapNotNull { CharacterHelper.getName(it) } as ArrayList<String>
         val topCharactersForThisPlayer = getTopCharactersForPlayer(gamePlayer)
 
-        val characterAdapter = CharacterNameAdapter(context, topCharactersForThisPlayer, characterNames)
+        val characterAdapter = CharacterNameAdapter(activity!!, topCharactersForThisPlayer, characterNames)
         characterSpinner.adapter = characterAdapter
         characterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -461,14 +465,14 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
-                    snapshot?.children?.reversed()?.forEach {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.reversed().forEach {
                         var player: Player = it.getValue(Player::class.java)!!
                         player.id = it.key
                         players.add(player)

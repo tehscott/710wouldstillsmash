@@ -22,10 +22,10 @@ class CharactersListAdapter(characterIds: List<Int>, private var gamesForPlayers
 
         val royaleGamesPlayed: Float = (games!!.count { it.players.any { it.characterId == characterId } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
         val royaleGamesWon: Float = (games.count { it.players.any { it.characterId == characterId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-        val royaleGamesLost: Float = games.size - royaleGamesWon
+//        val royaleGamesLost: Float = games.size - royaleGamesWon
         val suddenDeathGamesPlayed: Float = (games.count { it.players.any { it.characterId == characterId } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
         val suddenDeathGamesWon: Float = (games.count { it.players.any { it.characterId == characterId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-        val suddenDeathGamesLost: Float = games.size - suddenDeathGamesWon
+//        val suddenDeathGamesLost: Float = games.size - suddenDeathGamesWon
 
         val royaleWinPercentage = if(royaleGamesPlayed > 0) royaleGamesWon / royaleGamesPlayed else 0f
         val suddenDeathWinPercentage = if(suddenDeathGamesPlayed > 0) suddenDeathGamesWon / suddenDeathGamesPlayed else 0f

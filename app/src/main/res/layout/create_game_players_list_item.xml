@@ -12,7 +12,7 @@
         android:id="@+id/create_game_players_list_item_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_character_wiifit"
+        android:src="@drawable/ssb4_character_wiifit"
         android:adjustViewBounds="true"
         android:padding="@dimen/space_8dp"/>
 

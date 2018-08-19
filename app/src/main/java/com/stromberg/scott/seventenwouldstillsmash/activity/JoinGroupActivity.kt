@@ -17,6 +17,7 @@ import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import android.view.inputmethod.InputMethodManager
+import com.google.gson.Gson
 
 class JoinGroupActivity : AppCompatActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -84,15 +85,16 @@ class JoinGroupActivity : AppCompatActivity() {
             .child("groups")
             .child(code)
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
-                    val group: Group? = snapshot?.getValue(Group::class.java)
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val group: Group? = snapshot.getValue(Group::class.java)
 
                     if(group != null) {
                         val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
                         prefs.edit().putString(getString(R.string.shared_prefs_group_code), group.code).apply()
                         prefs.edit().putString(getString(R.string.shared_prefs_group_name), group.name).apply()
+                        prefs.edit().putString(getString(R.string.shared_prefs_group_type), Gson().toJson(group.type)).apply()
 
                         val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

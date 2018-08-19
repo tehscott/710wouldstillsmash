@@ -6,13 +6,12 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.*
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
@@ -24,6 +23,8 @@ class CreateGroupActivity : AppCompatActivity() {
     private lateinit var groupCodeTextView: TextView
     private lateinit var groupNameEditText: EditText
     private lateinit var createGroupButton: Button
+    private lateinit var ssb4RadioButton: RadioButton
+    private lateinit var ssbUltimateRadioButton: RadioButton
 
     private var code: String? = null
 
@@ -34,6 +35,8 @@ class CreateGroupActivity : AppCompatActivity() {
         groupCodeTextView = findViewById(R.id.create_group_code_text_view)
         groupNameEditText = findViewById(R.id.create_group_name_edit_text)
         createGroupButton = findViewById(R.id.create_group_create_button)
+        ssb4RadioButton = findViewById(R.id.ssb_4_radio_button)
+        ssbUltimateRadioButton = findViewById(R.id.ssb_ultimate_radio_button)
 
         if(intent.extras != null && intent.extras.containsKey("Code")) {
             code = intent.extras.getString("Code").toUpperCase()
@@ -65,10 +68,10 @@ class CreateGroupActivity : AppCompatActivity() {
             .child("groups")
             .child(codeToTry)
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
-                    val group: Group? = snapshot?.getValue(Group::class.java)
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val group: Group? = snapshot.getValue(Group::class.java)
 
                     if(group != null) {
                         getGroupCode()
@@ -92,22 +95,22 @@ class CreateGroupActivity : AppCompatActivity() {
 
         db.reference
             .child("groups")
-            .child(code)
+            .child(code!!)
             .setValue(group)
-            .addOnCompleteListener( {
+            .addOnCompleteListener {
                 if(it.isSuccessful) {
                     val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
                     prefs.edit().putString(getString(R.string.shared_prefs_group_code), group.code).apply()
                     prefs.edit().putString(getString(R.string.shared_prefs_group_name), group.name).apply()
+                    prefs.edit().putString(getString(R.string.shared_prefs_group_type), Gson().toJson(group.type)).apply()
 
                     startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
-                }
-                else {
+                } else {
                     setContentShown(true)
 
                     showDialog("Failed to create a Group. Try again.")
                 }
-            })
+            }
     }
 
     private fun setContentShown(show: Boolean) {

@@ -13,6 +13,7 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.fragment.*
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
@@ -168,7 +169,7 @@ class MainActivity : AppCompatActivity() {
             players.forEach {
                 val gamesWithCharacters = HashMap<Int, Int>()
                 val player = it
-                (0..57).forEachIndexed { index, characterId ->
+                (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
                     val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id == player.id } }
                     gamesWithCharacters[characterId] = numGamesWithThisCharacter
                 }

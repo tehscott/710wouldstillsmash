@@ -1,6 +1,5 @@
 package com.stromberg.scott.seventenwouldstillsmash.util
 
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
@@ -44,7 +43,7 @@ fun FragmentActivity.showDialog(message: String) {
 }
 
 fun Fragment.showDialog(message: String) {
-    showDialog(activity, message)
+    showDialog(activity!!, message)
 }
 
 private fun showDialog(context: Context, message: String) {

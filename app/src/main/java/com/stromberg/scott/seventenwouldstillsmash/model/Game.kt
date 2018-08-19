@@ -7,7 +7,7 @@ import java.util.*
 
 class Game() : Parcelable {
     @Exclude
-    var id: String? = null
+    var id: String = ""
 
     var date: Long = 0
     var players: ArrayList<GamePlayer> = ArrayList()

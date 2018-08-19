@@ -38,7 +38,7 @@ class PlayersFragment : BaseFragment() {
     private var recyclerView: RecyclerView? = null
     private var pullToRefreshView: EasyRefreshLayout? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
 
         pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
@@ -66,18 +66,18 @@ class PlayersFragment : BaseFragment() {
     }
 
     private fun getGames() {
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("games")
             .orderByKey()
             .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) {}
+                override fun onCancelled(error: DatabaseError) {}
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     games.clear()
 
-                    snapshot?.children?.reversed()?.forEach {
+                    snapshot.children.reversed().forEach {
                         val game: Game = it.getValue(Game::class.java)!!
-                        game.id = it.key
+                        game.id = it.key!!
                         games.add(game)
                     }
 
@@ -105,16 +105,16 @@ class PlayersFragment : BaseFragment() {
     private fun getPlayers() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     players.clear()
 
-                    snapshot?.children?.reversed()?.forEach {
+                    snapshot.children.reversed().forEach {
                         val player: Player = it.getValue(Player::class.java)!!
                         player.id = it.key
                         players.add(player)
@@ -129,7 +129,7 @@ class PlayersFragment : BaseFragment() {
                     val adapter = PlayersListAdapter(players, playerNameWidth)
                     recyclerView!!.adapter = adapter
 
-                    adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+                    adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
                         editPlayer(players[position])
                     }
 
@@ -167,7 +167,7 @@ class PlayersFragment : BaseFragment() {
             val suddenDeathGames30DaysWon: Float = (games30Days.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
             val suddenDeathGames30DaysLost: Float = suddenDeathGames30DaysCount - suddenDeathGames30DaysWon
 
-            val prefs = activity.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_won", royaleGamesWon).apply()
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_lost", royaleGamesLost).apply()
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", suddenDeathGamesWon).apply()

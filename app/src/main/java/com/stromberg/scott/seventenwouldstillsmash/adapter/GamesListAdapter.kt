@@ -13,7 +13,6 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
-import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.text.SimpleDateFormat
 import java.util.*

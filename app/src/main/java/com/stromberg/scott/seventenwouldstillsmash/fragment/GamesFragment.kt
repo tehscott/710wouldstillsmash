@@ -38,7 +38,7 @@ class GamesFragment : BaseFragment() {
     private var progressBar: ProgressBar? = null
     private var searchView: SearchView? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.fragment_games, null)
 
         pullToRefreshView = contentView!!.findViewById(R.id.games_pull_to_refresh)
@@ -73,7 +73,7 @@ class GamesFragment : BaseFragment() {
     private fun setupAdapter(games: List<Game>) {
         adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
 
-        adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+        adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             (activity as MainActivity).editGame(games[position], games)
         }
 
@@ -145,14 +145,14 @@ class GamesFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("games")
             .orderByChild("date")
 //            .limitToLast(queryLimit)
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     handleSnapshot(snapshot)
                 }
             })
@@ -164,20 +164,20 @@ class GamesFragment : BaseFragment() {
 //                .endAt(startAfter)
 //                .limitToLast(queryLimit)
 //                .addListenerForSingleValueEvent( object : ValueEventListener {
-//                    override fun onCancelled(error: DatabaseError?) { }
+//                    override fun onCancelled(error: DatabaseError) { }
 //
-//                    override fun onDataChange(snapshot: DataSnapshot?) {
+//                    override fun onDataChange(snapshot: DataSnapshot) {
 //                        handleSnapshot(snapshot, snapshot!!.children.count() == queryLimit)
 //                    }
 //                })
 //    }
 
-    fun handleSnapshot(snapshot: DataSnapshot?) {
+    fun handleSnapshot(snapshot: DataSnapshot) {
         games.clear()
 
-        snapshot?.children?.reversed()?.forEach {
+        snapshot.children.reversed().forEach {
             var game: Game = it.getValue(Game::class.java)!!
-            game.id = it.key
+            game.id = it.key!!
             games.add(game)
         }
 

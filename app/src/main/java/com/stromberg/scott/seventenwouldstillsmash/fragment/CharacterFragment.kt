@@ -62,11 +62,11 @@ class CharacterFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.character, null)
 
-        if(arguments != null && arguments.containsKey("characterId")) {
-            mCharacterId = arguments.getInt("characterId")
+        if(arguments != null && arguments!!.containsKey("characterId")) {
+            mCharacterId = arguments!!.getInt("characterId")
         }
 
         recyclerView = contentView!!.findViewById(R.id.character_recyclerview)
@@ -120,7 +120,7 @@ class CharacterFragment : BaseFragment() {
     private fun setupGamesAdapter(games: List<Game>) {
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
 
-        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             (activity as MainActivity).editGame(games[position], games)
         }
 
@@ -136,16 +136,16 @@ class CharacterFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.getReference(activity)
+        db.getReference(context = activity!!)
                 .child("players")
                 .orderByKey()
                 .addListenerForSingleValueEvent( object : ValueEventListener {
-                    override fun onCancelled(error: DatabaseError?) { }
+                    override fun onCancelled(error: DatabaseError) { }
 
-                    override fun onDataChange(snapshot: DataSnapshot?) {
+                    override fun onDataChange(snapshot: DataSnapshot) {
                         players.clear()
 
-                        snapshot?.children?.reversed()?.forEach {
+                        snapshot.children.reversed().forEach {
                             var player: Player = it.getValue(Player::class.java)!!
                             player.id = it.key
                             players.add(player)
@@ -161,20 +161,20 @@ class CharacterFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     games.clear()
 
-                    snapshot?.children?.reversed()?.forEach {
+                    snapshot.children.reversed().forEach {
                         var game: Game = it.getValue(Game::class.java)!!
 
                         if(game.players.any({ it.characterId == mCharacterId })) {
-                            game.id = it.key
+                            game.id = it.key!!
                             games.add(game)
                         }
                     }
@@ -245,11 +245,11 @@ class CharacterFragment : BaseFragment() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..57).sumByDouble {
+        val averageGamesPlayed = (0..CharacterHelper.getNumberOfCharacters()).sumByDouble {
             var characterId = it
             games.count { it.players.any { it.characterId == characterId } }.toDouble() / games.size.toDouble() }
 
-        (0..57).forEachIndexed { index, characterId ->
+        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
             var numGamesWithThisCharacter: Int
             var numGamesThisCharacterWon: Float
             var numGamesIWonVsThisCharacter: Float

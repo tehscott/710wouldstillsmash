@@ -52,17 +52,17 @@ class CreatePlayerFragment : BaseFragment() {
     private var worstRoyaleCharacters = ArrayList<CharacterStats>()
     private var worstSuddenDeathCharacters = ArrayList<CharacterStats>()
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.create_player, null)
 
         if(arguments != null) {
-            if(arguments.containsKey("player")) {
-                editingPlayer = arguments.getSerializable("player") as Player?
+            if(arguments!!.containsKey("player")) {
+                editingPlayer = arguments!!.getSerializable("player") as Player?
                 isPlayerHidden = editingPlayer?.isHidden ?: false
                 isPlayerLowPriority = editingPlayer?.isLowPriority ?: false
             }
 
-            if(arguments.containsKey("players")) {
+            if(arguments!!.containsKey("players")) {
 
             }
         }
@@ -139,7 +139,7 @@ class CreatePlayerFragment : BaseFragment() {
     private fun setupGamesAdapter(games: List<Game>) {
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER)
 
-        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, view, position ->
             (activity as MainActivity).editGame(games[position], games)
         }
 
@@ -173,7 +173,7 @@ class CreatePlayerFragment : BaseFragment() {
             return@OnNavigationItemSelectedListener true
         })
 
-        cancelButton?.setOnClickListener({ activity.onBackPressed() })
+        cancelButton?.setOnClickListener({ activity!!.onBackPressed() })
 
         if(editingPlayer == null) {
             deleteButton?.visibility = View.GONE
@@ -193,14 +193,14 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
-                    snapshot?.children?.reversed()?.forEach {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    snapshot.children.reversed().forEach {
                         var player: Player = it.getValue(Player::class.java)!!
                         player.id = it.key
                         players.add(player)
@@ -216,20 +216,20 @@ class CreatePlayerFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     games.clear()
 
-                    snapshot?.children?.reversed()?.forEach {
+                    snapshot.children.reversed().forEach {
                         var game: Game = it.getValue(Game::class.java)!!
 
                         if(game.players.any({ it.player!!.id == editingPlayer!!.id })) {
-                            game.id = it.key
+                            game.id = it.key!!
                             games.add(game)
                         }
                     }
@@ -302,7 +302,7 @@ class CreatePlayerFragment : BaseFragment() {
 
         val averageGamesPlayedByPlayers = games.size / players.size
 
-        players.forEachIndexed { index, player ->
+        players.forEachIndexed { _, player ->
             if(player.id != editingPlayer!!.id && !player.isHidden) {
                 val numGamesWithThisPlayer = games.count { it.players.any { it.player?.id == player.id } }
                 val numGamesThisPlayerWon: Float = games.count { it.players.any { it.player?.id == player.id && it.winner } }.toFloat()
@@ -350,11 +350,11 @@ class CreatePlayerFragment : BaseFragment() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..57).sumBy {
+        val averageGamesPlayed = (0..CharacterHelper.getNumberOfCharacters()).sumBy {
             var characterId = it
             games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } } } / 58
 
-        (0..57).forEachIndexed { index, characterId ->
+        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { index, characterId ->
             val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } }
             val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
             val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
@@ -437,13 +437,13 @@ class CreatePlayerFragment : BaseFragment() {
             player.isHidden = isPlayerHidden
             player.isLowPriority = isPlayerLowPriority
 
-            db.getReference(activity)
+            db.getReference(context = activity!!)
                 .child("players")
-                .child(player.id)
+                .child(player.id!!)
                 .setValue(player)
-                .addOnCompleteListener( {
-                    activity.onBackPressed()
-                })
+                .addOnCompleteListener {
+                    activity!!.onBackPressed()
+                }
         }
         else {
             showDialog("Set a player name.")
@@ -456,13 +456,13 @@ class CreatePlayerFragment : BaseFragment() {
             editingPlayer!!.isHidden = isPlayerHidden
             editingPlayer!!.isLowPriority = isPlayerLowPriority
 
-            db.getReference(activity)
+            db.getReference(context = activity!!)
                 .child("players")
-                .child(editingPlayer!!.id)
+                .child(editingPlayer!!.id!!)
                 .setValue(editingPlayer)
-                .addOnCompleteListener( {
-                    activity.onBackPressed()
-                })
+                .addOnCompleteListener {
+                    activity!!.onBackPressed()
+                }
         }
     }
 
@@ -470,15 +470,15 @@ class CreatePlayerFragment : BaseFragment() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Delete " + editingPlayer?.name)
         builder.setMessage("You can't undo this. Are you sure?")
-        builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
-            db.getReference(activity)
+        builder.setPositiveButton(android.R.string.ok) { _, _ ->
+            db.getReference(context = activity!!)
                     .child("players")
-                    .child(editingPlayer!!.id)
+                    .child(editingPlayer!!.id!!)
                     .removeValue()
-                    .addOnCompleteListener( {
-                        activity.onBackPressed()
-                    })
-        })
+                    .addOnCompleteListener {
+                        activity!!.onBackPressed()
+                    }
+        }
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
         builder.show()
     }
@@ -492,7 +492,7 @@ class CreatePlayerFragment : BaseFragment() {
         val gamesForCharacters = HashMap<Int, List<Game>>()
         characterStats.clear()
 
-        for(id in 0..57) {
+        for(id in 0..CharacterHelper.getNumberOfCharacters()) {
             val gamesForCharacter = games.filter {
                 it.players.any { it.characterId == id && it.player!!.id == editingPlayer!!.id }
             }

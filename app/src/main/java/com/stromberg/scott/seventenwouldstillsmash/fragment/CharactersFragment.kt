@@ -21,6 +21,7 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
+import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.util.*
 
@@ -59,7 +60,7 @@ class CharactersFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
 
         pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
@@ -69,7 +70,7 @@ class CharactersFragment : BaseFragment() {
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
-                val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+                val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
                 val sortBy = prefs.getInt("SortCharactersBy", 0)
 
                 getGames(SortBy.fromInt(sortBy))
@@ -86,7 +87,7 @@ class CharactersFragment : BaseFragment() {
             override fun onNothingSelected(arg0: AdapterView<*>) {}
         }
 
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val sortBy = prefs.getInt("SortCharactersBy", 0)
         sortBySpinner.setSelection(sortBy)
 
@@ -96,40 +97,40 @@ class CharactersFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
 
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val sortBy = prefs.getInt("SortCharactersBy", 0)
 
         getGames(SortBy.fromInt(sortBy))
     }
 
     private fun getGames(sortBy: SortBy) {
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         prefs.edit().putInt("SortCharactersBy", sortBy.asInt()).apply()
 
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(context = activity!!)
             .child("games")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     handleSnapshot(snapshot, sortBy)
                 }
             })
     }
 
-    fun handleSnapshot(snapshot: DataSnapshot?, sortBy: SortBy) {
+    fun handleSnapshot(snapshot: DataSnapshot, sortBy: SortBy) {
         var games = ArrayList<Game>()
         val gamesForCharacters = HashMap<Int, List<Game>>()
 
-        snapshot?.children?.reversed()?.forEach {
+        snapshot.children.reversed().forEach {
             val game: Game = it.getValue(Game::class.java)!!
-            game.id = it.key
+            game.id = it.key!!
             games.add(game)
         }
 
-        for(id in 0..57) {
+        for(id in 0..CharacterHelper.getNumberOfCharacters()) {
             val gamesForCharacter = games.filter {
                 it.players.any { it.characterId == id }
             }
@@ -150,7 +151,7 @@ class CharactersFragment : BaseFragment() {
         recyclerView!!.adapter = adapter
         adapter.setEnableLoadMore(false)
 
-        adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { adapter, view, position ->
+        adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             (activity as MainActivity).viewCharacter(characterIds[position])
         }
 
