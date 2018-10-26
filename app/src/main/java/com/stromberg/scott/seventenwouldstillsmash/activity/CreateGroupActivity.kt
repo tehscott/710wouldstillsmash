@@ -65,9 +65,9 @@ class CreateGroupActivity : AppCompatActivity() {
             .child("groups")
             .child(codeToTry)
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     val group: Group? = snapshot?.getValue(Group::class.java)
 
                     if(group != null) {
@@ -92,7 +92,7 @@ class CreateGroupActivity : AppCompatActivity() {
 
         db.reference
             .child("groups")
-            .child(code)
+            .child(code!!)
             .setValue(group)
             .addOnCompleteListener( {
                 if(it.isSuccessful) {

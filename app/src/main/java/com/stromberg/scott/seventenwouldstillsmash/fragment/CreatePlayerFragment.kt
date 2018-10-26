@@ -52,17 +52,17 @@ class CreatePlayerFragment : BaseFragment() {
     private var worstRoyaleCharacters = ArrayList<CharacterStats>()
     private var worstSuddenDeathCharacters = ArrayList<CharacterStats>()
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.create_player, null)
 
         if(arguments != null) {
-            if(arguments.containsKey("player")) {
-                editingPlayer = arguments.getSerializable("player") as Player?
+            if(arguments!!.containsKey("player")) {
+                editingPlayer = arguments!!.getSerializable("player") as Player?
                 isPlayerHidden = editingPlayer?.isHidden ?: false
                 isPlayerLowPriority = editingPlayer?.isLowPriority ?: false
             }
 
-            if(arguments.containsKey("players")) {
+            if(arguments!!.containsKey("players")) {
 
             }
         }
@@ -144,14 +144,14 @@ class CreatePlayerFragment : BaseFragment() {
         }
 
         recyclerView!!.adapter = gamesAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter!!.notifyDataSetChanged()
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
         recyclerView!!.adapter = statisticsAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter!!.notifyDataSetChanged()
     }
 
     private fun setupButtons() {
@@ -173,7 +173,7 @@ class CreatePlayerFragment : BaseFragment() {
             return@OnNavigationItemSelectedListener true
         })
 
-        cancelButton?.setOnClickListener({ activity.onBackPressed() })
+        cancelButton?.setOnClickListener { activity!!.onBackPressed() }
 
         if(editingPlayer == null) {
             deleteButton?.visibility = View.GONE
@@ -185,21 +185,21 @@ class CreatePlayerFragment : BaseFragment() {
         }
         else {
             deleteButton?.visibility = View.VISIBLE
-            deleteButton?.setOnClickListener({ deletePlayer() })
+            deleteButton?.setOnClickListener { deletePlayer() }
 
             saveButton?.text = "Save Player"
-            saveButton?.setOnClickListener({ updatePlayer() })
+            saveButton?.setOnClickListener { updatePlayer() }
         }
     }
 
     private fun getPlayers() {
-        db.getReference(activity)
+        db.getReference(activity!!)
             .child("players")
             .orderByKey()
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     snapshot?.children?.reversed()?.forEach {
                         var player: Player = it.getValue(Player::class.java)!!
                         player.id = it.key
@@ -216,13 +216,13 @@ class CreatePlayerFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(activity!!)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     games.clear()
 
                     snapshot?.children?.reversed()?.forEach {
@@ -437,13 +437,13 @@ class CreatePlayerFragment : BaseFragment() {
             player.isHidden = isPlayerHidden
             player.isLowPriority = isPlayerLowPriority
 
-            db.getReference(activity)
+            db.getReference(activity!!)
                 .child("players")
-                .child(player.id)
+                .child(player.id!!)
                 .setValue(player)
-                .addOnCompleteListener( {
-                    activity.onBackPressed()
-                })
+                .addOnCompleteListener {
+                    activity!!.onBackPressed()
+                }
         }
         else {
             showDialog("Set a player name.")
@@ -456,13 +456,13 @@ class CreatePlayerFragment : BaseFragment() {
             editingPlayer!!.isHidden = isPlayerHidden
             editingPlayer!!.isLowPriority = isPlayerLowPriority
 
-            db.getReference(activity)
+            db.getReference(activity!!)
                 .child("players")
-                .child(editingPlayer!!.id)
+                .child(editingPlayer!!.id!!)
                 .setValue(editingPlayer)
-                .addOnCompleteListener( {
-                    activity.onBackPressed()
-                })
+                .addOnCompleteListener {
+                    activity!!.onBackPressed()
+                }
         }
     }
 
@@ -470,15 +470,15 @@ class CreatePlayerFragment : BaseFragment() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Delete " + editingPlayer?.name)
         builder.setMessage("You can't undo this. Are you sure?")
-        builder.setPositiveButton(android.R.string.ok, { dialog, _ ->
-            db.getReference(activity)
+        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+            db.getReference(activity!!)
                     .child("players")
-                    .child(editingPlayer!!.id)
+                    .child(editingPlayer!!.id!!)
                     .removeValue()
-                    .addOnCompleteListener( {
-                        activity.onBackPressed()
-                    })
-        })
+                    .addOnCompleteListener {
+                        activity!!.onBackPressed()
+                    }
+        }
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
         builder.show()
     }

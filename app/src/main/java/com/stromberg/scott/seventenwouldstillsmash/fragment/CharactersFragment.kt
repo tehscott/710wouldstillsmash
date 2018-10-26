@@ -59,7 +59,7 @@ class CharactersFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
 
         pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
@@ -69,7 +69,7 @@ class CharactersFragment : BaseFragment() {
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
-                val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+                val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
                 val sortBy = prefs.getInt("SortCharactersBy", 0)
 
                 getGames(SortBy.fromInt(sortBy))
@@ -86,7 +86,7 @@ class CharactersFragment : BaseFragment() {
             override fun onNothingSelected(arg0: AdapterView<*>) {}
         }
 
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val sortBy = prefs.getInt("SortCharactersBy", 0)
         sortBySpinner.setSelection(sortBy)
 
@@ -96,30 +96,30 @@ class CharactersFragment : BaseFragment() {
     override fun onResume() {
         super.onResume()
 
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val sortBy = prefs.getInt("SortCharactersBy", 0)
 
         getGames(SortBy.fromInt(sortBy))
     }
 
     private fun getGames(sortBy: SortBy) {
-        val prefs = context.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val prefs = context!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         prefs.edit().putInt("SortCharactersBy", sortBy.asInt()).apply()
 
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(activity!!)
             .child("games")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     handleSnapshot(snapshot, sortBy)
                 }
             })
     }
 
-    fun handleSnapshot(snapshot: DataSnapshot?, sortBy: SortBy) {
+    fun handleSnapshot(snapshot: DataSnapshot, sortBy: SortBy) {
         var games = ArrayList<Game>()
         val gamesForCharacters = HashMap<Int, List<Game>>()
 

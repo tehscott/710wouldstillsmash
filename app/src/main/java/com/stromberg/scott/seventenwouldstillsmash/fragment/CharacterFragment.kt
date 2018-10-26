@@ -62,11 +62,11 @@ class CharacterFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         contentView = View.inflate(activity, R.layout.character, null)
 
-        if(arguments != null && arguments.containsKey("characterId")) {
-            mCharacterId = arguments.getInt("characterId")
+        if(arguments != null && arguments!!.containsKey("characterId")) {
+            mCharacterId = arguments!!.getInt("characterId")
         }
 
         recyclerView = contentView!!.findViewById(R.id.character_recyclerview)
@@ -132,17 +132,17 @@ class CharacterFragment : BaseFragment() {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
         recyclerView!!.adapter = statisticsAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter?.notifyDataSetChanged()
     }
 
     private fun getPlayers() {
-        db.getReference(activity)
+        db.getReference(activity!!)
                 .child("players")
                 .orderByKey()
                 .addListenerForSingleValueEvent( object : ValueEventListener {
-                    override fun onCancelled(error: DatabaseError?) { }
+                    override fun onCancelled(error: DatabaseError) { }
 
-                    override fun onDataChange(snapshot: DataSnapshot?) {
+                    override fun onDataChange(snapshot: DataSnapshot) {
                         players.clear()
 
                         snapshot?.children?.reversed()?.forEach {
@@ -161,13 +161,13 @@ class CharacterFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(activity)
+        db.getReference(activity!!)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError?) { }
+                override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot?) {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     games.clear()
 
                     snapshot?.children?.reversed()?.forEach {

@@ -44,7 +44,7 @@ fun FragmentActivity.showDialog(message: String) {
 }
 
 fun Fragment.showDialog(message: String) {
-    showDialog(activity, message)
+    showDialog(activity!!, message)
 }
 
 private fun showDialog(context: Context, message: String) {
