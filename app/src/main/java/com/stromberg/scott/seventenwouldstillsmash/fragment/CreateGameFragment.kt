@@ -186,8 +186,7 @@ class CreateGameFragment : BaseFragment() {
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
         val editingCharacterId = gamePlayer.characterId
 
-        val playerList = getUnusedPlayers(gamePlayer)
-        val playerNames = ArrayList<String>(playerList.map { it.name })
+        val playerNames = ArrayList<String>(getUnusedPlayers(gamePlayer).map { it.name })
         playerNames.add(0, "")
         playerNames.add(1, "Add Player")
 
@@ -197,7 +196,7 @@ class CreateGameFragment : BaseFragment() {
 
         if(editingPlayer != null) {
             val player = players.find { it.id.equals(editingPlayer.player!!.id) }
-            playerSpinner.setSelection(playerList.indexOf(player) + 2, true)
+            playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
 
             setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
             val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
@@ -212,7 +211,7 @@ class CreateGameFragment : BaseFragment() {
                     0 -> characterSpinner.adapter = null
                     1 -> showNameEntryDialog(gamePlayer)
                     else -> {
-                        gamePlayer.player = playerList[position - 2]
+                        gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
                         setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
                     }
                 }
@@ -387,6 +386,7 @@ class CreateGameFragment : BaseFragment() {
 
     private fun addPlayerToGame(player: GamePlayer) {
         game.players.add(player)
+
         playersAdapter!!.notifyDataSetChanged()
         playersList?.adapter?.notifyDataSetChanged()
 
