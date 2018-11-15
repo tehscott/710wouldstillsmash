@@ -20,15 +20,10 @@ class CharacterHelper {
 
         private fun isSSB4() : Boolean {
             val prefs = App.getContext().getSharedPreferences(App.getContext().getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-            val typeString = prefs.getString(App.getContext().getString(R.string.shared_prefs_group_type), "")
+            val groups = Gson().fromJson<Array<Group>>(prefs.getString(App.getContext().getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+            val selectedGroup = groups?.firstOrNull { it.isSelected }
 
-            if(typeString.isNotEmpty()) {
-                val type = Gson().fromJson(typeString, GroupType::class.java)
-
-                return type == GroupType.SMASH4
-            }
-
-            return true
+            return selectedGroup?.type == GroupType.SMASH4
         }
 
         fun getImage(characterId: Int): Int {

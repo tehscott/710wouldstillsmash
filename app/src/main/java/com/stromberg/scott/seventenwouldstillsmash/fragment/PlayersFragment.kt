@@ -155,27 +155,24 @@ class PlayersFragment : BaseFragment() {
             val suddenDeathGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
             val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
 
-            val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_YEAR, -30)
-            val thirtyDaysAgo = calendar.timeInMillis
-
-            val games30Days = it.value.filter { it.date >= thirtyDaysAgo }
-            val royaleGames30DaysCount = games30Days.count { it.gameType.equals(GameType.ROYALE.toString()) }
-            val suddenDeathGames30DaysCount = games30Days.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
-            val royaleGames30DaysWon: Float = (games30Days.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-            val royaleGames30DaysLost: Float = royaleGames30DaysCount - royaleGames30DaysWon
-            val suddenDeathGames30DaysWon: Float = (games30Days.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-            val suddenDeathGames30DaysLost: Float = suddenDeathGames30DaysCount - suddenDeathGames30DaysWon
-
+            val last30RoyaleGames = it.value.filter { it.gameType.equals(GameType.ROYALE.toString()) }.sortedByDescending { it.date }.take(30)
+            val last30SuddenDeathGames = it.value.filter { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }.sortedByDescending { it.date }.take(30)
+            val royaleGames30GamesCount = last30RoyaleGames.count { it.gameType.equals(GameType.ROYALE.toString()) }
+            val suddenDeathGames30GamesCount = last30SuddenDeathGames.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
+            val royaleGames30GamesWon: Float = (last30RoyaleGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
+            val royaleGames30GamesLost: Float = royaleGames30GamesCount - royaleGames30GamesWon
+            val suddenDeathGames30GamesWon: Float = (last30SuddenDeathGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
+            val suddenDeathGames30GamesLost: Float = suddenDeathGames30GamesCount - suddenDeathGames30GamesWon
+            
             val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_won", royaleGamesWon).apply()
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_lost", royaleGamesLost).apply()
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", suddenDeathGamesWon).apply()
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_lost", suddenDeathGamesLost).apply()
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_day_games_won", royaleGames30DaysWon).apply()
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_day_games_lost", royaleGames30DaysLost).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_day_games_won", suddenDeathGames30DaysWon).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_day_games_lost", suddenDeathGames30DaysLost).apply()
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_games_won", royaleGames30GamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_games_lost", royaleGames30GamesLost).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_games_won", suddenDeathGames30GamesWon).apply()
+            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_games_lost", suddenDeathGames30GamesLost).apply()
         }
 
         recyclerView?.adapter?.notifyDataSetChanged()

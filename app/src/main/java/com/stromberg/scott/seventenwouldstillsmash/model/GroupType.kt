@@ -22,4 +22,15 @@ enum class GroupType {
             }
         }
     }
+
+    fun shortName(): String {
+        return when (this) {
+            SMASH4 -> {
+                "SSB4"
+            }
+            ULTIMATE -> {
+                "SSBU"
+            }
+        }
+    }
 }

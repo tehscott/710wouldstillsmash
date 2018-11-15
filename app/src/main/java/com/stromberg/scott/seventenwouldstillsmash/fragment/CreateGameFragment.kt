@@ -191,8 +191,7 @@ class CreateGameFragment : BaseFragment() {
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
         val editingCharacterId = gamePlayer.characterId
 
-        val playerList = getUnusedPlayers(gamePlayer)
-        val playerNames = ArrayList<String>(playerList.map { it.name })
+        val playerNames = ArrayList<String>(getUnusedPlayers(gamePlayer).map { it.name })
         playerNames.add(0, "")
         playerNames.add(1, "Add Player")
 
@@ -202,7 +201,7 @@ class CreateGameFragment : BaseFragment() {
 
         if(editingPlayer != null) {
             val player = players.find { it.id.equals(editingPlayer.player!!.id) }
-            playerSpinner.setSelection(playerList.indexOf(player) + 2, true)
+            playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
 
             setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
             val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
@@ -217,7 +216,7 @@ class CreateGameFragment : BaseFragment() {
                     0 -> characterSpinner.adapter = null
                     1 -> showNameEntryDialog(gamePlayer)
                     else -> {
-                        gamePlayer.player = playerList[position - 2]
+                        gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
                         setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
                     }
                 }
@@ -235,6 +234,7 @@ class CreateGameFragment : BaseFragment() {
             gamePlayer.characterId = editingCharacterId
             dialog.dismiss()
         }
+
         builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player") { dialog, _ ->
             run {
                 if(gamePlayer.player!!.id == null) {
@@ -252,7 +252,7 @@ class CreateGameFragment : BaseFragment() {
                                         players.add(gamePlayer.player!!)
                                     }
                                 } else {
-                                    playersList!!.adapter.notifyDataSetChanged()
+                                    playersList!!.adapter!!.notifyDataSetChanged()
                                 }
 
                                 dialog.dismiss()
@@ -266,7 +266,7 @@ class CreateGameFragment : BaseFragment() {
                         addPlayerToGame(gamePlayer)
                     }
                     else {
-                        playersList!!.adapter.notifyDataSetChanged()
+                        playersList!!.adapter!!.notifyDataSetChanged()
                     }
 
                     dialog.dismiss()
@@ -275,15 +275,15 @@ class CreateGameFragment : BaseFragment() {
         }
 
         if(editingPlayer != null) {
-            builder.setNeutralButton("Delete", { dialog, _ ->
+            builder.setNeutralButton("Delete") { dialog, _ ->
                 if(gamePlayer.player!!.id == null) {
                     players.remove(gamePlayer.player!!)
                     game.players.remove(gamePlayer)
                 }
 
                 game.players.remove(editingPlayer)
-                playersList!!.adapter.notifyDataSetChanged(); dialog.dismiss()
-            })
+                playersList!!.adapter!!.notifyDataSetChanged(); dialog.dismiss()
+            }
         }
 
         addPlayerDialog = builder.create()

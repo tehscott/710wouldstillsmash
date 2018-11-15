@@ -132,7 +132,7 @@ class CharacterFragment : BaseFragment() {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
         recyclerView!!.adapter = statisticsAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter?.notifyDataSetChanged()
     }
 
     private fun getPlayers() {

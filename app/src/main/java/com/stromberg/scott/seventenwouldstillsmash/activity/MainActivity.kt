@@ -1,21 +1,26 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Context
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.TextView
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
+import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.fragment.*
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
+
 
 class MainActivity : AppCompatActivity() {
     private var mLastFragment: BaseFragment? = null
@@ -49,14 +54,62 @@ class MainActivity : AppCompatActivity() {
 
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         navigation.selectedItemId = R.id.navigation_games
-        navigation.itemTextColor = ColorStateList.valueOf(resources.getColor(R.color.text_secondary))
+        navigation.itemTextColor = ColorStateList.valueOf(resources.getColor(R.color.text_secondary, null))
 
+        setupGroupCodeText()
+    }
+
+    private fun setupGroupCodeText() {
         val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-        findViewById<TextView>(R.id.group_code).setText(prefs.getString(getString(R.string.shared_prefs_group_code), ""))
+        var groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+
+        if (groups == null) {
+            groups = ArrayList()
+        }
+
+        val selectedGroup = groups.firstOrNull { it.isSelected }
+
+        val groupCode = findViewById<TextView>(R.id.group_code)
+        groupCode.text = selectedGroup?.code
+        groupCode.setOnClickListener { view ->
+            val allGroups = ArrayList(groups.map { "${it.code} (${it.type.shortName()})" })
+            allGroups.add("Add Group")
+
+            val dialogBuilder = AlertDialog.Builder(this)
+            dialogBuilder.setTitle("Select a group")
+            dialogBuilder.setSingleChoiceItems(allGroups.toTypedArray(), groups.indexOfFirst { it.isSelected }) { dialog, index ->
+                if(allGroups[index] == "Add Group") {
+                    val intent = Intent(this@MainActivity, JoinGroupActivity::class.java)
+                    intent.putExtra("ForceJoin", true)
+                    startActivity(intent)
+                }
+                else {
+                    switchGroups(groups[index])
+                }
+
+                dialog.dismiss()
+            }
+            val alert = dialogBuilder.create()
+            alert.show()
+        }
     }
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
+    }
+
+    private fun switchGroups(group: Group) {
+        val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        val groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+
+        groups?.forEach {
+            it.isSelected = it.code == group.code
+        }
+
+        prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
+
+        setupGroupCodeText()
+        navigation.selectedItemId = R.id.navigation_games
     }
 
     private fun navigateToFragment(fragment: BaseFragment) {

@@ -8,16 +8,16 @@ import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
-import android.view.inputmethod.InputMethodManager
-import com.google.gson.Gson
 
 class JoinGroupActivity : AppCompatActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -54,14 +54,18 @@ class JoinGroupActivity : AppCompatActivity() {
 
         createGroupButton.setOnClickListener { createGroup(null) }
 
-        val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-        val group = prefs.getString(getString(R.string.shared_prefs_group_code), null)
+        val forceJoin = intent?.extras?.getBoolean("ForceJoin") ?: false
 
-        if(group != null) {
-            val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-            finish()
+        if(!forceJoin) {
+            val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            val groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+
+            if (groups?.firstOrNull { it.isSelected } != null) {
+                val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                finish()
+            }
         }
     }
 
@@ -91,10 +95,20 @@ class JoinGroupActivity : AppCompatActivity() {
                     val group: Group? = snapshot.getValue(Group::class.java)
 
                     if(group != null) {
+                        group.isSelected = true
+
                         val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-                        prefs.edit().putString(getString(R.string.shared_prefs_group_code), group.code).apply()
-                        prefs.edit().putString(getString(R.string.shared_prefs_group_name), group.name).apply()
-                        prefs.edit().putString(getString(R.string.shared_prefs_group_type), Gson().toJson(group.type)).apply()
+                        var groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+
+                        if(groups == null) {
+                            groups = ArrayList()
+                        }
+
+                        groups.forEach { it.isSelected = false }
+
+                        groups.add(group)
+
+                        prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
                         val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)

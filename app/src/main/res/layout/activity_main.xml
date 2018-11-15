@@ -33,6 +33,7 @@
             tools:text="A8F28"
             android:textAllCaps="true"
             android:textColor="@color/text_primary"
+            android:textSize="18sp"
             android:layout_gravity="bottom|right"
             android:layout_marginRight="4dp"
             android:layout_marginBottom="4dp"/>

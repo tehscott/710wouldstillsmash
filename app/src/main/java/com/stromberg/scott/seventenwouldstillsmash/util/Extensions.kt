@@ -10,7 +10,10 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import java.util.*
 
 val Int.toDp: Int get() = (this / Resources.getSystem().displayMetrics.density).toInt()
@@ -24,13 +27,14 @@ fun View.hideKeyboard() {
 
 fun FirebaseDatabase.getReference(context: Context): DatabaseReference {
     val prefs = context.getSharedPreferences(context.getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-    val group = prefs.getString(context.getString(R.string.shared_prefs_group_code), null)
+    val groups = Gson().fromJson<Array<Group>>(prefs.getString(context.getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java).toCollection(ArrayList())
+    val code = groups.firstOrNull { it.isSelected }?.code
 
-    if(group != null) {
-        return reference.child(group)
+    return if(code != null) {
+        reference.child(code)
     }
     else {
-        return reference
+        reference
     }
 }
 

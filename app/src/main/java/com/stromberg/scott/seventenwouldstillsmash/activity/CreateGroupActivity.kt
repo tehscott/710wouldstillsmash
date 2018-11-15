@@ -12,10 +12,12 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.util.*
+import kotlin.collections.ArrayList
 
 class CreateGroupActivity : AppCompatActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -38,8 +40,8 @@ class CreateGroupActivity : AppCompatActivity() {
         ssb4RadioButton = findViewById(R.id.ssb_4_radio_button)
         ssbUltimateRadioButton = findViewById(R.id.ssb_ultimate_radio_button)
 
-        if(intent.extras != null && intent.extras.containsKey("Code")) {
-            code = intent.extras.getString("Code").toUpperCase()
+        if(intent?.extras?.containsKey("Code") == true) {
+            code = intent.extras?.getString("Code")?.toUpperCase()
             groupCodeTextView.text = code
         }
         else {
@@ -92,6 +94,7 @@ class CreateGroupActivity : AppCompatActivity() {
         val group = Group()
         group.code = code
         group.name = groupNameEditText.text.toString()
+        group.isSelected = true
 
         db.reference
             .child("groups")
@@ -100,9 +103,17 @@ class CreateGroupActivity : AppCompatActivity() {
             .addOnCompleteListener {
                 if(it.isSuccessful) {
                     val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-                    prefs.edit().putString(getString(R.string.shared_prefs_group_code), group.code).apply()
-                    prefs.edit().putString(getString(R.string.shared_prefs_group_name), group.name).apply()
-                    prefs.edit().putString(getString(R.string.shared_prefs_group_type), Gson().toJson(group.type)).apply()
+                    var groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+
+                    if(groups == null) {
+                        groups = ArrayList()
+                    }
+
+                    groups.forEach { it.isSelected = false }
+
+                    groups.add(group)
+
+                    prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
                     startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
                 } else {

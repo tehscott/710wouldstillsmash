@@ -144,14 +144,14 @@ class CreatePlayerFragment : BaseFragment() {
         }
 
         recyclerView!!.adapter = gamesAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter!!.notifyDataSetChanged()
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
         recyclerView!!.adapter = statisticsAdapter
-        recyclerView!!.adapter.notifyDataSetChanged()
+        recyclerView!!.adapter!!.notifyDataSetChanged()
     }
 
     private fun setupButtons() {
@@ -173,7 +173,7 @@ class CreatePlayerFragment : BaseFragment() {
             return@OnNavigationItemSelectedListener true
         })
 
-        cancelButton?.setOnClickListener({ activity!!.onBackPressed() })
+        cancelButton?.setOnClickListener { activity!!.onBackPressed() }
 
         if(editingPlayer == null) {
             deleteButton?.visibility = View.GONE
@@ -185,10 +185,10 @@ class CreatePlayerFragment : BaseFragment() {
         }
         else {
             deleteButton?.visibility = View.VISIBLE
-            deleteButton?.setOnClickListener({ deletePlayer() })
+            deleteButton?.setOnClickListener { deletePlayer() }
 
             saveButton?.text = "Save Player"
-            saveButton?.setOnClickListener({ updatePlayer() })
+            saveButton?.setOnClickListener { updatePlayer() }
         }
     }
 

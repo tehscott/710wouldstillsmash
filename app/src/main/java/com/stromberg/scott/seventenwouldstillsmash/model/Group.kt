@@ -4,4 +4,5 @@ class Group {
     var code: String? = null
     var name: String? = null
     var type: GroupType = GroupType.SMASH4
+    var isSelected: Boolean = false
 }

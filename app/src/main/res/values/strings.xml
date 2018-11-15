@@ -17,9 +17,7 @@
     <string name="header_refreshing">loading...</string>
     <string name="header_completed">done!</string>
     <string name="characters">Characters</string>
-    <string name="shared_prefs_group_code">GroupCode</string>
-    <string name="shared_prefs_group_name">GroupName</string>
-    <string name="shared_prefs_group_type">GroupType</string>
+    <string name="shared_prefs_group_codes">GroupCodes</string>
 
     <string-array name="character_sort_options">
         <item>Name</item>

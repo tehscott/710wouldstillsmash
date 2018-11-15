@@ -18,8 +18,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games), FastScrollRecyclerView.SectionedAdapter {
-    private var dateFormatter = SimpleDateFormat("MM/dd/yy")
-    private var sectionDateFormatter = SimpleDateFormat("MMM yy")
+    private var dateFormatter = SimpleDateFormat("MM/dd/yy", Locale.getDefault())
+    private var sectionDateFormatter = SimpleDateFormat("MMM yy", Locale.getDefault())
 
     enum class SortBy {
         WINNER,
@@ -32,14 +32,14 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAda
 
         playersList.removeAllViews()
 
-        var players = ArrayList<GamePlayer>()
+        val players: List<GamePlayer>?
 
         when(sortBy) {
-            SortBy.WINNER -> players = ArrayList(item?.players?.sortedWith(compareBy({ !it.winner }, { it.player?.name })))
-            SortBy.PLAYER -> players = ArrayList(item?.players?.sortedWith(compareBy({ it.player?.name })))
+            SortBy.WINNER -> players = item?.players?.sortedWith(compareBy({ !it.winner }, { it.player?.name }))
+            SortBy.PLAYER -> players = item?.players?.sortedWith(compareBy { it.player?.name })
         }
 
-        players.forEach({ player ->
+        players?.forEach { player ->
             run {
                 val playerLayout: FrameLayout = LayoutInflater.from(mContext).inflate(R.layout.game_list_item_image, null) as FrameLayout
                 playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.characterId))
@@ -50,15 +50,15 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAda
                 layoutParams.weight = 1f
                 playerLayout.layoutParams = layoutParams
 
-                playersList.addView(playerLayout)
-
                 val space = Space(mContext)
                 layoutParams = LinearLayout.LayoutParams(mContext.resources.getDimensionPixelSize(R.dimen.space_8dp), LinearLayout.LayoutParams.WRAP_CONTENT)
                 space.layoutParams = layoutParams
 
+                playersList.addView(playerLayout)
+
                 playersList.addView(space)
             }
-        })
+        }
 
         when (item!!.gameType) {
             GameType.ROYALE.toString() -> {
