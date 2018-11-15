@@ -14,7 +14,7 @@ class CharacterHelper {
                 return 57
             }
             else {
-                return 65
+                return 74
             }
         }
 
@@ -101,72 +101,81 @@ class CharacterHelper {
 
         private fun getSSBUImage(characterId: Int): Int {
             when (characterId) {
-                0	-> 	R.drawable.ssbu_character_bayonetta
-                1	-> 	R.drawable.ssbu_character_bowser
-                2	-> 	R.drawable.ssbu_character_bowser_jr
-                3	-> 	R.drawable.ssbu_character_captain_falcon
-                4	-> 	R.drawable.ssbu_character_cloud
-                5	-> 	R.drawable.ssbu_character_corrin
-                6	-> 	R.drawable.ssbu_character_daisy
-                7	-> 	R.drawable.ssbu_character_dark_pit
-                8	-> 	R.drawable.ssbu_character_diddy_kong
-                9	-> 	R.drawable.ssbu_character_donkey_kong
-                10	-> 	R.drawable.ssbu_character_dr_mario
-                11	-> 	R.drawable.ssbu_character_duck_hunt
-                12	-> 	R.drawable.ssbu_character_falco
-                13	-> 	R.drawable.ssbu_character_fox
-                14	-> 	R.drawable.ssbu_character_ganondorf
-                15	-> 	R.drawable.ssbu_character_greninja
-                16	-> 	R.drawable.ssbu_character_ice_climbers
-                17	-> 	R.drawable.ssbu_character_ike
-                18	-> 	R.drawable.ssbu_character_inkling
-                19	-> 	R.drawable.ssbu_character_jiggly_puff
-                20	-> 	R.drawable.ssbu_character_king_dedede
-                21	-> 	R.drawable.ssbu_character_kirby
-                22	-> 	R.drawable.ssbu_character_link
-                23	-> 	R.drawable.ssbu_character_little_mac
-                24	-> 	R.drawable.ssbu_character_lucario
-                25	-> 	R.drawable.ssbu_character_lucas
-                26	-> 	R.drawable.ssbu_character_lucina
-                27	-> 	R.drawable.ssbu_character_luigi
-                28	-> 	R.drawable.ssbu_character_marth
-                29	-> 	R.drawable.ssbu_character_mario
-                30	-> 	R.drawable.ssbu_character_mega_man
-                31	-> 	R.drawable.ssbu_character_meta_knight
-                32	-> 	R.drawable.ssbu_character_mewtwo
-                33	-> 	R.drawable.ssbu_character_mii_brawler
-                34	-> 	R.drawable.ssbu_character_mii_gunner
-                35	-> 	R.drawable.ssbu_character_mii_swordsman
-                36	-> 	R.drawable.ssbu_character_mr_game_and_watch
-                37	-> 	R.drawable.ssbu_character_ness
-                38	-> 	R.drawable.ssbu_character_olimar
-                39	-> 	R.drawable.ssbu_character_palutena
-                40	-> 	R.drawable.ssbu_character_pacman
-                41	-> 	R.drawable.ssbu_character_peach
-                42	-> 	R.drawable.ssbu_character_pichu
-                43	-> 	R.drawable.ssbu_character_pikachu
-                44	-> 	R.drawable.ssbu_character_pit
-                45	-> 	R.drawable.ssbu_character_pokemon_trainer
-                46	-> 	R.drawable.ssbu_character_ridley
-                47	-> 	R.drawable.ssbu_character_rob
-                48	-> 	R.drawable.ssbu_character_robin
-                49	-> 	R.drawable.ssbu_character_rosalina_and_luma
-                50	-> 	R.drawable.ssbu_character_roy
-                51	-> 	R.drawable.ssbu_character_ryu
-                52	-> 	R.drawable.ssbu_character_samus
-                53	-> 	R.drawable.ssbu_character_sheik
-                54	-> 	R.drawable.ssbu_character_shulk
-                55	-> 	R.drawable.ssbu_character_snake
-                56	-> 	R.drawable.ssbu_character_sonic
-                57	-> 	R.drawable.ssbu_character_toon_link
-                58	-> 	R.drawable.ssbu_character_villager
-                59	-> 	R.drawable.ssbu_character_wario
-                60	-> 	R.drawable.ssbu_character_wii_fit_trainer
-                61	-> 	R.drawable.ssbu_character_wolf
-                62	-> 	R.drawable.ssbu_character_yoshi
-                63	-> 	R.drawable.ssbu_character_young_link
-                64	-> 	R.drawable.ssbu_character_zelda
-                65	-> 	R.drawable.ssbu_character_zero_suit_samus
+                0 -> return R.drawable.ssbu_character_bayonetta
+                1 -> return R.drawable.ssbu_character_bowser
+                2 -> return R.drawable.ssbu_character_bowser_jr
+                3 -> return R.drawable.ssbu_character_captain_falcon
+                4 -> return R.drawable.ssbu_character_chrom
+                5 -> return R.drawable.ssbu_character_cloud
+                6 -> return R.drawable.ssbu_character_corrin
+                7 -> return R.drawable.ssbu_character_daisy
+                8 -> return R.drawable.ssbu_character_dark_pit
+                9 -> return R.drawable.ssbu_character_dark_samus
+                10 -> return R.drawable.ssbu_character_diddy_kong
+                11 -> return R.drawable.ssbu_character_donkey_kong
+                12 -> return R.drawable.ssbu_character_dr_mario
+                13 -> return R.drawable.ssbu_character_duck_hunt
+                14 -> return R.drawable.ssbu_character_falco
+                15 -> return R.drawable.ssbu_character_fox
+                16 -> return R.drawable.ssbu_character_ganondorf
+                17 -> return R.drawable.ssbu_character_greninja
+                18 -> return R.drawable.ssbu_character_ice_climbers
+                19 -> return R.drawable.ssbu_character_ike
+                20 -> return R.drawable.ssbu_character_incineroar
+                21 -> return R.drawable.ssbu_character_inkling
+                22 -> return R.drawable.ssbu_character_isabelle
+                23 -> return R.drawable.ssbu_character_jiggly_puff
+                24 -> return R.drawable.ssbu_character_ken
+                25 -> return R.drawable.ssbu_character_king_dedede
+                26 -> return R.drawable.ssbu_character_king_k_rool
+                27 -> return R.drawable.ssbu_character_kirby
+                28 -> return R.drawable.ssbu_character_little_mac
+                29 -> return R.drawable.ssbu_character_link
+                30 -> return R.drawable.ssbu_character_lucario
+                31 -> return R.drawable.ssbu_character_lucas
+                32 -> return R.drawable.ssbu_character_lucina
+                33 -> return R.drawable.ssbu_character_luigi
+                34 -> return R.drawable.ssbu_character_mario
+                35 -> return R.drawable.ssbu_character_marth
+                36 -> return R.drawable.ssbu_character_mega_man
+                37 -> return R.drawable.ssbu_character_meta_knight
+                38 -> return R.drawable.ssbu_character_mewtwo
+                39 -> return R.drawable.ssbu_character_mii_brawler
+                40 -> return R.drawable.ssbu_character_mii_gunner
+                41 -> return R.drawable.ssbu_character_mii_swordfighter
+                42 -> return R.drawable.ssbu_character_mr_game_and_watch
+                43 -> return R.drawable.ssbu_character_ness
+                44 -> return R.drawable.ssbu_character_olimar
+                45 -> return R.drawable.ssbu_character_pacman
+                46 -> return R.drawable.ssbu_character_palutena
+                47 -> return R.drawable.ssbu_character_peach
+                48 -> return R.drawable.ssbu_character_pichu
+                49 -> return R.drawable.ssbu_character_pikachu
+                50 -> return R.drawable.ssbu_character_piranha_plant
+                51 -> return R.drawable.ssbu_character_pit
+                52 -> return R.drawable.ssbu_character_pokemon_trainer
+                53 -> return R.drawable.ssbu_character_richter
+                54 -> return R.drawable.ssbu_character_ridley
+                55 -> return R.drawable.ssbu_character_rob
+                56 -> return R.drawable.ssbu_character_robin
+                57 -> return R.drawable.ssbu_character_rosalina_and_luma
+                58 -> return R.drawable.ssbu_character_roy
+                59 -> return R.drawable.ssbu_character_ryu
+                60 -> return R.drawable.ssbu_character_samus_aran
+                61 -> return R.drawable.ssbu_character_sheik
+                62 -> return R.drawable.ssbu_character_shulk
+                63 -> return R.drawable.ssbu_character_simon
+                64 -> return R.drawable.ssbu_character_snake
+                65 -> return R.drawable.ssbu_character_sonic
+                66 -> return R.drawable.ssbu_character_toon_link
+                67 -> return R.drawable.ssbu_character_villager
+                68 -> return R.drawable.ssbu_character_wario
+                69 -> return R.drawable.ssbu_character_wii_fit_trainer
+                70 -> return R.drawable.ssbu_character_wolf
+                71 -> return R.drawable.ssbu_character_yoshi
+                72 -> return R.drawable.ssbu_character_young_link
+                73 -> return R.drawable.ssbu_character_zelda
+                74 -> return R.drawable.ssbu_character_zero_suit_samus
             }
 
             return 0
@@ -251,68 +260,77 @@ class CharacterHelper {
                 1 -> return "Bowser"
                 2 -> return "Bowser Jr."
                 3 -> return "Captain Falcon"
-                4 -> return "Cloud"
-                5 -> return "Corrin"
-                6 -> return "Daisy"
-                7 -> return "Dark Pit"
-                8 -> return "Diddy Kong"
-                9 -> return "Donkey Kong"
-                10 -> return "Dr. Mario"
-                11 -> return "Duck Hunt"
-                12 -> return "Falco"
-                13 -> return "Fox"
-                14 -> return "Ganondorf"
-                15 -> return "Greninja"
-                16 -> return "Ice Climbers"
-                17 -> return "Ike"
-                18 -> return "Inkling"
-                19 -> return "Jigglypuff"
-                20 -> return "King Dedede"
-                21 -> return "Kirby"
-                22 -> return "Link"
-                23 -> return "Little Mac"
-                24 -> return "Lucario"
-                25 -> return "Lucas"
-                26 -> return "Lucina"
-                27 -> return "Luigi"
-                28 -> return "Mario"
-                29 -> return "Marth"
-                30 -> return "Mega Man"
-                31 -> return "Meta Knight"
-                32 -> return "Mewtwo"
-                33 -> return "Mii Brawler"
-                34 -> return "Mii Gunner"
-                35 -> return "Mii Swordfighter"
-                36 -> return "Mr. Game & Watch"
-                37 -> return "Ness"
-                38 -> return "Olimar"
-                39 -> return "Pac-Man"
-                40 -> return "Palutena"
-                41 -> return "Peach"
-                42 -> return "Pichu"
-                43 -> return "Pikachu"
-                44 -> return "Pit"
-                45 -> return "Pokémon Trainer"
-                47 -> return "Ridley"
-                46 -> return "Rob"
-                48 -> return "Robin"
-                49 -> return "Rosalina & Luma"
-                50 -> return "Roy"
-                51 -> return "Ryu"
-                52 -> return "Samus"
-                53 -> return "Sheik"
-                54 -> return "Shulk"
-                55 -> return "Snake"
-                56 -> return "Sonic"
-                57 -> return "Toon Link"
-                58 -> return "Villager"
-                59 -> return "Wario"
-                60 -> return "Wii Fit Trainer"
-                61 -> return "Wolf"
-                62 -> return "Yoshi"
-                63 -> return "Young Link"
-                64 -> return "Zelda"
-                65 -> return "Zero Suit Samus"
+                4 -> return "Chrom"
+                5 -> return "Cloud"
+                6 -> return "Corrin"
+                7 -> return "Daisy"
+                8 -> return "Dark Pit"
+                9 -> return "Dark Samus"
+                10 -> return "Diddy Kong"
+                11 -> return "Donkey Kong"
+                12 -> return "Dr. Mario"
+                13 -> return "Duck Hunt"
+                14 -> return "Falco"
+                15 -> return "Fox"
+                16 -> return "Ganondorf"
+                17 -> return "Greninja"
+                18 -> return "Ice Climbers"
+                19 -> return "Ike"
+                20 -> return "Incineroar"
+                21 -> return "Inkling"
+                22 -> return "Isabelle"
+                23 -> return "Jigglypuff"
+                24 -> return "Ken"
+                25 -> return "King Dedede"
+                26 -> return "King K. Rool"
+                27 -> return "Kirby"
+                28 -> return "Little Mac"
+                29 -> return "Link"
+                30 -> return "Lucario"
+                31 -> return "Lucas"
+                32 -> return "Lucina"
+                33 -> return "Luigi"
+                34 -> return "Mario"
+                35 -> return "Marth"
+                36 -> return "Mega Man"
+                37 -> return "Meta Knight"
+                38 -> return "Mewtwo"
+                39 -> return "Mii Brawler"
+                40 -> return "Mii Gunner"
+                41 -> return "Mii Swordfighter"
+                42 -> return "Mr. Game & Watch"
+                43 -> return "Ness"
+                44 -> return "Olimar"
+                45 -> return "Pac-Man"
+                46 -> return "Palutena"
+                47 -> return "Peach"
+                48 -> return "Pichu"
+                49 -> return "Pikachu"
+                50 -> return "Piranha Plant"
+                51 -> return "Pit"
+                52 -> return "Pokémon Trainer"
+                53 -> return "Richter"
+                54 -> return "Ridley"
+                55 -> return "Rob"
+                56 -> return "Robin"
+                57 -> return "Rosalina & Luma"
+                58 -> return "Roy"
+                59 -> return "Ryu"
+                60 -> return "Samus"
+                61 -> return "Sheik"
+                62 -> return "Shulk"
+                63 -> return "Simon"
+                64 -> return "Snake"
+                65 -> return "Sonic"
+                66 -> return "Toon Link"
+                67 -> return "Villager"
+                68 -> return "Wario"
+                69 -> return "Wii Fit Trainer"
+                70 -> return "Wolf"
+                71 -> return "Yoshi"
+                72 -> return "Young Link"
+                73 -> return "Zelda"
+                74 -> return "Zero Suit Samus"
             }
 
             return ""
@@ -397,70 +415,77 @@ class CharacterHelper {
                 "Bowser".toLowerCase() -> return 1
                 "Bowser Jr.".toLowerCase() -> return 2
                 "Captain Falcon".toLowerCase() -> return 3
-                "Cloud".toLowerCase() -> return 4
-                "Corrin".toLowerCase() -> return 5
-                "Daisy".toLowerCase() -> return 6
-                "Dark Pit".toLowerCase() -> return 7
-                "Diddy Kong".toLowerCase() -> return 8
-                "Donkey Kong".toLowerCase() -> return 9
-                "Dr. Mario".toLowerCase() -> return 10
-                "Duck Hunt".toLowerCase() -> return 11
-                "Falco".toLowerCase() -> return 12
-                "Fox".toLowerCase() -> return 13
-                "Ganondorf".toLowerCase() -> return 14
-                "Greninja".toLowerCase() -> return 15
-                "Ice Climbers".toLowerCase() -> return 16
-                "Ike".toLowerCase() -> return 17
-                "Inkling".toLowerCase() -> return 18
-                "Jigglypuff".toLowerCase() -> return 19
-                "King Dedede".toLowerCase() -> return 20
-                "Kirby".toLowerCase() -> return 21
-                "Link".toLowerCase() -> return 22
-                "Little Mac".toLowerCase() -> return 23
-                "Lucario".toLowerCase() -> return 24
-                "Lucas".toLowerCase() -> return 25
-                "Lucina".toLowerCase() -> return 26
-                "Luigi".toLowerCase() -> return 27
-                "Mario".toLowerCase() -> return 28
-                "Marth".toLowerCase() -> return 29
-                "Mega Man".toLowerCase() -> return 30
-                "Meta Knight".toLowerCase() -> return 31
-                "Mewtwo".toLowerCase() -> return 32
-                "Mii Brawler".toLowerCase() -> return 33
-                "Mii Gunner".toLowerCase() -> return 34
-                "Mii Swordfighter".toLowerCase() -> return 35
-                "Mr. Game & Watch".toLowerCase() -> return 36
-                "Ness".toLowerCase() -> return 37
-                "Olimar".toLowerCase() -> return 38
-                "Pac-Man".toLowerCase() -> return 39
-                "Palutena".toLowerCase() -> return 40
-                "Peach".toLowerCase() -> return 41
-                "Pichu".toLowerCase() -> return 42
-                "Pikachu".toLowerCase() -> return 43
-                "Pit".toLowerCase() -> return 44
-                "Pokémon Trainer: Charizard".toLowerCase() -> return 45
-                "Pokémon Trainer: Ivysaur".toLowerCase() -> return 46
-                "Pokémon Trainer: Squirtle".toLowerCase() -> return 47
-                "R.O.B.".toLowerCase() -> return 48
-                "Ridley".toLowerCase() -> return 49
-                "Robin".toLowerCase() -> return 50
-                "Rosalina & Luma".toLowerCase() -> return 51
-                "Roy".toLowerCase() -> return 52
-                "Ryu".toLowerCase() -> return 53
-                "Samus".toLowerCase() -> return 54
-                "Sheik".toLowerCase() -> return 55
-                "Shulk".toLowerCase() -> return 56
-                "Snake".toLowerCase() -> return 57
-                "Sonic".toLowerCase() -> return 58
-                "Toon Link".toLowerCase() -> return 59
-                "Villager".toLowerCase() -> return 60
-                "Wario".toLowerCase() -> return 61
-                "Wii Fit Trainer".toLowerCase() -> return 62
-                "Wolf".toLowerCase() -> return 63
-                "Yoshi".toLowerCase() -> return 64
-                "Young Link".toLowerCase() -> return 65
-                "Zelda".toLowerCase() -> return 66
-                "Zero Suit Samus".toLowerCase() -> return 67
+                "Chrom".toLowerCase() -> return 4
+                "Cloud".toLowerCase() -> return 5
+                "Corrin".toLowerCase() -> return 6
+                "Daisy".toLowerCase() -> return 7
+                "Dark Pit".toLowerCase() -> return 8
+                "Dark Samus".toLowerCase() -> return 9
+                "Diddy Kong".toLowerCase() -> return 10
+                "Donkey Kong".toLowerCase() -> return 11
+                "Dr. Mario".toLowerCase() -> return 12
+                "Duck Hunt".toLowerCase() -> return 13
+                "Falco".toLowerCase() -> return 14
+                "Fox".toLowerCase() -> return 15
+                "Ganondorf".toLowerCase() -> return 16
+                "Greninja".toLowerCase() -> return 17
+                "Ice Climbers".toLowerCase() -> return 18
+                "Ike".toLowerCase() -> return 19
+                "Incineroar".toLowerCase() -> return 20
+                "Inkling".toLowerCase() -> return 21
+                "Isabelle".toLowerCase() -> return 22
+                "Jigglypuff".toLowerCase() -> return 23
+                "Ken".toLowerCase() -> return 24
+                "King Dedede".toLowerCase() -> return 25
+                "King K. Rool".toLowerCase() -> return 26
+                "Kirby".toLowerCase() -> return 27
+                "Little Mac".toLowerCase() -> return 28
+                "Link".toLowerCase() -> return 29
+                "Lucario".toLowerCase() -> return 30
+                "Lucas".toLowerCase() -> return 31
+                "Lucina".toLowerCase() -> return 32
+                "Luigi".toLowerCase() -> return 33
+                "Mario".toLowerCase() -> return 34
+                "Marth".toLowerCase() -> return 35
+                "Mega Man".toLowerCase() -> return 36
+                "Meta Knight".toLowerCase() -> return 37
+                "Mewtwo".toLowerCase() -> return 38
+                "Mii Brawler".toLowerCase() -> return 39
+                "Mii Gunner".toLowerCase() -> return 40
+                "Mii Swordfighter".toLowerCase() -> return 41
+                "Mr. Game & Watch".toLowerCase() -> return 42
+                "Ness".toLowerCase() -> return 43
+                "Olimar".toLowerCase() -> return 44
+                "Pac-Man".toLowerCase() -> return 45
+                "Palutena".toLowerCase() -> return 46
+                "Peach".toLowerCase() -> return 47
+                "Pichu".toLowerCase() -> return 48
+                "Pikachu".toLowerCase() -> return 49
+                "Piranha Plant".toLowerCase() -> return 50
+                "Pit".toLowerCase() -> return 51
+                "Pokémon Trainer".toLowerCase() -> return 52
+                "Richter".toLowerCase() -> return 53
+                "Ridley".toLowerCase() -> return 54
+                "Rob".toLowerCase() -> return 55
+                "Robin".toLowerCase() -> return 56
+                "Rosalina & Luma".toLowerCase() -> return 57
+                "Roy".toLowerCase() -> return 58
+                "Ryu".toLowerCase() -> return 59
+                "Samus".toLowerCase() -> return 60
+                "Sheik".toLowerCase() -> return 61
+                "Shulk".toLowerCase() -> return 62
+                "Simon".toLowerCase() -> return 63
+                "Snake".toLowerCase() -> return 64
+                "Sonic".toLowerCase() -> return 65
+                "Toon Link".toLowerCase() -> return 66
+                "Villager".toLowerCase() -> return 67
+                "Wario".toLowerCase() -> return 68
+                "Wii Fit Trainer".toLowerCase() -> return 69
+                "Wolf".toLowerCase() -> return 70
+                "Yoshi".toLowerCase() -> return 71
+                "Young Link".toLowerCase() -> return 72
+                "Zelda".toLowerCase() -> return 73
+                "Zero Suit Samus".toLowerCase() -> return 74
             }
 
             return -1

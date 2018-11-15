@@ -18,6 +18,7 @@
     <string name="header_completed">done!</string>
     <string name="characters">Characters</string>
     <string name="shared_prefs_group_codes">GroupCodes</string>
+    <string name="group_code_tooltip">Tap on this thing to\nswitch between groups</string>
 
     <string-array name="character_sort_options">
         <item>Name</item>

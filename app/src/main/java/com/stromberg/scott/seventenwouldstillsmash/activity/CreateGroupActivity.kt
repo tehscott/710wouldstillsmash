@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
+import com.stromberg.scott.seventenwouldstillsmash.model.GroupType
 import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.util.*
 import kotlin.collections.ArrayList
@@ -94,6 +95,7 @@ class CreateGroupActivity : AppCompatActivity() {
         val group = Group()
         group.code = code
         group.name = groupNameEditText.text.toString()
+        group.type = if (ssb4RadioButton.isSelected) GroupType.SMASH4 else GroupType.ULTIMATE
         group.isSelected = true
 
         db.reference

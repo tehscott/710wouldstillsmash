@@ -5,12 +5,16 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.support.design.widget.BottomNavigationView
+import android.support.v4.app.Fragment
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import com.github.clans.fab.FloatingActionButton
 import com.github.clans.fab.FloatingActionMenu
+import com.github.florent37.viewtooltip.ViewTooltip
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.fragment.*
@@ -57,6 +61,32 @@ class MainActivity : AppCompatActivity() {
         navigation.itemTextColor = ColorStateList.valueOf(resources.getColor(R.color.text_secondary, null))
 
         setupGroupCodeText()
+    }
+
+    override fun onAttachFragment(fragment: Fragment?) {
+        super.onAttachFragment(fragment)
+
+        if(fragment is GamesFragment) {
+            val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+
+            if(!prefs.getBoolean("ShowedGroupTooltip", false)) {
+                val groupCode = findViewById<TextView>(R.id.group_code)
+
+                ViewTooltip
+                    .on(this, groupCode)
+                    .autoHide(true, 10000)
+                    .clickToHide(true)
+                    .corner(30)
+                    .padding(30, 30, 30, 30)
+                    .arrowHeight(32)
+                    .position(ViewTooltip.Position.LEFT)
+                    .text(R.string.group_code_tooltip)
+                    .textSize(TypedValue.COMPLEX_UNIT_SP, 18f)
+                    .show()
+
+                prefs.edit().putBoolean("ShowedGroupTooltip", true).apply()
+            }
+        }
     }
 
     private fun setupGroupCodeText() {

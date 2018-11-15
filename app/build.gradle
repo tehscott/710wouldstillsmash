@@ -39,6 +39,7 @@ dependencies {
         transitive = true
     }
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.17'
+    implementation 'com.github.florent37:viewtooltip:1.1.8'
 }
 
 apply plugin: 'com.google.gms.google-services'
