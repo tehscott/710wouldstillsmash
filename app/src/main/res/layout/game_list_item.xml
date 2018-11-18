@@ -61,7 +61,7 @@
             android:layout_weight="1"
             android:autoSizeTextType="uniform"
             android:autoSizeMaxTextSize="48sp"
-            android:textColor="@color/player_winner"
+            android:textColor="@color/primary"
             android:lines="1"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="16dp"

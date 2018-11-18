@@ -49,7 +49,6 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
             viewHolder?.setText(R.id.player_list_item_all_time_royale_wins_text, (Math.round(allTimeRoyaleWinPercentage * 100).toString() + "%") + " (" + allTimeRoyaleGamesWon.toInt() + "/" + allTimeRoyaleGamesPlayed.toInt() + ")")
             viewHolder?.setText(R.id.player_list_item_all_time_sudden_death_wins_text, (Math.round(allTimeSuddenDeathWinPercentage * 100).toString() + "%") + " (" + allTimeSuddenDeathGamesWon.toInt() + "/" + allTimeSuddenDeathGamesPlayed.toInt() + ")")
 
-            playerName?.setTextColor(mContext.getColor(R.color.primary))
             playerName?.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
             viewHolder?.getView<View>(R.id.stats_container)!!.visibility = View.VISIBLE
         }
