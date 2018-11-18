@@ -3,8 +3,17 @@
     <dimen name="space_8dp">8dp</dimen>
     <dimen name="space_12dp">12dp</dimen>
     <dimen name="space_16dp">16dp</dimen>
+    <dimen name="bottom_app_bar_icon">28dp</dimen>
     <dimen name="player_list_player_name">24sp</dimen>
+    <dimen name="game_list_player_name">26sp</dimen>
     <dimen name="toggle_button_corner_radius">10dp</dimen>
     <dimen name="toggle_button_stroke">1dp</dimen>
     <dimen name="line_item_height">72dp</dimen>
+    <dimen name="loser_image_size">24dp</dimen>
+    <dimen name="loser_image_margin_size">2dp</dimen>
+    <dimen name="loser_name_text_size">14sp</dimen>
+
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
 </resources>

@@ -1,9 +1,9 @@
 package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.appcompat.widget.SearchView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,9 +20,11 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.text.DateFormatSymbols
 import java.util.*
+import kotlin.math.max
 
 
 class GamesFragment : BaseFragment() {
@@ -71,7 +73,12 @@ class GamesFragment : BaseFragment() {
     }
 
     private fun setupAdapter(games: List<Game>) {
-        adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
+        val allNames = HashSet<String>()
+        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
+        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
+        loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
+
+        adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)
 
         adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             (activity as MainActivity).editGame(games[position], games)
@@ -203,7 +210,7 @@ class GamesFragment : BaseFragment() {
     override fun setContentShown(shown: Boolean) {
         progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
         pullToRefreshView!!.visibility = if(shown) View.VISIBLE else View.GONE
-        searchView!!.visibility = if(shown) View.VISIBLE else View.GONE
+//        searchView!!.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun addFabClicked() {

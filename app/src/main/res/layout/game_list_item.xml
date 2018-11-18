@@ -1,49 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginLeft="8dp"
-    android:layout_marginRight="8dp"
+    android:layout_height="96dp"
+    android:layout_marginLeft="4dp"
+    android:layout_marginRight="4dp"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
-    android:elevation="5dp"
     android:background="@android:color/white"
+    android:gravity="center_vertical"
     android:foreground="?android:attr/selectableItemBackground">
 
     <LinearLayout
-        android:id="@+id/game_list_item_left_bar"
-        android:layout_width="wrap_content"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_marginLeft="8dp"
-        android:gravity="center">
+        android:gravity="center_vertical"
+        android:foreground="?android:attr/selectableItemBackground">
 
-        <ImageView
-            android:id="@+id/game_list_item_game_type_image"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_royale"/>
+        <LinearLayout
+            android:id="@+id/game_list_item_left_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:layout_marginLeft="8dp"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/game_list_item_game_type_image"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:src="@drawable/ic_royale"/>
+
+            <TextView
+                android:id="@+id/game_list_item_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="10/05"
+                android:textColor="@color/text_secondary"
+                android:layout_gravity="center_horizontal"
+                fontPath="Quicksand-Bold.ttf"
+                tools:ignore="MissingPrefix" />
+        </LinearLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/game_list_item_winner_image"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:elevation="7dp"
+            android:layout_margin="8dp"
+            tools:src="@drawable/ssbu_character_ness"/>
 
         <TextView
-            android:id="@+id/game_list_item_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="10/05"
-            android:textColor="@color/text_secondary"
-            android:layout_gravity="center_horizontal"
-            fontPath="Quicksand-Bold.ttf"
-            tools:ignore="MissingPrefix" />
-    </LinearLayout>
+            android:id="@+id/game_list_item_winner_name"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="48sp"
+            android:textColor="@color/player_winner"
+            android:lines="1"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="16dp"
+            android:gravity="center_vertical"
+            tools:text="Chad"/>
 
-    <LinearLayout
-        android:id="@+id/player_list"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:padding="8dp"/>
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginRight="16dp">
+
+            <LinearLayout
+                android:id="@+id/game_list_item_loser1_container"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/game_list_item_loser1_image"
+                    android:layout_width="@dimen/loser_image_size"
+                    android:layout_height="@dimen/loser_image_size"
+                    android:elevation="1dp"
+                    android:layout_margin="@dimen/loser_image_margin_size"
+                    tools:src="@drawable/ssbu_character_mewtwo"/>
+
+                <TextView
+                    android:id="@+id/game_list_item_loser1_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/loser_name_text_size"
+                    tools:text="Scott"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/game_list_item_loser2_container"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/game_list_item_loser2_image"
+                    android:layout_width="@dimen/loser_image_size"
+                    android:layout_height="@dimen/loser_image_size"
+                    android:elevation="1dp"
+                    android:layout_margin="@dimen/loser_image_margin_size"
+                    tools:src="@drawable/ssbu_character_peach"/>
+
+                <TextView
+                    android:id="@+id/game_list_item_loser2_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/loser_name_text_size"
+                    tools:text="Dustin"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/game_list_item_loser3_container"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/game_list_item_loser3_image"
+                    android:layout_width="@dimen/loser_image_size"
+                    android:layout_height="@dimen/loser_image_size"
+                    android:elevation="1dp"
+                    android:layout_margin="@dimen/loser_image_margin_size"
+                    tools:src="@drawable/ssbu_character_toon_link"/>
+
+                <TextView
+                    android:id="@+id/game_list_item_loser3_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/loser_name_text_size"
+                    tools:text="Dwayne"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

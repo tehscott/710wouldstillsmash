@@ -7,7 +7,7 @@
 
     <path
         android:name="crown"
-        android:fillColor="@color/primary"
+        android:fillColor="@color/secondary"
         android:pathData="M2,12.4992 L0,1.4992 L5.5008,8.4992 L9,1.4994 L12.4992,8.4994 L18,1.4994
 L16,12.4994 L2,12.4994 M16,15.5 A1.0008,1.0008,0,0,1,14.9992,16.5008
 L3.0006,16.5008 A1.0008,1.0008,0,0,1,2,15.5 L2,14.499 L16,14.499 Z" />

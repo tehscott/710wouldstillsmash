@@ -2,9 +2,9 @@ package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +20,7 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.util.*
@@ -137,7 +138,12 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun setupGamesAdapter(games: List<Game>) {
-        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER)
+        val allNames = HashSet<String>()
+        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
+        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
+        loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
+
+        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER, loserContainerWidth)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, view, position ->
             (activity as MainActivity).editGame(games[position], games)

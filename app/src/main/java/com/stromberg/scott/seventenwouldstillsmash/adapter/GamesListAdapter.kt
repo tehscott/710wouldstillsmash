@@ -1,14 +1,10 @@
 package com.stromberg.scott.seventenwouldstillsmash.adapter
 
-import android.support.v4.widget.Space
-import android.view.LayoutInflater
-import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
+import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
@@ -17,7 +13,7 @@ import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games), FastScrollRecyclerView.SectionedAdapter {
+class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var loserContainerWidth: Int) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games), FastScrollRecyclerView.SectionedAdapter {
     private var dateFormatter = SimpleDateFormat("MM/dd/yy", Locale.getDefault())
     private var sectionDateFormatter = SimpleDateFormat("MMM yy", Locale.getDefault())
 
@@ -26,12 +22,7 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAda
         PLAYER;
     }
 
-    override fun convert(viewHolder: BaseViewHolder?, item: Game?) {
-        val playersList = viewHolder!!.getView<LinearLayout>(R.id.player_list)
-        val gameTypeImage = viewHolder.getView<ImageView>(R.id.game_list_item_game_type_image)
-
-        playersList.removeAllViews()
-
+    override fun convert(viewHolder: BaseViewHolder, item: Game?) {
         val players: List<GamePlayer>?
 
         when(sortBy) {
@@ -39,34 +30,37 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy) : BaseQuickAda
             SortBy.PLAYER -> players = item?.players?.sortedWith(compareBy { it.player?.name })
         }
 
-        players?.forEach { player ->
-            run {
-                val playerLayout: FrameLayout = LayoutInflater.from(mContext).inflate(R.layout.game_list_item_image, null) as FrameLayout
-                playerLayout.findViewById<ImageView>(R.id.game_list_item_character_image).setImageResource(CharacterHelper.getImage(player.characterId))
-                playerLayout.findViewById<TextView>(R.id.game_list_item_player_name).text = player.player!!.name
-                playerLayout.findViewById<TextView>(R.id.game_list_item_player_name).setBackgroundResource(if (player.winner) R.color.player_winner else R.color.player_loser)
+        val winner = players?.firstOrNull { it.winner }
+        val otherPlayers = players?.filter { !it.winner }?.take(3)
 
-                var layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT)
-                layoutParams.weight = 1f
-                playerLayout.layoutParams = layoutParams
+        viewHolder.setImageResource(R.id.game_list_item_winner_image, CharacterHelper.getImage(winner!!.characterId))
+        viewHolder.setText(R.id.game_list_item_winner_name, winner.player?.name)
 
-                val space = Space(mContext)
-                layoutParams = LinearLayout.LayoutParams(mContext.resources.getDimensionPixelSize(R.dimen.space_8dp), LinearLayout.LayoutParams.WRAP_CONTENT)
-                space.layoutParams = layoutParams
+        val resources = App.getContext().resources
+        val packageName = App.getContext().packageName
 
-                playersList.addView(playerLayout)
+        otherPlayers?.forEachIndexed { index, gamePlayer ->
+            val containerId = resources.getIdentifier("game_list_item_loser${index + 1}_container", "id", packageName)
+            val imageId = resources.getIdentifier("game_list_item_loser${index + 1}_image", "id", packageName)
+            val nameId = resources.getIdentifier("game_list_item_loser${index + 1}_name", "id", packageName)
 
-                playersList.addView(space)
-            }
+            viewHolder.setImageResource(imageId, CharacterHelper.getImage(gamePlayer.characterId))
+            viewHolder.setText(nameId, gamePlayer.player?.name)
+
+            val container = viewHolder.getView<LinearLayout>(containerId)
+
+            val playerNameLayoutParams = container?.layoutParams
+            playerNameLayoutParams?.width = loserContainerWidth
+            container?.layoutParams = playerNameLayoutParams
         }
 
         when (item!!.gameType) {
             GameType.ROYALE.toString() -> {
-                gameTypeImage.setImageResource(R.drawable.ic_royale)
+                viewHolder.setImageResource(R.id.game_list_item_game_type_image, R.drawable.ic_royale)
             }
 
             GameType.SUDDEN_DEATH.toString() -> {
-                gameTypeImage.setImageResource(R.drawable.ic_sudden_death)
+                viewHolder.setImageResource(R.id.game_list_item_game_type_image, R.drawable.ic_sudden_death)
             }
         }
 

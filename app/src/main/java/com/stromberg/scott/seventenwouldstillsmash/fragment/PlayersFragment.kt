@@ -1,13 +1,9 @@
 package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.content.Context
-import android.content.res.Resources
-import android.graphics.Paint
-import android.graphics.Rect
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,8 +20,8 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import uk.co.chrisjenx.calligraphy.TypefaceUtils
 import java.util.*
 
 class PlayersFragment : BaseFragment() {
@@ -124,7 +120,7 @@ class PlayersFragment : BaseFragment() {
                     players.sortBy { it.isLowPriority }
                     players.sortBy { it.isHidden }
 
-                    val playerNameWidth = getLongestNameLength(players)
+                    val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
                     val adapter = PlayersListAdapter(players, playerNameWidth)
                     recyclerView!!.adapter = adapter
@@ -178,34 +174,6 @@ class PlayersFragment : BaseFragment() {
         recyclerView?.adapter?.notifyDataSetChanged()
         pullToRefreshView!!.refreshComplete()
         setContentShown(true)
-    }
-
-    fun getLongestNameLength(players: ArrayList<Player>): Int {
-        val paint = Paint()
-        val bounds = Rect()
-
-        var longestLength = 0
-
-        paint.typeface = TypefaceUtils.load(resources.assets, "Quicksand-Bold.ttf")
-        paint.textSize = resources.getDimension(R.dimen.player_list_player_name)
-
-        players.forEach({player -> run {
-            paint.getTextBounds(player.name, 0, player.name!!.length, bounds)
-
-            if(bounds.width() > longestLength) {
-                longestLength = bounds.width()
-            }
-        }})
-
-        Log.d("name", longestLength.toString())
-
-        val oneThirdDisplayWidth = (Resources.getSystem().displayMetrics.widthPixels / 3)
-        if(longestLength > oneThirdDisplayWidth) {
-            return oneThirdDisplayWidth
-        }
-        else {
-            return (longestLength * 1.15).toInt()
-        }
     }
 
     override fun addFabClicked() {

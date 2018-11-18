@@ -1,20 +1,19 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.Fragment
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.widget.TextView
-import com.github.clans.fab.FloatingActionButton
-import com.github.clans.fab.FloatingActionMenu
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.github.florent37.viewtooltip.ViewTooltip
+import com.google.android.material.animation.AnimationUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.fragment.*
@@ -25,42 +24,32 @@ import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 
-
 class MainActivity : AppCompatActivity() {
     private var mLastFragment: BaseFragment? = null
     private var mCurrentFragment: BaseFragment? = null
-    private var mAddFabMenu: FloatingActionMenu? = null
     private var mAddFabButton: FloatingActionButton? = null
-
-    private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
-        when (item.itemId) {
-            R.id.navigation_games -> {
-                navigateToFragment(GamesFragment())
-            }
-            R.id.navigation_players -> {
-                navigateToFragment(PlayersFragment())
-            }
-            R.id.navigation_characters -> {
-                navigateToFragment(CharactersFragment())
-            }
-            else -> hideFabs()
-        }
-
-        return@OnNavigationItemSelectedListener true
-    }
+    private var mIsAppBarVisible = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        mAddFabMenu = findViewById(R.id.add_fab_menu)
-        mAddFabButton = findViewById(R.id.add_fab_button)
+        games_button.setOnClickListener {
+            navigateToFragment(GamesFragment())
+        }
 
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-        navigation.selectedItemId = R.id.navigation_games
-        navigation.itemTextColor = ColorStateList.valueOf(resources.getColor(R.color.text_secondary, null))
+        players_button.setOnClickListener {
+            navigateToFragment(PlayersFragment())
+        }
+
+        characters_button.setOnClickListener {
+            navigateToFragment(CharactersFragment())
+        }
+
+        mAddFabButton = findViewById(R.id.fab)
 
         setupGroupCodeText()
+        navigateToFragment(GamesFragment())
     }
 
     override fun onAttachFragment(fragment: Fragment?) {
@@ -139,37 +128,48 @@ class MainActivity : AppCompatActivity() {
         prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
         setupGroupCodeText()
-        navigation.selectedItemId = R.id.navigation_games
+        navigateToFragment(GamesFragment())
     }
 
     private fun navigateToFragment(fragment: BaseFragment) {
+        games_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+        players_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+        characters_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+
+        var showAppBar = true
+        if(fragment is GamesFragment) {
+            games_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+        }
+        else if(fragment is PlayersFragment) {
+            players_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+        }
+        else if(fragment is CharactersFragment) {
+            characters_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+        }
+        else {
+            showAppBar = false
+        }
+
         mLastFragment = mCurrentFragment
         mCurrentFragment = fragment
 
         supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer, fragment).commit()
 
         if (fragment.hasFab()) {
-            val fabMenuButtons = fragment.getFabButtons(this)
-
-            if (fabMenuButtons.isNotEmpty()) {
-                mAddFabMenu?.visibility = View.VISIBLE
-                mAddFabButton?.visibility = View.GONE
-
-                mAddFabMenu?.removeAllMenuButtons()
-                fabMenuButtons.forEach({ fab -> run { mAddFabMenu?.addMenuButton(fab) } })
-            } else {
-                mAddFabMenu?.visibility = View.GONE
-                mAddFabButton?.visibility = View.VISIBLE
-                mAddFabButton?.setOnClickListener { fragment.addFabClicked() }
-            }
-        } else {
-            hideFabs()
+            mAddFabButton?.show()
+            mAddFabButton?.setOnClickListener { fragment.addFabClicked() }
         }
-    }
+        else mAddFabButton?.hide()
 
-    private fun hideFabs() {
-        mAddFabMenu?.visibility = View.GONE
-        mAddFabButton?.visibility = View.GONE
+        if(showAppBar && !mIsAppBarVisible) {
+            bottom_appbar.animate().translationY(0f).setInterpolator(AnimationUtils.LINEAR_OUT_SLOW_IN_INTERPOLATOR).setDuration(225L).start()
+            mIsAppBarVisible = true
+        }
+        else if(!showAppBar && mIsAppBarVisible) {
+            bottom_appbar.animate().translationY(bottom_appbar.height.toFloat()).setInterpolator(AnimationUtils.FAST_OUT_LINEAR_IN_INTERPOLATOR).setDuration(175L).start()
+            mIsAppBarVisible = false
+        }
+
     }
 
     fun createGame(games: ArrayList<Game>) {

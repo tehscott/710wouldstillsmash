@@ -1,9 +1,9 @@
 package com.stromberg.scott.seventenwouldstillsmash.fragment
 
 import android.os.Bundle
-import android.support.design.widget.BottomNavigationView
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,8 +24,10 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.model.Statistic
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.util.*
+import kotlin.collections.HashSet
 
 class CharacterFragment : BaseFragment() {
     private var db = FirebaseDatabase.getInstance()
@@ -118,7 +120,12 @@ class CharacterFragment : BaseFragment() {
     }
 
     private fun setupGamesAdapter(games: List<Game>) {
-        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER)
+        val allNames = HashSet<String>()
+        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
+        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
+        loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
+
+        gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             (activity as MainActivity).editGame(games[position], games)

@@ -1,86 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:fab="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity">
+    android:layout_height="match_parent">
 
-    <FrameLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/primary"
-            android:gravity="center"
-            android:paddingBottom="32dp"
-            android:paddingTop="32dp"
-            android:text="@string/app_name"
-            android:textColor="@color/text_primary"
-            android:textSize="30sp"
-            fontPath="Quicksand-Bold.ttf"
-            tools:ignore="MissingPrefix" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:padding="4dp">
 
-        <TextView
-            android:id="@+id/group_code"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:text="A8F28"
-            android:textAllCaps="true"
-            android:textColor="@color/text_primary"
-            android:textSize="18sp"
-            android:layout_gravity="bottom|right"
-            android:padding="6dp"
-            android:background="?android:attr/selectableItemBackground"/>
-    </FrameLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/primary"
+                android:gravity="center"
+                android:text="@string/app_name"
+                android:textColor="@color/text_primary"
+                android:textSize="24sp"
+                fontPath="Quicksand-Bold.ttf"
+                tools:ignore="MissingPrefix" />
+
+            <TextView
+                android:id="@+id/group_code"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="A8F28"
+                android:textAllCaps="true"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:background="?android:attr/selectableItemBackground"/>
+        </LinearLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
     <FrameLayout
+        android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-        <FrameLayout
-            android:id="@+id/fragmentContainer"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        <com.github.clans.fab.FloatingActionMenu
-            android:id="@+id/add_fab_menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_gravity="bottom|right"
-            fab:menu_colorNormal="@color/primary"
-            fab:menu_colorPressed="@color/primary_light"
-            fab:menu_colorRipple="@color/text_primary"
-            fab:menu_labels_colorNormal="@color/primary"
-            fab:menu_labels_colorPressed="@color/primary_light"
-            fab:menu_labels_colorRipple="@color/text_primary" />
-
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/add_fab_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_gravity="bottom|right"
-            android:src="@drawable/fab_add"
-            fab:fab_colorNormal="@color/primary"
-            fab:fab_colorPressed="@color/primary_light"
-            fab:fab_colorRipple="@color/text_primary" />
-    </FrameLayout>
-
-
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/navigation"
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottom_appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
-        app:menu="@menu/navigation" />
-</LinearLayout>
+        android:layout_gravity="bottom"
+        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:fabAlignmentMode="end"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        app:backgroundTint="@color/primary"
+        app:hideOnScroll="true"
+        app:layout_scrollFlags="scroll|enterAlways">
+
+        <ImageView
+            android:id="@+id/games_button"
+            android:layout_width="@dimen/bottom_app_bar_icon"
+            android:layout_height="@dimen/bottom_app_bar_icon"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_games"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+
+        <ImageView
+            android:id="@+id/players_button"
+            android:layout_width="@dimen/bottom_app_bar_icon"
+            android:layout_height="@dimen/bottom_app_bar_icon"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_players"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+
+        <ImageView
+            android:id="@+id/characters_button"
+            android:layout_width="@dimen/bottom_app_bar_icon"
+            android:layout_height="@dimen/bottom_app_bar_icon"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_pikachu"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+    </com.google.android.material.bottomappbar.BottomAppBar>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:src="@drawable/plus"
+        android:tint="@color/text_primary"
+        app:backgroundTint="@color/primary"
+        app:layout_anchor="@+id/bottom_appbar"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
