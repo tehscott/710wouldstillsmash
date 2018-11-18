@@ -33,16 +33,35 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
         val winner = players?.firstOrNull { it.winner }
         val otherPlayers = players?.filter { !it.winner }?.take(3)
 
-        viewHolder.setImageResource(R.id.game_list_item_winner_image, CharacterHelper.getImage(winner!!.characterId))
-        viewHolder.setText(R.id.game_list_item_winner_name, winner.player?.name)
+        if(winner != null) {
+            viewHolder.setVisible(R.id.game_list_item_winner_image, true)
+            viewHolder.setVisible(R.id.game_list_item_winner_name, true)
+            viewHolder.setImageResource(R.id.game_list_item_winner_image, CharacterHelper.getImage(winner.characterId))
+            viewHolder.setText(R.id.game_list_item_winner_name, winner.player?.name)
+        }
+        else {
+            viewHolder.setVisible(R.id.game_list_item_winner_image, false)
+            viewHolder.setVisible(R.id.game_list_item_winner_name, false)
+        }
 
         val resources = App.getContext().resources
         val packageName = App.getContext().packageName
+
+        for (i in 1..3) {
+            val imageId = resources.getIdentifier("game_list_item_loser${i}_image", "id", packageName)
+            val nameId = resources.getIdentifier("game_list_item_loser${i}_name", "id", packageName)
+
+            viewHolder.setVisible(imageId, false)
+            viewHolder.setVisible(nameId, false)
+        }
 
         otherPlayers?.forEachIndexed { index, gamePlayer ->
             val containerId = resources.getIdentifier("game_list_item_loser${index + 1}_container", "id", packageName)
             val imageId = resources.getIdentifier("game_list_item_loser${index + 1}_image", "id", packageName)
             val nameId = resources.getIdentifier("game_list_item_loser${index + 1}_name", "id", packageName)
+
+            viewHolder.setVisible(imageId, true)
+            viewHolder.setVisible(nameId, true)
 
             viewHolder.setImageResource(imageId, CharacterHelper.getImage(gamePlayer.characterId))
             viewHolder.setText(nameId, gamePlayer.player?.name)
