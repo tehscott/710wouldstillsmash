@@ -1,20 +1,16 @@
-package com.stromberg.scott.seventenwouldstillsmash.fragment
+package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
-import android.content.SharedPreferences
+import android.graphics.PorterDuff
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.*
+import android.widget.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import android.widget.*
-import android.widget.AdapterView.OnItemSelectedListener
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -27,12 +23,12 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlinx.android.synthetic.main.activity_game.*
 
 
-class CreateGameFragment : BaseFragment() {
+class GameActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
 
@@ -40,95 +36,122 @@ class CreateGameFragment : BaseFragment() {
     private var royaleToggleWidth: Int = 0
     private var suddenDeathToggleWidth: Int = 0
     private var isEdit: Boolean = false
+    private var hasMadeEdit: Boolean = false
     private var players = ArrayList<Player>()
     private var playersAdapter: CreateGamePlayersListAdapter? = null
     private lateinit var topFiveCharacters: HashMap<String, ArrayList<Int>>
 
-    private var contentView: View? = null
     private var dateTextView: TextView? = null
     private var royaleToggle: Button? = null
     private var suddenDeathToggle: Button? = null
-    private var createButton: Button? = null
-    private var deleteButton: Button? = null
     private var playersList: RecyclerView? = null
     private var addPlayerButton: TextView? = null
     private var addPlayerDialog: AlertDialog? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        contentView = View.inflate(activity, R.layout.create_game, null)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_game)
 
-        dateTextView = contentView!!.findViewById(R.id.create_game_date)
-        royaleToggle = contentView!!.findViewById(R.id.create_game_royale_toggle)
-        suddenDeathToggle = contentView!!.findViewById(R.id.create_game_sudden_death_royale_toggle)
-        playersList = contentView!!.findViewById(R.id.create_game_players_list)
-        addPlayerButton = contentView!!.findViewById(R.id.create_game_players_title)
-        createButton = contentView!!.findViewById(R.id.create_game_create_button)
-        deleteButton = contentView!!.findViewById(R.id.create_game_delete_button)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        isEdit = arguments?.containsKey("Game") ?: false
+        dateTextView = findViewById(R.id.create_game_date)
+        royaleToggle = findViewById(R.id.create_game_royale_toggle)
+        suddenDeathToggle = findViewById(R.id.create_game_sudden_death_royale_toggle)
+        playersList = findViewById(R.id.create_game_players_list)
+        addPlayerButton = findViewById(R.id.create_game_players_title)
 
-        if(isEdit && arguments != null) {
-            game = arguments!!.getParcelable("Game")
+        isEdit = intent?.extras?.containsKey("Game") ?: false
+
+        if(isEdit && intent?.extras != null) {
+            game = intent.extras!!.getParcelable("Game")!!
         }
         else {
             game.gameType = GameType.ROYALE.toString()
             game.date = Calendar.getInstance().time.time
         }
 
-        if(arguments != null) {
-            topFiveCharacters = arguments!!.getSerializable("TopCharacters") as HashMap<String, ArrayList<Int>>
+        if(intent?.extras != null) {
+            topFiveCharacters = intent.extras!!.getSerializable("TopCharacters") as HashMap<String, ArrayList<Int>>
             topFiveCharacters.forEach { it.value.sort() }
         }
 
         dateTextView!!.text = dateFormatter.format(Date(game.date))
         dateTextView!!.setOnClickListener {
-            var datePicker = DatePickerDialog(activity)
-            datePicker.setOnDateSetListener { view, year, month, day ->
+            var datePicker = DatePickerDialog(this)
+            datePicker.setOnDateSetListener { _, year, month, day ->
                 val cal = Calendar.getInstance()
                 cal.set(year, month, day)
                 game.date = cal.time.time
 
                 dateTextView!!.text = dateFormatter.format(Date(game.date))
+                hasMadeEdit = true
             }
             datePicker.show()
         }
 
+        game_title_text.text = if (isEdit) "Edit Game" else "New Game"
+
         setupToggle()
 
-        addPlayerButton?.setOnClickListener({ addPlayer(null) })
+        addPlayerButton?.setOnClickListener { addPlayer(null) }
 
         playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
         playersList!!.adapter = playersAdapter
-        playersList!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
-        val dividerItemDecoration = DividerItemDecoration(activity, DividerItemDecoration.VERTICAL)
+        playersList!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         playersList!!.addItemDecoration(dividerItemDecoration)
 
-        contentView!!.findViewById<View>(R.id.create_game_cancel_button).setOnClickListener { activity!!.onBackPressed() }
-
         if(isEdit) {
-            deleteButton?.setOnClickListener({ deleteGame(true,false) })
-            deleteButton?.visibility = View.VISIBLE
-
-            createButton!!.setOnClickListener({ updateGame() })
-            createButton!!.text = "Save Game"
+            delete_button.setOnClickListener { deleteGame(true,false) }
+            save_button.setOnClickListener { updateGame() }
         }
         else {
-            createButton!!.setOnClickListener({ createGame() })
+            delete_button.visibility = View.GONE
+            save_button.setOnClickListener { createGame() }
         }
 
         setContentShown(false)
         getPlayers()
+    }
 
-        return contentView
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onBackPressed() {
+        if(hasMadeEdit) {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Save Changes?")
+            builder.setMessage("Do you want to save your changes?")
+            builder.setPositiveButton("Save") { dialog, _ -> save_button.performClick(); dialog.dismiss() }
+            builder.setNegativeButton("No") { dialog, _ -> super.onBackPressed(); dialog.dismiss() }
+            builder.setNeutralButton("Cancel") { dialog, _ -> dialog.dismiss() }
+            builder.show()
+        }
+        else {
+            super.onBackPressed()
+        }
     }
 
     private fun updateGame() {
-        if(game.players.size > 1) {
-            deleteGame(false, true)
-            createGame()
+        if(!game.id.isNullOrBlank()) {
+            if(game.players.size > 1) {
+                deleteGame(false, true)
+                createGame()
+            }
+            else {
+                showDialog("There must be more than one player.")
+            }
         }
         else {
-            showDialog("There must be more than one player.")
+            showDialog("Something went wrong (you almost deleted all the games, you fool), try again.")
         }
     }
 
@@ -137,7 +160,7 @@ class CreateGameFragment : BaseFragment() {
             doDeleteGame(goBack)
         }
         else {
-            val builder = AlertDialog.Builder(context)
+            val builder = AlertDialog.Builder(this)
             builder.setTitle("Delete game")
             builder.setMessage("You can't undo this. Are you sure?")
             builder.setPositiveButton(android.R.string.ok) { _, _ ->
@@ -151,13 +174,13 @@ class CreateGameFragment : BaseFragment() {
     private fun doDeleteGame(goBack: Boolean) {
         setContentShown(false)
 
-        db.getReference(context = activity!!)
+        db.getReference(context = this)
             .child("games")
-            .child(game.id)
+            .child(game.id!!)
             .removeValue()
             .addOnCompleteListener {
                 if (goBack) {
-                    activity!!.onBackPressed()
+                    onBackPressed()
                 }
             }
     }
@@ -166,16 +189,17 @@ class CreateGameFragment : BaseFragment() {
         if(game.players.size > 1) {
             setContentShown(false)
 
-            db.getReference(context = activity!!)
-                .child("games")
-                .child(Calendar.getInstance().timeInMillis.toString())
-                .setValue(game)
-                .addOnCompleteListener {
-                    activity!!.onBackPressed()
-                }
-                .addOnFailureListener {
-                    Snackbar.make(contentView!!, "Failed to create game", Snackbar.LENGTH_SHORT).show()
-                }
+            db.getReference(context = this)
+                    .child("games")
+                    .child(Calendar.getInstance().timeInMillis.toString())
+                    .setValue(game)
+                    .addOnCompleteListener {
+                        hasMadeEdit = false
+                        onBackPressed()
+                    }
+                    .addOnFailureListener {
+                        Snackbar.make(content, "Failed to create game", Snackbar.LENGTH_SHORT).show()
+                    }
         }
         else {
             showDialog("There must be more than one player.")
@@ -183,7 +207,6 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun addPlayer(editingPlayer: GamePlayer?) {
-        val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
         val gamePlayer = editingPlayer ?: GamePlayer()
         val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
         val playerSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
@@ -195,7 +218,7 @@ class CreateGameFragment : BaseFragment() {
         playerNames.add(0, "")
         playerNames.add(1, "Add Player")
 
-        val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerNames)
+        val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
 
         playerSpinner.adapter = playerAdapter
 
@@ -203,30 +226,30 @@ class CreateGameFragment : BaseFragment() {
             val player = players.find { it.id.equals(editingPlayer.player!!.id) }
             playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
 
-            setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
+            setupCharacterDropdown(characterSpinner, gamePlayer)
             val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
             characterSpinner.setSelection(editingPlayer.characterId + topCharactersForThisPlayer.size, true)
 
             isWinnerCheckbox.isChecked = editingPlayer.winner
         }
 
-        playerSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+        playerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 when (position) {
                     0 -> characterSpinner.adapter = null
                     1 -> showNameEntryDialog(gamePlayer)
                     else -> {
                         gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
-                        setupCharacterDropdown(characterSpinner, gamePlayer, prefs)
+                        setupCharacterDropdown(characterSpinner, gamePlayer)
                     }
                 }
             }
             override fun onNothingSelected(arg0: AdapterView<*>) {}
         }
 
-        isWinnerCheckbox.setOnCheckedChangeListener { view, isChecked -> gamePlayer.winner = isChecked }
+        isWinnerCheckbox.setOnCheckedChangeListener { _, isChecked -> gamePlayer.winner = isChecked }
 
-        val builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle(if(editingPlayer != null) "Edit Player" else "Add Player")
         builder.setView(layout)
 
@@ -240,7 +263,7 @@ class CreateGameFragment : BaseFragment() {
                 if(gamePlayer.player!!.id == null) {
                     gamePlayer.player!!.id = Calendar.getInstance().timeInMillis.toString()
 
-                    db.getReference(context = activity!!)
+                    db.getReference(context = this)
                             .child("players")
                             .child(gamePlayer.player!!.id!!)
                             .setValue(gamePlayer.player)
@@ -254,6 +277,8 @@ class CreateGameFragment : BaseFragment() {
                                 } else {
                                     playersList!!.adapter!!.notifyDataSetChanged()
                                 }
+
+                                hasMadeEdit = true
 
                                 dialog.dismiss()
                             }
@@ -269,6 +294,8 @@ class CreateGameFragment : BaseFragment() {
                         playersList!!.adapter!!.notifyDataSetChanged()
                     }
 
+                    hasMadeEdit = true
+
                     dialog.dismiss()
                 }
             }
@@ -282,7 +309,10 @@ class CreateGameFragment : BaseFragment() {
                 }
 
                 game.players.remove(editingPlayer)
-                playersList!!.adapter!!.notifyDataSetChanged(); dialog.dismiss()
+                playersList!!.adapter!!.notifyDataSetChanged()
+                hasMadeEdit = true
+
+                dialog.dismiss()
             }
         }
 
@@ -293,14 +323,14 @@ class CreateGameFragment : BaseFragment() {
     private fun showNameEntryDialog(gamePlayer: GamePlayer) {
         val eightDp = resources.getDimensionPixelSize(R.dimen.space_8dp)
         val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val linearLayout = LinearLayout(context)
+        val linearLayout = LinearLayout(this)
         linearLayout.layoutParams = layoutParams
         linearLayout.setPadding(eightDp, eightDp, eightDp, eightDp)
-        val editText = EditText(context)
+        val editText = EditText(this)
         editText.layoutParams = layoutParams
         linearLayout.addView(editText)
 
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Player name")
         builder.setView(linearLayout)
         builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
@@ -320,7 +350,7 @@ class CreateGameFragment : BaseFragment() {
                 playerNames.add(0, "")
                 playerNames.add(1, "Add Player")
 
-                val playerAdapter = ArrayAdapter<String>(activity, android.R.layout.select_dialog_item, playerNames)
+                val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
                 playerSpinner.adapter = playerAdapter
                 playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
 
@@ -340,13 +370,13 @@ class CreateGameFragment : BaseFragment() {
         builder.show()
     }
 
-    private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer, prefs: SharedPreferences) {
+    private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer) {
         val characterNames = (0..CharacterHelper.getNumberOfCharacters()).mapNotNull { CharacterHelper.getName(it) } as ArrayList<String>
         val topCharactersForThisPlayer = getTopCharactersForPlayer(gamePlayer)
 
-        val characterAdapter = CharacterNameAdapter(activity!!, topCharactersForThisPlayer, characterNames)
+        val characterAdapter = CharacterNameAdapter(this, topCharactersForThisPlayer, characterNames)
         characterSpinner.adapter = characterAdapter
-        characterSpinner.onItemSelectedListener = object : OnItemSelectedListener {
+        characterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 val characters = topFiveCharacters[gamePlayer.player?.id]
 
@@ -408,14 +438,10 @@ class CreateGameFragment : BaseFragment() {
             }
         })
 
-        royaleToggle!!.setOnClickListener({
-            game.gameType = "royale"
-            royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_selected_ripple)
-            royaleToggle!!.setTextColor(resources.getColor(R.color.text_primary))
-            suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
-            suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_secondary))
-            fixTogglePadding()
-        })
+        royaleToggle!!.setOnClickListener {
+            royaleToggleClicked()
+            hasMadeEdit = true
+        }
 
         suddenDeathToggle!!.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
@@ -426,14 +452,10 @@ class CreateGameFragment : BaseFragment() {
             }
         })
 
-        suddenDeathToggle!!.setOnClickListener({
-            game.gameType = "sudden_death"
-            royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_deselected_ripple)
-            royaleToggle!!.setTextColor(resources.getColor(R.color.text_secondary))
-            suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
-            suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_primary))
-            fixTogglePadding()
-        })
+        suddenDeathToggle!!.setOnClickListener {
+            suddenDeathToggleClicked()
+            hasMadeEdit = true
+        }
 
         if(isEdit) {
             if(game.gameType.equals(GameType.ROYALE.toString())) {
@@ -443,6 +465,24 @@ class CreateGameFragment : BaseFragment() {
                 suddenDeathToggle?.performClick()
             }
         }
+    }
+
+    private fun royaleToggleClicked() {
+        game.gameType = "royale"
+        royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_selected_ripple)
+        royaleToggle!!.setTextColor(resources.getColor(R.color.text_primary, null))
+        suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
+        suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_secondary, null))
+        fixTogglePadding()
+    }
+
+    private fun suddenDeathToggleClicked() {
+        game.gameType = "sudden_death"
+        royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_deselected_ripple)
+        royaleToggle!!.setTextColor(resources.getColor(R.color.text_secondary, null))
+        suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
+        suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_primary, null))
+        fixTogglePadding()
     }
 
     private fun fixTogglePadding() {
@@ -465,29 +505,30 @@ class CreateGameFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.getReference(context = activity!!)
-            .child("players")
-            .orderByKey()
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
+        db.getReference(context = this)
+                .child("players")
+                .orderByKey()
+                .addListenerForSingleValueEvent( object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    snapshot.children.reversed().forEach {
-                        var player: Player = it.getValue(Player::class.java)!!
-                        player.id = it.key
-                        players.add(player)
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        snapshot.children.reversed().forEach {
+                            var player: Player = it.getValue(Player::class.java)!!
+                            player.id = it.key
+                            players.add(player)
+                        }
+
+                        players.sortBy { it.name }
+                        hasMadeEdit = false
+
+                        setContentShown(true)
                     }
-
-                    players.sortBy { it.name }
-
-                    setContentShown(true)
-                }
-            })
+                })
     }
 
-    override fun setContentShown(show: Boolean) {
-        contentView!!.findViewById<View>(R.id.progress).visibility = if(show) View.GONE else View.VISIBLE
-        contentView!!.findViewById<View>(R.id.content).visibility = if(show) View.VISIBLE else View.GONE
+    override fun setContentShown(shown: Boolean) {
+        findViewById<View>(R.id.progress).visibility = if(shown) View.GONE else View.VISIBLE
+        findViewById<View>(R.id.content).visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     private class CharacterNameAdapter(context: Context, var recentCharacters: ArrayList<String>, var allCharacters: ArrayList<String>) : ArrayAdapter<String>(context, android.R.layout.select_dialog_item) {

@@ -31,4 +31,9 @@
     <style name="ProgressBar" parent="AppTheme">
         <item name="colorControlActivated">@color/primary</item>
     </style>
+
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:background">@color/primary</item>
+    </style>
 </resources>

@@ -3,24 +3,24 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.RadioButton
+import android.widget.TextView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.model.GroupType
-import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
 import java.util.*
 import kotlin.collections.ArrayList
 
-class CreateGroupActivity : AppCompatActivity() {
+class CreateGroupActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
 
     private lateinit var groupCodeTextView: TextView
@@ -117,7 +117,7 @@ class CreateGroupActivity : AppCompatActivity() {
 
                     prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
-                    startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
+                    startActivity(Intent(this@CreateGroupActivity, GamesListActivity::class.java))
                 } else {
                     setContentShown(true)
 
@@ -126,9 +126,9 @@ class CreateGroupActivity : AppCompatActivity() {
             }
     }
 
-    private fun setContentShown(show: Boolean) {
+    override fun setContentShown(shown: Boolean) {
         runOnUiThread {
-            if (show) {
+            if (shown) {
                 findViewById<View>(R.id.progress).visibility = View.GONE
                 findViewById<View>(R.id.content).visibility = View.VISIBLE
             } else {

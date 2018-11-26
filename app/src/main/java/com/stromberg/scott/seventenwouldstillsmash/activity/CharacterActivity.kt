@@ -1,21 +1,20 @@
-package com.stromberg.scott.seventenwouldstillsmash.fragment
+package com.stromberg.scott.seventenwouldstillsmash.activity
 
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
@@ -26,10 +25,10 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Statistic
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.activity_character.*
 import java.util.*
-import kotlin.collections.HashSet
 
-class CharacterFragment : BaseFragment() {
+class CharacterActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     private var games = ArrayList<Game>()
     private var players = ArrayList<Player>()
@@ -38,10 +37,8 @@ class CharacterFragment : BaseFragment() {
     private var isFirstLoad = true;
     private var mCharacterId: Int = -1
 
-    private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
     private var progressBar: ProgressBar? = null
-    private var characterImage: ImageView? = null
     private var tabs: BottomNavigationView? = null
 
     enum class GameResult {
@@ -64,36 +61,39 @@ class CharacterFragment : BaseFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        contentView = View.inflate(activity, R.layout.character, null)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_character)
 
-        if(arguments != null && arguments!!.containsKey("characterId")) {
-            mCharacterId = arguments!!.getInt("characterId")
+        if(intent?.extras?.containsKey("characterId") == true) {
+            mCharacterId = intent!!.extras!!.getInt("characterId")
         }
 
-        recyclerView = contentView!!.findViewById(R.id.character_recyclerview)
-        recyclerView!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        progressBar = contentView!!.findViewById(R.id.progress)
+        recyclerView = findViewById(R.id.character_recyclerview)
+        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+
+        progressBar = findViewById(R.id.progress)
 
         setupGamesAdapter(games)
 
-        characterImage = contentView!!.findViewById(R.id.character_image)
-        characterImage?.setImageResource(CharacterHelper.getImage(mCharacterId))
-
-        characterImage!!.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        character_name.text = CharacterHelper.getName(mCharacterId)
+        character_image.setImageResource(CharacterHelper.getImage(mCharacterId))
+        character_image.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                characterImage!!.viewTreeObserver.removeOnPreDrawListener(this)
+                character_image.viewTreeObserver.removeOnPreDrawListener(this)
 
-                var layoutParams = characterImage!!.layoutParams
-                layoutParams.width = characterImage!!.height
-                characterImage!!.layoutParams = layoutParams
+                var layoutParams = character_image.layoutParams
+                layoutParams.width = character_image.height
+                character_image.layoutParams = layoutParams
 
                 return false
             }
         })
 
-        tabs = contentView!!.findViewById(R.id.character_navigation)
+        tabs = findViewById(R.id.character_navigation)
 
         tabs?.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -107,8 +107,6 @@ class CharacterFragment : BaseFragment() {
 
             return@OnNavigationItemSelectedListener true
         })
-
-        return contentView
     }
 
     override fun onResume() {
@@ -116,6 +114,16 @@ class CharacterFragment : BaseFragment() {
 
         if(games.size == 0) {
             getPlayers()
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
         }
     }
 
@@ -128,7 +136,7 @@ class CharacterFragment : BaseFragment() {
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)
 
         gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
-            (activity as MainActivity).editGame(games[position], games)
+            editGame(games[position], games)
         }
 
         recyclerView!!.adapter = gamesAdapter
@@ -143,7 +151,7 @@ class CharacterFragment : BaseFragment() {
     }
 
     private fun getPlayers() {
-        db.getReference(context = activity!!)
+        db.getReference(context = this)
                 .child("players")
                 .orderByKey()
                 .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -168,36 +176,43 @@ class CharacterFragment : BaseFragment() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(context = activity!!)
-            .child("games")
-            .orderByChild("date")
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
+        db.getReference(context = this)
+                .child("games")
+                .orderByChild("date")
+                .addListenerForSingleValueEvent( object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    games.clear()
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        games.clear()
 
-                    snapshot.children.reversed().forEach {
-                        var game: Game = it.getValue(Game::class.java)!!
+                        snapshot.children.reversed().forEach {
+                            var game: Game = it.getValue(Game::class.java)!!
 
-                        if(game.players.any({ it.characterId == mCharacterId })) {
-                            game.id = it.key!!
-                            games.add(game)
+                            if(game.players.any({ it.characterId == mCharacterId })) {
+                                game.id = it.key!!
+                                games.add(game)
+                            }
                         }
-                    }
 
-                    if(isFirstLoad) {
-                        isFirstLoad = false
-                        getStatistics()
-                    }
-                    else {
-                        gamesAdapter!!.loadMoreComplete()
-                        setupGamesAdapter(games)
-                    }
+                        if(isFirstLoad) {
+                            isFirstLoad = false
+                            getStatistics()
+                        }
+                        else {
+                            gamesAdapter!!.loadMoreComplete()
+                            setupGamesAdapter(games)
+                        }
 
-                    setContentShown(true)
-                }
-            })
+                        setContentShown(true)
+                    }
+                })
+    }
+
+    private fun editGame(game: Game, games: List<Game>) {
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("Game", game)
+        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
+        startActivity(intent)
     }
 
     private fun getStatistics() {

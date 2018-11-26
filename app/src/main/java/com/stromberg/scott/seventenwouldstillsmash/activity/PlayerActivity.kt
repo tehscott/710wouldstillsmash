@@ -1,20 +1,19 @@
-package com.stromberg.scott.seventenwouldstillsmash.fragment
+package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import android.view.MenuItem
+import android.view.View
+import android.widget.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.*
 import com.chad.library.adapter.base.BaseQuickAdapter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
@@ -22,28 +21,25 @@ import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import com.stromberg.scott.seventenwouldstillsmash.util.showDialog
+import kotlinx.android.synthetic.main.activity_player.*
 import java.util.*
 
-class CreatePlayerFragment : BaseFragment() {
+class PlayerActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     private var games = ArrayList<Game>()
     private var players = ArrayList<Player>()
     private var gamesAdapter: GamesListAdapter? = null
     private var statisticsAdapter: StatisticsListAdapter? = null
 
-    private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
     private var progressBar: ProgressBar? = null
-    private var deleteButton: Button? = null
-    private var cancelButton: Button? = null
-    private var saveButton: Button? = null
     private var nameEditText: EditText? = null
     private var tabs: BottomNavigationView? = null
     private lateinit var visibilityToggle: ImageView
     private lateinit var priorityToggle: ImageView
 
     private var editingPlayer: Player? = null
+    private var hasMadeEdit: Boolean = false
     private var isPlayerHidden = true
     private var isPlayerLowPriority = false
     private var isFirstLoad = true
@@ -53,45 +49,48 @@ class CreatePlayerFragment : BaseFragment() {
     private var worstRoyaleCharacters = ArrayList<CharacterStats>()
     private var worstSuddenDeathCharacters = ArrayList<CharacterStats>()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        contentView = View.inflate(activity, R.layout.create_player, null)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_player)
 
-        if(arguments != null) {
-            if(arguments!!.containsKey("player")) {
-                editingPlayer = arguments!!.getSerializable("player") as Player?
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        if(intent?.extras != null) {
+            if(intent.extras!!.containsKey("player")) {
+                editingPlayer = intent.extras!!.getSerializable("player") as Player?
                 isPlayerHidden = editingPlayer?.isHidden ?: false
                 isPlayerLowPriority = editingPlayer?.isLowPriority ?: false
             }
-
-            if(arguments!!.containsKey("players")) {
-
-            }
         }
 
-        recyclerView = contentView!!.findViewById(R.id.create_player_recyclerview)
-        recyclerView!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        recyclerView = findViewById(R.id.create_player_recyclerview)
+        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
-        progressBar = contentView!!.findViewById(R.id.progress)
+        progressBar = findViewById(R.id.progress)
 
         setupGamesAdapter(games)
         setupButtons()
 
-        nameEditText = contentView!!.findViewById(R.id.create_player_name)
+        player_title_text.text = editingPlayer?.name ?: "New Player"
+
+        nameEditText = findViewById(R.id.create_player_name)
         nameEditText?.setText(editingPlayer?.name ?: "")
 
-        visibilityToggle = contentView!!.findViewById(R.id.create_player_visibility_button)
-        visibilityToggle.setOnClickListener(View.OnClickListener {
+        visibilityToggle = findViewById(R.id.create_player_visibility_button)
+        visibilityToggle.setOnClickListener {
             if(isPlayerHidden) {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
-                Toast.makeText(context, "Set player to visible", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Set player to visible", Toast.LENGTH_SHORT).show()
             }
             else {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
-                Toast.makeText(context, "Set player to hidden", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Set player to hidden", Toast.LENGTH_SHORT).show()
             }
 
+            hasMadeEdit = true
             isPlayerHidden = !isPlayerHidden
-        })
+        }
 
         if(isPlayerHidden) {
             visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
@@ -100,19 +99,20 @@ class CreatePlayerFragment : BaseFragment() {
             visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
         }
 
-        priorityToggle = contentView!!.findViewById(R.id.create_player_priority_button)
-        priorityToggle.setOnClickListener(View.OnClickListener {
+        priorityToggle = findViewById(R.id.create_player_priority_button)
+        priorityToggle.setOnClickListener {
             if(isPlayerLowPriority) {
                 priorityToggle.setImageResource(R.drawable.ic_priority_high)
-                Toast.makeText(context, "Set player to normal priority", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Set player to normal priority", Toast.LENGTH_SHORT).show()
             }
             else {
                 priorityToggle.setImageResource(R.drawable.ic_priority_low)
-                Toast.makeText(context, "Set player to low priority", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Set player to low priority", Toast.LENGTH_SHORT).show()
             }
+            hasMadeEdit = true
 
             isPlayerLowPriority = !isPlayerLowPriority
-        })
+        }
 
         if(isPlayerLowPriority) {
             priorityToggle.setImageResource(R.drawable.ic_priority_low)
@@ -120,8 +120,6 @@ class CreatePlayerFragment : BaseFragment() {
         else {
             priorityToggle.setImageResource(R.drawable.ic_priority_high)
         }
-
-        return contentView
     }
 
     override fun onResume() {
@@ -137,6 +135,24 @@ class CreatePlayerFragment : BaseFragment() {
         }
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun hasMadeEdits() : Boolean {
+        if(editingPlayer != null && editingPlayer!!.name != create_player_name.text.toString()) {
+            hasMadeEdit = true
+        }
+
+        return hasMadeEdit
+    }
+
     private fun setupGamesAdapter(games: List<Game>) {
         val allNames = HashSet<String>()
         games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
@@ -145,8 +161,8 @@ class CreatePlayerFragment : BaseFragment() {
 
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER, loserContainerWidth)
 
-        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, view, position ->
-            (activity as MainActivity).editGame(games[position], games)
+        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
+            editGame(games[position], games)
         }
 
         recyclerView!!.adapter = gamesAdapter
@@ -161,10 +177,7 @@ class CreatePlayerFragment : BaseFragment() {
     }
 
     private fun setupButtons() {
-        cancelButton = contentView!!.findViewById(R.id.create_player_cancel_button)
-        saveButton = contentView!!.findViewById(R.id.create_player_create_button)
-        deleteButton = contentView!!.findViewById(R.id.create_player_delete_button)
-        tabs = contentView!!.findViewById(R.id.create_player_navigation)
+        tabs = findViewById(R.id.create_player_navigation)
 
         tabs?.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
@@ -179,80 +192,83 @@ class CreatePlayerFragment : BaseFragment() {
             return@OnNavigationItemSelectedListener true
         })
 
-        cancelButton?.setOnClickListener { activity!!.onBackPressed() }
-
         if(editingPlayer == null) {
-            deleteButton?.visibility = View.GONE
+            delete_button?.visibility = View.GONE
 
-            saveButton?.text = "Create Player"
-            saveButton?.setOnClickListener({ createPlayer() })
+            save_button?.setOnClickListener { createPlayer() }
 
-            contentView?.findViewById<View>(R.id.create_player_navigation)?.visibility = View.INVISIBLE
+            findViewById<View>(R.id.create_player_navigation)?.visibility = View.INVISIBLE
         }
         else {
-            deleteButton?.visibility = View.VISIBLE
-            deleteButton?.setOnClickListener { deletePlayer() }
+            delete_button?.visibility = View.VISIBLE
+            delete_button?.setOnClickListener { deletePlayer() }
 
-            saveButton?.text = "Save Player"
-            saveButton?.setOnClickListener { updatePlayer() }
+            save_button?.setOnClickListener { updatePlayer() }
         }
     }
 
+    private fun editGame(game: Game, games: List<Game>) {
+        val intent = Intent(this, GameActivity::class.java)
+        intent.putExtra("Game", game)
+        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
+        startActivity(intent)
+    }
+
     private fun getPlayers() {
-        db.getReference(context = activity!!)
-            .child("players")
-            .orderByKey()
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
+        db.getReference(context = this)
+                .child("players")
+                .orderByKey()
+                .addListenerForSingleValueEvent( object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    snapshot.children.reversed().forEach {
-                        var player: Player = it.getValue(Player::class.java)!!
-                        player.id = it.key
-                        players.add(player)
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        snapshot.children.reversed().forEach {
+                            var player: Player = it.getValue(Player::class.java)!!
+                            player.id = it.key
+                            players.add(player)
+                        }
+
+                        players.sortBy { it.name }
+
+                        getGames()
                     }
-
-                    players.sortBy { it.name }
-
-                    getGames()
-                }
-            })
+                })
     }
 
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(context = activity!!)
-            .child("games")
-            .orderByChild("date")
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
+        db.getReference(context = this)
+                .child("games")
+                .orderByChild("date")
+                .addListenerForSingleValueEvent( object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    games.clear()
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        games.clear()
 
-                    snapshot.children.reversed().forEach {
-                        var game: Game = it.getValue(Game::class.java)!!
+                        snapshot.children.reversed().forEach {
+                            var game: Game = it.getValue(Game::class.java)!!
 
-                        if(game.players.any({ it.player!!.id == editingPlayer!!.id })) {
-                            game.id = it.key!!
-                            games.add(game)
+                            if(game.players.any({ it.player!!.id == editingPlayer!!.id })) {
+                                game.id = it.key!!
+                                games.add(game)
+                            }
                         }
-                    }
 
-                    if(isFirstLoad) {
-                        isFirstLoad = false
-                        getStatistics()
-                    }
-                    else {
-                        gamesAdapter!!.loadMoreComplete()
+                        if(isFirstLoad) {
+                            isFirstLoad = false
+                            getStatistics()
+                        }
+                        else {
+                            gamesAdapter!!.loadMoreComplete()
 
-                        setupGamesAdapter(games)
-                    }
+                            setupGamesAdapter(games)
+                        }
 
-                    setContentShown(true)
-                }
-            })
+                        setContentShown(true)
+                    }
+                })
     }
 
     private fun getStatistics() {
@@ -360,7 +376,7 @@ class CreatePlayerFragment : BaseFragment() {
             var characterId = it
             games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } } } / 58
 
-        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { index, characterId ->
+        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
             val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } }
             val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
             val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
@@ -443,18 +459,19 @@ class CreatePlayerFragment : BaseFragment() {
             player.isHidden = isPlayerHidden
             player.isLowPriority = isPlayerLowPriority
 
-            db.getReference(context = activity!!)
-                .child("players")
-                .child(player.id!!)
-                .setValue(player)
-                .addOnCompleteListener {
-                    activity!!.onBackPressed()
-                }
+            db.getReference(context = this)
+                    .child("players")
+                    .child(player.id!!)
+                    .setValue(player)
+                    .addOnCompleteListener {
+                        onBackPressed()
+                    }
         }
         else {
             showDialog("Set a player name.")
         }
     }
+
     private fun updatePlayer() {
         var playerName = nameEditText!!.text.toString()
         if (playerName.isNotEmpty()) {
@@ -462,27 +479,27 @@ class CreatePlayerFragment : BaseFragment() {
             editingPlayer!!.isHidden = isPlayerHidden
             editingPlayer!!.isLowPriority = isPlayerLowPriority
 
-            db.getReference(context = activity!!)
+            db.getReference(context = this)
                 .child("players")
                 .child(editingPlayer!!.id!!)
                 .setValue(editingPlayer)
                 .addOnCompleteListener {
-                    activity!!.onBackPressed()
+                    onBackPressed()
                 }
         }
     }
 
     private fun deletePlayer() {
-        val builder = AlertDialog.Builder(context)
+        val builder = AlertDialog.Builder(this)
         builder.setTitle("Delete " + editingPlayer?.name)
         builder.setMessage("You can't undo this. Are you sure?")
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
-            db.getReference(context = activity!!)
+            db.getReference(context = this)
                     .child("players")
                     .child(editingPlayer!!.id!!)
                     .removeValue()
                     .addOnCompleteListener {
-                        activity!!.onBackPressed()
+                        onBackPressed()
                     }
         }
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })

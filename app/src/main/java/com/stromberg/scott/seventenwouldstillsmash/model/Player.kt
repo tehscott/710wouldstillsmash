@@ -4,7 +4,6 @@ import android.content.Context
 import com.google.firebase.database.Exclude
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import java.io.Serializable
 
 class Player : Serializable {

@@ -17,7 +17,7 @@ class PlayerHelper {
             paint.typeface = TypefaceUtils.load(resources.assets, fontName)
             paint.textSize = fontSize
 
-            names?.forEach { name -> run {
+            names.forEach { name -> run {
                 paint.getTextBounds(name, 0, name!!.length, bounds)
 
                 if(bounds.width() > longestLength) {
@@ -27,9 +27,9 @@ class PlayerHelper {
 
             Log.d("name", longestLength.toString())
 
-            val oneThirdDisplayWidth = (Resources.getSystem().displayMetrics.widthPixels / 3)
-            if(longestLength > oneThirdDisplayWidth) {
-                return oneThirdDisplayWidth
+            val maxWidth = (Resources.getSystem().displayMetrics.widthPixels / 4)
+            if(longestLength > maxWidth) {
+                return maxWidth
             }
             else {
                 return (longestLength * 1.10).toInt()

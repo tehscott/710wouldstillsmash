@@ -4,11 +4,35 @@ import android.content.Context
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.model.GroupType
+import com.stromberg.scott.seventenwouldstillsmash.model.Player
 
 class CharacterHelper {
     companion object {
+        fun getTopCharacters(players: List<Player>, games: List<Game>): HashMap<String, ArrayList<Int>> {
+            val topFiveCharacters = HashMap<String, ArrayList<Int>>()
+
+            players.forEach {
+                val gamesWithCharacters = HashMap<Int, Int>()
+                val player = it
+                (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
+                    val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id == player.id } }
+                    gamesWithCharacters[characterId] = numGamesWithThisCharacter
+                }
+
+                val characterIds = ArrayList<Int>()
+
+                gamesWithCharacters.entries.sortedByDescending { it.value }.take(5).forEach {
+                    characterIds.add(it.key)
+                }
+
+                topFiveCharacters[player.id!!] = characterIds
+            }
+            return topFiveCharacters
+        }
+
         fun getNumberOfCharacters() : Int {
             if(isSSB4()) {
                 return 57

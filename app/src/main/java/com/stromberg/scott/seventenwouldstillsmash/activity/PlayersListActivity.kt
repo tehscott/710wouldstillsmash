@@ -1,12 +1,10 @@
-package com.stromberg.scott.seventenwouldstillsmash.fragment
+package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.ajguan.library.EasyRefreshLayout
 import com.ajguan.library.LoadModel
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -14,7 +12,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import com.stromberg.scott.seventenwouldstillsmash.activity.MainActivity
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
@@ -22,24 +19,25 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.activity_list.*
 import java.util.*
 
-class PlayersFragment : BaseFragment() {
+class PlayersListActivity : BaseListActivity() {
     private val db = FirebaseDatabase.getInstance()
     private val games = ArrayList<Game>()
     private val players = ArrayList<Player>()
     private val gamesForPlayers = HashMap<Player, List<Game>>()
 
-    private var contentView: View? = null
     private var recyclerView: RecyclerView? = null
     private var pullToRefreshView: EasyRefreshLayout? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        contentView = View.inflate(activity as Context?, R.layout.fragment_players, null)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_list)
 
-        pullToRefreshView = contentView!!.findViewById(R.id.players_pull_to_refresh)
-        recyclerView = contentView!!.findViewById<RecyclerView>(R.id.players_recyclerview)
-        recyclerView!!.layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+        pullToRefreshView = findViewById(R.id.refresh_layout)
+        recyclerView = findViewById(R.id.recycler_view)
+        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
@@ -50,9 +48,9 @@ class PlayersFragment : BaseFragment() {
             override fun onLoadMore() {}
         })
 
-        contentView!!.findViewById<View>(R.id.sort_by_container).visibility = View.GONE
-
-        return contentView
+        fab.setOnClickListener {
+            createPlayer()
+        }
     }
 
     override fun onResume() {
@@ -62,24 +60,24 @@ class PlayersFragment : BaseFragment() {
     }
 
     private fun getGames() {
-        db.getReference(context = activity!!)
-            .child("games")
-            .orderByKey()
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) {}
+        db.getReference(context = this)
+                .child("games")
+                .orderByKey()
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) {}
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    games.clear()
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        games.clear()
 
-                    snapshot.children.reversed().forEach {
-                        val game: Game = it.getValue(Game::class.java)!!
-                        game.id = it.key!!
-                        games.add(game)
+                        snapshot.children.reversed().forEach {
+                            val game: Game = it.getValue(Game::class.java)!!
+                            game.id = it.key!!
+                            games.add(game)
+                        }
+
+                        gameDataFetched()
                     }
-
-                    gameDataFetched()
-                }
-            })
+                })
     }
 
     private fun gameDataFetched() {
@@ -101,39 +99,39 @@ class PlayersFragment : BaseFragment() {
     private fun getPlayers() {
         setContentShown(false)
 
-        db.getReference(context = activity!!)
-            .child("players")
-            .orderByKey()
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
+        db.getReference(context = this)
+                .child("players")
+                .orderByKey()
+                .addListenerForSingleValueEvent( object : ValueEventListener {
+                    override fun onCancelled(error: DatabaseError) { }
 
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    players.clear()
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        players.clear()
 
-                    snapshot.children.reversed().forEach {
-                        val player: Player = it.getValue(Player::class.java)!!
-                        player.id = it.key
-                        players.add(player)
+                        snapshot.children.reversed().forEach {
+                            val player: Player = it.getValue(Player::class.java)!!
+                            player.id = it.key
+                            players.add(player)
+                        }
+
+                        players.sortBy { it.name }
+                        players.sortBy { it.isLowPriority }
+                        players.sortBy { it.isHidden }
+
+                        val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
+
+                        val adapter = PlayersListAdapter(players, playerNameWidth)
+                        recyclerView!!.adapter = adapter
+
+                        adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
+                            editPlayer(players[position])
+                        }
+
+                        adapter.setEnableLoadMore(false)
+
+                        getGames()
                     }
-
-                    players.sortBy { it.name }
-                    players.sortBy { it.isLowPriority }
-                    players.sortBy { it.isHidden }
-
-                    val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
-
-                    val adapter = PlayersListAdapter(players, playerNameWidth)
-                    recyclerView!!.adapter = adapter
-
-                    adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
-                        editPlayer(players[position])
-                    }
-
-                    adapter.setEnableLoadMore(false)
-
-                    getGames()
-                }
-            })
+                })
     }
 
     override fun setContentShown(shown: Boolean) {
@@ -159,8 +157,8 @@ class PlayersFragment : BaseFragment() {
             val royaleGames30GamesLost: Float = royaleGames30GamesCount - royaleGames30GamesWon
             val suddenDeathGames30GamesWon: Float = (last30SuddenDeathGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
             val suddenDeathGames30GamesLost: Float = suddenDeathGames30GamesCount - suddenDeathGames30GamesWon
-            
-            val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+
+            val prefs = this.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_won", royaleGamesWon).apply()
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_lost", royaleGamesLost).apply()
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", suddenDeathGamesWon).apply()
@@ -176,15 +174,14 @@ class PlayersFragment : BaseFragment() {
         setContentShown(true)
     }
 
-    override fun addFabClicked() {
-        (activity as MainActivity).createPlayer()
+    private fun createPlayer() {
+        val intent = Intent(this, PlayerActivity::class.java)
+        startActivity(intent)
     }
 
     private fun editPlayer(player: Player) {
-        (activity as MainActivity).editPlayer(player)
-    }
-
-    override fun hasFab(): Boolean {
-        return true
+        val intent = Intent(this, PlayerActivity::class.java)
+        intent.putExtra("player", player)
+        startActivity(intent)
     }
 }

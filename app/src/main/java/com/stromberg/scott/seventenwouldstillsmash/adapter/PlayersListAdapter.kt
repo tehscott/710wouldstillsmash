@@ -23,11 +23,11 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
             val prefs = mContext.getSharedPreferences(mContext.getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
 
             // 30 GAMES
-            val thirtyGamesRoyaleGamesWon = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "30_games_won", 0f)
-            val thirtyGamesRoyaleGamesLost = prefs.getFloat(item!!.id + GameType.ROYALE.toString() + "30_games_lost", 0f)
+            val thirtyGamesRoyaleGamesWon = prefs.getFloat(item.id + GameType.ROYALE.toString() + "30_games_won", 0f)
+            val thirtyGamesRoyaleGamesLost = prefs.getFloat(item.id + GameType.ROYALE.toString() + "30_games_lost", 0f)
             val thirtyGamesRoyaleGamesPlayed = thirtyGamesRoyaleGamesWon + thirtyGamesRoyaleGamesLost;
-            val thirtyGamesSuddenDeathGamesWon = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "30_games_won", 0f)
-            val thirtyGamesSuddenDeathGamesLost = prefs.getFloat(item!!.id + GameType.SUDDEN_DEATH.toString() + "30_games_lost", 0f)
+            val thirtyGamesSuddenDeathGamesWon = prefs.getFloat(item.id + GameType.SUDDEN_DEATH.toString() + "30_games_won", 0f)
+            val thirtyGamesSuddenDeathGamesLost = prefs.getFloat(item.id + GameType.SUDDEN_DEATH.toString() + "30_games_lost", 0f)
             val thirtyGamesSuddenDeathGamesPlayed = thirtyGamesSuddenDeathGamesWon + thirtyGamesSuddenDeathGamesLost;
             val thirtyGamesRoyaleWinPercentage = if(thirtyGamesRoyaleGamesPlayed > 0) thirtyGamesRoyaleGamesWon / thirtyGamesRoyaleGamesPlayed else 0f
             val thirtyGamesSuddenDeathWinPercentage = if(thirtyGamesSuddenDeathGamesPlayed > 0) thirtyGamesSuddenDeathGamesWon / thirtyGamesSuddenDeathGamesPlayed else 0f

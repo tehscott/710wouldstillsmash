@@ -62,7 +62,7 @@ class JoinGroupActivity : AppCompatActivity() {
             val groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
 
             if (groups?.firstOrNull { it.isSelected } != null) {
-                val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
+                val intent = Intent(this@JoinGroupActivity, GamesListActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 finish()
@@ -111,7 +111,7 @@ class JoinGroupActivity : AppCompatActivity() {
 
                         prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
-                        val intent = Intent(this@JoinGroupActivity, MainActivity::class.java)
+                        val intent = Intent(this@JoinGroupActivity, GamesListActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
                         startActivity(intent)
                         finish()

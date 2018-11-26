@@ -13,6 +13,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.activity.BaseActivity
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import java.util.*
 
@@ -36,24 +37,4 @@ fun FirebaseDatabase.getReference(context: Context): DatabaseReference {
     else {
         reference
     }
-}
-
-fun AppCompatActivity.showDialog(message: String) {
-    showDialog(this, message)
-}
-
-fun FragmentActivity.showDialog(message: String) {
-    showDialog(this, message)
-}
-
-fun Fragment.showDialog(message: String) {
-    showDialog(activity!!, message)
-}
-
-private fun showDialog(context: Context, message: String) {
-    val builder = AlertDialog.Builder(context)
-    builder.setTitle(null)
-    builder.setMessage(message)
-    builder.setPositiveButton(android.R.string.ok, { dialog, _ -> dialog.dismiss() })
-    builder.show()
 }
