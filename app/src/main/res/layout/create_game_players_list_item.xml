@@ -8,13 +8,14 @@
     android:layout_gravity="center_vertical"
     android:background="?android:attr/selectableItemBackground">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/create_game_players_list_item_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ssb4_character_wiifit"
-        android:adjustViewBounds="true"
-        android:padding="@dimen/space_8dp"/>
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center_vertical"
+        android:elevation="7dp"
+        android:layout_marginLeft="8dp"
+        tools:src="@drawable/ssbu_character_ness"/>
 
     <TextView
         android:id="@+id/create_game_players_list_item_name"
