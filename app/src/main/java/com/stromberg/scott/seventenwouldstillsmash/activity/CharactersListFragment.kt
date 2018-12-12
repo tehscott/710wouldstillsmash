@@ -21,7 +21,6 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import kotlinx.android.synthetic.main.activity_list.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
@@ -34,7 +33,7 @@ class CharactersListFragment: BaseListFragment() {
     private lateinit var progress: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater.inflate(R.layout.activity_list, container, false)
+        val contentView = inflater.inflate(R.layout.fragment_list, container, false)
 
         pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
         recyclerView = contentView.findViewById(R.id.recycler_view)

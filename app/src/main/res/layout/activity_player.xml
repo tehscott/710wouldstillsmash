@@ -106,6 +106,17 @@
             android:theme="@style/ProgressBar"
             android:visibility="gone"/>
 
+        <TextView
+            android:id="@+id/empty_state_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="@string/no_games_text"
+            android:textSize="30sp"
+            android:padding="12dp"
+            android:gravity="center"
+            android:visibility="gone"/>
+
         <com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
             android:id="@+id/create_player_recyclerview"
             android:layout_width="match_parent"

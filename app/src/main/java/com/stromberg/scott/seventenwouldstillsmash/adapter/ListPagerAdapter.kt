@@ -8,15 +8,19 @@ import com.stromberg.scott.seventenwouldstillsmash.activity.GamesListFragment
 import com.stromberg.scott.seventenwouldstillsmash.activity.PlayersListFragment
 
 class ListPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+    private val gamesListFragment = GamesListFragment()
+    private val playersListFragment = PlayersListFragment()
+    private val charactersListFragment = CharactersListFragment()
+
     override fun getCount(): Int {
         return NUM_ITEMS
     }
 
     override fun getItem(position: Int): Fragment? {
         return when (position) {
-            0 -> GamesListFragment()
-            1 -> PlayersListFragment()
-            2 -> CharactersListFragment()
+            0 -> gamesListFragment
+            1 -> playersListFragment
+            2 -> charactersListFragment
             else -> null
         }
     }
@@ -28,5 +32,4 @@ class ListPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(
     companion object {
         private const val NUM_ITEMS = 3
     }
-
 }

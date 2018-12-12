@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -40,6 +41,7 @@ class CharacterActivity : BaseActivity() {
     private var recyclerView: RecyclerView? = null
     private var progressBar: ProgressBar? = null
     private var tabs: BottomNavigationView? = null
+    private lateinit var emptyStateTextView: TextView
 
     enum class GameResult {
         UNKNOWN,
@@ -72,6 +74,7 @@ class CharacterActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        emptyStateTextView = findViewById(R.id.empty_state_text_view)
         recyclerView = findViewById(R.id.character_recyclerview)
         recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
@@ -141,6 +144,9 @@ class CharacterActivity : BaseActivity() {
 
         recyclerView!!.adapter = gamesAdapter
         recyclerView?.adapter?.notifyDataSetChanged()
+
+        recyclerView!!.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
+        emptyStateTextView.visibility = if (games.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
@@ -148,6 +154,9 @@ class CharacterActivity : BaseActivity() {
 
         recyclerView!!.adapter = statisticsAdapter
         recyclerView!!.adapter?.notifyDataSetChanged()
+
+        recyclerView!!.visibility = View.VISIBLE
+        emptyStateTextView.visibility = View.GONE
     }
 
     private fun getPlayers() {

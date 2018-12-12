@@ -37,6 +37,7 @@ class PlayerActivity : BaseActivity() {
     private var tabs: BottomNavigationView? = null
     private lateinit var visibilityToggle: ImageView
     private lateinit var priorityToggle: ImageView
+    private lateinit var emptyStateTextView: TextView
 
     private var editingPlayer: Player? = null
     private var hasMadeEdit: Boolean = false
@@ -64,6 +65,7 @@ class PlayerActivity : BaseActivity() {
             }
         }
 
+        emptyStateTextView = findViewById(R.id.empty_state_text_view)
         recyclerView = findViewById(R.id.create_player_recyclerview)
         recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
@@ -167,6 +169,9 @@ class PlayerActivity : BaseActivity() {
 
         recyclerView!!.adapter = gamesAdapter
         recyclerView!!.adapter!!.notifyDataSetChanged()
+
+        recyclerView!!.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
+        emptyStateTextView.visibility = if (games.isEmpty() && editingPlayer != null) View.VISIBLE else View.GONE
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
@@ -174,6 +179,9 @@ class PlayerActivity : BaseActivity() {
 
         recyclerView!!.adapter = statisticsAdapter
         recyclerView!!.adapter!!.notifyDataSetChanged()
+
+        recyclerView!!.visibility = View.VISIBLE
+        emptyStateTextView.visibility = View.GONE
     }
 
     private fun setupButtons() {

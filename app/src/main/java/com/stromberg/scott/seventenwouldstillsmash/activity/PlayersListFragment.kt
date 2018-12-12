@@ -39,7 +39,7 @@ class PlayersListFragment: BaseListFragment() {
     private lateinit var progress: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater.inflate(R.layout.activity_list, container, false)
+        val contentView = inflater.inflate(R.layout.fragment_list, container, false)
 
         pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
         recyclerView = contentView.findViewById(R.id.recycler_view)
