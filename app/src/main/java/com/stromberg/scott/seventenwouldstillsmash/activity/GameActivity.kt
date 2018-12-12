@@ -3,7 +3,6 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
-import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -26,7 +25,9 @@ import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.android.synthetic.main.activity_game.*
-
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 
 class GameActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -113,6 +114,12 @@ class GameActivity : BaseActivity() {
 
         setContentShown(false)
         getPlayers()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        showTooltips()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -566,5 +573,39 @@ class GameActivity : BaseActivity() {
         override fun getCount(): Int {
             return recentCharacters.size + allCharacters.size
         }
+    }
+
+    private fun showTooltips() {
+        val config = ShowcaseConfig()
+        config.fadeDuration = 50L
+
+        val sequence = MaterialShowcaseSequence(this, "GameTooltipz")
+        sequence.setConfig(config)
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(dateTextView)
+                .setDismissText("GOT IT")
+                .setContentText(R.string.date_tooltip)
+                .setDismissOnTouch(true)
+                .withRectangleShape()
+                .build())
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(findViewById(R.id.toggle_container))
+                .setDismissText("GOT IT")
+                .setContentText(R.string.type_tooltip)
+                .setDismissOnTouch(true)
+                .withRectangleShape()
+                .build())
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(addPlayerButton)
+                .setDismissText("GOT IT")
+                .setContentText(R.string.add_player_to_game_tooltip)
+                .setDismissOnTouch(true)
+                .withRectangleShape()
+                .build())
+
+        sequence.start()
     }
 }

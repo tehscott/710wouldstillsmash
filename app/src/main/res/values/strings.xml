@@ -28,6 +28,9 @@
     <string name="view_character_tooltip">Tap on a character to view their games and stats.</string>
     <string name="player_visibility_tooltip">Tap here to toggle a player\'s visibility. If you hide a player, they will no longer show up on the create game screen.</string>
     <string name="player_priority_tooltip">Tap here to toggle a player\'s priority. If you set a player to low priority, they will show up at the bottom of the list of players.</string>
+    <string name="date_tooltip">Tap here to set the date of the game.</string>
+    <string name="type_tooltip">Tap here to set the game type.</string>
+    <string name="add_player_to_game_tooltip">Tap here to add a player to the game.</string>
 
     <string-array name="character_sort_options">
         <item>Name</item>
