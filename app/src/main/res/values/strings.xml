@@ -26,6 +26,8 @@
     <string name="add_player_tooltip">Tap here to add a player.</string>
     <string name="edit_player_tooltip">Tap on a player to view or edit them. You can also see their games and stats here.</string>
     <string name="view_character_tooltip">Tap on a character to view their games and stats.</string>
+    <string name="player_visibility_tooltip">Tap here to toggle a player\'s visibility. If you hide a player, they will no longer show up on the create game screen.</string>
+    <string name="player_priority_tooltip">Tap here to toggle a player\'s priority. If you set a player to low priority, they will show up at the bottom of the list of players.</string>
 
     <string-array name="character_sort_options">
         <item>Name</item>

@@ -22,6 +22,9 @@ import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_player.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 import java.util.*
 
 class PlayerActivity : BaseActivity() {
@@ -135,6 +138,8 @@ class PlayerActivity : BaseActivity() {
                 getStatistics()
             }
         }
+
+        showTooltips()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -643,5 +648,29 @@ class PlayerActivity : BaseActivity() {
         }
 
         return longestLossStreak
+    }
+
+    private fun showTooltips() {
+        val config = ShowcaseConfig()
+        config.fadeDuration = 50L
+
+        val sequence = MaterialShowcaseSequence(this, "PlayerTooltip")
+        sequence.setConfig(config)
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(create_player_visibility_button)
+                .setDismissText("GOT IT")
+                .setContentText(R.string.player_visibility_tooltip)
+                .setDismissOnTouch(true)
+                .build())
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(create_player_priority_button)
+                .setDismissText("GOT IT")
+                .setContentText(R.string.player_priority_tooltip)
+                .setDismissOnTouch(true)
+                .build())
+
+        sequence.start()
     }
 }

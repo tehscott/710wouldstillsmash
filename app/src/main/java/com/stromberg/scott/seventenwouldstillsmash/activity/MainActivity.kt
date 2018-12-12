@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.google.gson.Gson
+import com.stromberg.scott.seventenwouldstillsmash.BuildConfig
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
@@ -68,6 +69,8 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             ((view_pager.adapter!! as FragmentPagerAdapter).getItem(view_pager.currentItem) as BaseListFragment).fabClicked()
         }
+
+        version_text.text = "v${BuildConfig.VERSION_NAME}"
     }
 
     private fun setupGroupCodeText() {
