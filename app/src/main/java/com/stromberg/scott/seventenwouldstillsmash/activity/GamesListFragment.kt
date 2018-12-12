@@ -2,11 +2,10 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Paint
 import android.os.Bundle
-import android.text.TextPaint
-import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -14,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
 import com.ajguan.library.LoadModel
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.github.florent37.viewtooltip.ViewTooltip
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -26,41 +24,32 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import kotlinx.android.synthetic.main.activity_list.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import java.util.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 
-
-class GamesListActivity : BaseListActivity() {
+class GamesListFragment : BaseListFragment() {
     private var db = FirebaseDatabase.getInstance()
     private var games = ArrayList<Game>()
     private var adapter: GamesListAdapter? = null
 
-    private var pullToRefreshView: EasyRefreshLayout? = null
-    private var recyclerView: RecyclerView? = null
-    private var progressBar: ProgressBar? = null
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var refreshLayout: EasyRefreshLayout
+    private lateinit var emptyStateTextView: TextView
+    private lateinit var progress: ProgressBar
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val contentView = inflater.inflate(R.layout.activity_list, container, false)
 
-        setContentView(R.layout.activity_list)
+        recyclerView = contentView.findViewById(R.id.recycler_view)
+        refreshLayout = contentView.findViewById(R.id.refresh_layout)
+        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
+        progress = contentView.findViewById(R.id.progress)
 
-        pullToRefreshView = findViewById(R.id.refresh_layout)
-        recyclerView = findViewById(R.id.recycler_view)
-        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        progressBar = findViewById(R.id.progress)
-
-        fab.setOnClickListener {
-            createGame(games)
-        }
+        recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
         setupAdapter(games)
 
-        pullToRefreshView!!.loadMoreModel = LoadModel.NONE
-        pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
+        refreshLayout.loadMoreModel = LoadModel.NONE
+        refreshLayout.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
                 getGames()
             }
@@ -68,62 +57,15 @@ class GamesListActivity : BaseListActivity() {
             override fun onLoadMore() {}
         })
 
-        empty_state_text_view.text = getString(R.string.no_games_text)
+        emptyStateTextView.text = getString(R.string.no_games_text)
 
-        showTooltips()
+        return contentView
     }
 
     override fun onResume() {
         super.onResume()
 
         getGames()
-    }
-
-    private fun showTooltips() {
-        group_code.post {
-            val config = ShowcaseConfig()
-            config.fadeDuration = 50L
-
-            val sequence = MaterialShowcaseSequence(this, "GamesListTooltip")
-            sequence.setConfig(config)
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(games_button)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.games_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(players_button)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.players_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(characters_button)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.characters_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(fab)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.add_game_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(group_code)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.group_code_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.start()
-        }
     }
 
     private fun setupAdapter(games: List<Game>) {
@@ -138,7 +80,7 @@ class GamesListActivity : BaseListActivity() {
             editGame(games[position], games)
         }
 
-        recyclerView!!.adapter = adapter
+        recyclerView.adapter = adapter
     }
 
     private fun createGame(games: ArrayList<Game>) {
@@ -156,13 +98,13 @@ class GamesListActivity : BaseListActivity() {
             }
         }
 
-        val intent = Intent(this, GameActivity::class.java)
+        val intent = Intent(activity, GameActivity::class.java)
         intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(allPlayers, games))
         startActivity(intent)
     }
 
     private fun editGame(game: Game, games: List<Game>) {
-        val intent = Intent(this, GameActivity::class.java)
+        val intent = Intent(activity, GameActivity::class.java)
         intent.putExtra("Game", game)
         intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
         startActivity(intent)
@@ -171,7 +113,7 @@ class GamesListActivity : BaseListActivity() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(context = this)
+        db.getReference(context = activity!!)
             .child("games")
             .orderByChild("date")
             .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -193,19 +135,23 @@ class GamesListActivity : BaseListActivity() {
         }
 
         setupAdapter(games)
-        recyclerView?.adapter?.notifyDataSetChanged()
+        recyclerView.adapter?.notifyDataSetChanged()
 
-        pullToRefreshView!!.refreshComplete()
+        refreshLayout.refreshComplete()
 
         adapter!!.loadMoreComplete()
 
-        empty_state_text_view.visibility = if(games.size == 0) View.VISIBLE else View.GONE
+        emptyStateTextView.visibility = if(games.size == 0) View.VISIBLE else View.GONE
 
         setContentShown(true)
     }
 
     override fun setContentShown(shown: Boolean) {
-        progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
-        pullToRefreshView!!.visibility = if(shown) View.VISIBLE else View.GONE
+        progress.visibility = if(shown) View.GONE else View.VISIBLE
+        refreshLayout.visibility = if(shown) View.VISIBLE else View.GONE
+    }
+
+    override fun fabClicked() {
+        createGame(games)
     }
 }

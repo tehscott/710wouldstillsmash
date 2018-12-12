@@ -117,7 +117,8 @@ class CreateGroupActivity : BaseActivity() {
 
                     prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
-                    startActivity(Intent(this@CreateGroupActivity, GamesListActivity::class.java))
+//                    startActivity(Intent(this@CreateGroupActivity, GamesListFragment::class.java))
+                    startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
                 } else {
                     setContentShown(true)
 

@@ -3,7 +3,11 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -19,30 +23,33 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.*
-import kotlinx.android.synthetic.main.activity_list.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
-class PlayersListActivity : BaseListActivity() {
+class PlayersListFragment: BaseListFragment() {
     private val db = FirebaseDatabase.getInstance()
     private val games = ArrayList<Game>()
     private val players = ArrayList<Player>()
     private val gamesForPlayers = HashMap<Player, List<Game>>()
 
-    private var recyclerView: RecyclerView? = null
-    private var pullToRefreshView: EasyRefreshLayout? = null
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var pullToRefreshView: EasyRefreshLayout
+    private lateinit var emptyStateTextView: TextView
+    private lateinit var progress: ProgressBar
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val contentView = inflater.inflate(R.layout.activity_list, container, false)
 
-        pullToRefreshView = findViewById(R.id.refresh_layout)
-        recyclerView = findViewById(R.id.recycler_view)
-        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
+        recyclerView = contentView.findViewById(R.id.recycler_view)
+        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
+        progress = contentView.findViewById(R.id.progress)
 
-        pullToRefreshView!!.loadMoreModel = LoadModel.NONE
-        pullToRefreshView!!.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
+        recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+
+        pullToRefreshView.loadMoreModel = LoadModel.NONE
+        pullToRefreshView.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
                 getPlayers()
             }
@@ -50,11 +57,9 @@ class PlayersListActivity : BaseListActivity() {
             override fun onLoadMore() {}
         })
 
-        fab.setOnClickListener {
-            createPlayer()
-        }
+        emptyStateTextView.text = getString(R.string.no_players_text)
 
-        empty_state_text_view.text = getString(R.string.no_players_text)
+        return contentView
     }
 
     override fun onResume() {
@@ -64,7 +69,7 @@ class PlayersListActivity : BaseListActivity() {
     }
 
     private fun getGames() {
-        db.getReference(context = this)
+        db.getReference(context = activity!!)
                 .child("games")
                 .orderByKey()
                 .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -99,7 +104,7 @@ class PlayersListActivity : BaseListActivity() {
             calculateWinRates()
         }
         else {
-            empty_state_text_view.visibility = if(players.size == 0) View.VISIBLE else View.GONE
+            emptyStateTextView.visibility = if(players.size == 0) View.VISIBLE else View.GONE
             showTooltips()
         }
     }
@@ -107,7 +112,7 @@ class PlayersListActivity : BaseListActivity() {
     private fun getPlayers() {
         setContentShown(false)
 
-        db.getReference(context = this)
+        db.getReference(context = activity!!)
                 .child("players")
                 .orderByKey()
                 .addListenerForSingleValueEvent( object : ValueEventListener {
@@ -129,7 +134,7 @@ class PlayersListActivity : BaseListActivity() {
                         val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
                         val adapter = PlayersListAdapter(players, playerNameWidth)
-                        recyclerView!!.adapter = adapter
+                        recyclerView.adapter = adapter
 
                         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
                             editPlayer(players[position])
@@ -143,7 +148,11 @@ class PlayersListActivity : BaseListActivity() {
     }
 
     override fun setContentShown(shown: Boolean) {
-        pullToRefreshView?.isRefreshing = !shown
+        pullToRefreshView.isRefreshing = !shown
+    }
+
+    override fun fabClicked() {
+        createPlayer()
     }
 
     private fun calculateWinRates() {
@@ -166,7 +175,7 @@ class PlayersListActivity : BaseListActivity() {
             val suddenDeathGames30GamesWon: Float = (last30SuddenDeathGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
             val suddenDeathGames30GamesLost: Float = suddenDeathGames30GamesCount - suddenDeathGames30GamesWon
 
-            val prefs = this.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_won", royaleGamesWon).apply()
             prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_lost", royaleGamesLost).apply()
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", suddenDeathGamesWon).apply()
@@ -177,45 +186,45 @@ class PlayersListActivity : BaseListActivity() {
             prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_games_lost", suddenDeathGames30GamesLost).apply()
         }
 
-        recyclerView?.adapter?.notifyDataSetChanged()
-        pullToRefreshView!!.refreshComplete()
+        recyclerView.adapter?.notifyDataSetChanged()
+        pullToRefreshView.refreshComplete()
         setContentShown(true)
 
         showTooltips()
     }
 
     private fun createPlayer() {
-        val intent = Intent(this, PlayerActivity::class.java)
+        val intent = Intent(activity, PlayerActivity::class.java)
         startActivity(intent)
     }
 
     private fun editPlayer(player: Player) {
-        val intent = Intent(this, PlayerActivity::class.java)
+        val intent = Intent(activity, PlayerActivity::class.java)
         intent.putExtra("player", player)
         startActivity(intent)
     }
 
     private fun showTooltips() {
-        val sequence = MaterialShowcaseSequence(this, "PlayersListTooltip")
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(fab)
+        val sequence = MaterialShowcaseSequence(activity, "PlayersListTooltip")
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(activity)
+                .setTarget(activity!!.findViewById(R.id.fab))
                 .setDismissText("GOT IT")
                 .setContentText(R.string.add_player_tooltip)
                 .setDismissOnTouch(true)
                 .build())
 
-        val firstView = recyclerView!!.getChildAt(0)
+        val firstView = recyclerView.getChildAt(0)
         if(firstView != null) {
             val recyclerViewPadding = 4.toPx
             val listItemMargin = 4.toPx
 
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(activity)
                     .setTarget(firstView)
                     .setDismissText("GOT IT")
                     .setContentText(R.string.edit_player_tooltip)
                     .setDismissOnTouch(true)
                     .withRectangleShape(true)
-                    .setOffset(0, top_app_bar.measuredHeight + AndroidUtil.getStatusBarHeight(this) + recyclerViewPadding + listItemMargin)
+                    .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + AndroidUtil.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
                     .build())
         }
 

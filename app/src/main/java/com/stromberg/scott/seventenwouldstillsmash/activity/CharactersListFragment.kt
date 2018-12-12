@@ -2,7 +2,11 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -21,22 +25,26 @@ import kotlinx.android.synthetic.main.activity_list.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
-class CharactersListActivity : BaseListActivity() {
+class CharactersListFragment: BaseListFragment() {
     private var db = FirebaseDatabase.getInstance()
 
     private var recyclerView: RecyclerView? = null
     private var pullToRefreshView: EasyRefreshLayout? = null
+    private lateinit var emptyStateTextView: TextView
+    private lateinit var progress: ProgressBar
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_list)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        val contentView = inflater.inflate(R.layout.activity_list, container, false)
 
-        pullToRefreshView = findViewById(R.id.refresh_layout)
-        recyclerView = findViewById(R.id.recycler_view)
-        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
+        recyclerView = contentView.findViewById(R.id.recycler_view)
+        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
+        progress = contentView.findViewById(R.id.progress)
+
+        recyclerView!!.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         recyclerView!!.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
-                MaterialShowcaseView.Builder(this@CharactersListActivity)
+                MaterialShowcaseView.Builder(activity)
                         .singleUse("CharactersListTooltip")
                         .setTarget(view)
                         .setDismissText("GOT IT")
@@ -58,9 +66,9 @@ class CharactersListActivity : BaseListActivity() {
             override fun onLoadMore() {}
         })
 
-        fab.hide()
+        emptyStateTextView.visibility = View.GONE
 
-        empty_state_text_view.visibility = View.GONE
+        return contentView
     }
 
     override fun onResume() {
@@ -72,7 +80,7 @@ class CharactersListActivity : BaseListActivity() {
     private fun getGames() {
         setContentShown(false)
 
-        db.getReference(context = this)
+        db.getReference(context = activity!!)
                 .child("games")
                 .addListenerForSingleValueEvent( object : ValueEventListener {
                     override fun onCancelled(error: DatabaseError) { }
@@ -118,7 +126,7 @@ class CharactersListActivity : BaseListActivity() {
     }
 
     private fun viewCharacter(characterId: Int) {
-        val intent = Intent(this, CharacterActivity::class.java)
+        val intent = Intent(activity, CharacterActivity::class.java)
         intent.putExtra("characterId", characterId)
         startActivity(intent)
     }
@@ -126,4 +134,6 @@ class CharactersListActivity : BaseListActivity() {
     override fun setContentShown(shown: Boolean) {
         pullToRefreshView?.isRefreshing = !shown
     }
+
+    override fun fabClicked() {}
 }

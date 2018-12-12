@@ -9,8 +9,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".activity.JoinGroupActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -21,14 +21,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".activity.CreateGroupActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.GamesListActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.PlayersListActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.CharactersListActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.CharacterActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.GameActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
-        <activity android:name=".activity.PlayerActivity" android:configChanges="orientation|keyboardHidden" android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.CreateGroupActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.CharacterActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.GameActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PlayerActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.MainActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>
