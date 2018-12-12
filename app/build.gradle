@@ -38,6 +38,7 @@ dependencies {
     implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.17'
     implementation 'com.github.florent37:viewtooltip:1.1.8'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+    implementation project(path: ':MaterialShowcaseView')
 }
 
 apply plugin: 'com.google.gms.google-services'

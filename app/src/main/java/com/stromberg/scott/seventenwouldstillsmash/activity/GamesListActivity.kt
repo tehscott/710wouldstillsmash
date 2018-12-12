@@ -2,7 +2,9 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Paint
 import android.os.Bundle
+import android.text.TextPaint
 import android.util.TypedValue
 import android.view.View
 import android.widget.ProgressBar
@@ -25,7 +27,11 @@ import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_list.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import java.util.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
+import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
+
 
 class GamesListActivity : BaseListActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -61,6 +67,10 @@ class GamesListActivity : BaseListActivity() {
 
             override fun onLoadMore() {}
         })
+
+        empty_state_text_view.text = getString(R.string.no_games_text)
+
+        showTooltips()
     }
 
     override fun onResume() {
@@ -69,27 +79,50 @@ class GamesListActivity : BaseListActivity() {
         getGames()
     }
 
-    override fun onStart() {
-        super.onStart()
+    private fun showTooltips() {
+        group_code.post {
+            val config = ShowcaseConfig()
+            config.fadeDuration = 50L
 
-        val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+            val sequence = MaterialShowcaseSequence(this, "GamesListTooltip")
+            sequence.setConfig(config)
 
-        if(!prefs.getBoolean("ShowedGroupTooltip", false)) {
-            val groupCode = findViewById<TextView>(R.id.group_code)
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(games_button)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.games_button_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
 
-            ViewTooltip
-                    .on(this, groupCode)
-                    .autoHide(true, 10000)
-                    .clickToHide(true)
-                    .corner(30)
-                    .padding(30, 30, 30, 30)
-                    .arrowHeight(32)
-                    .position(ViewTooltip.Position.LEFT)
-                    .text(R.string.group_code_tooltip)
-                    .textSize(TypedValue.COMPLEX_UNIT_SP, 18f)
-                    .show()
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(players_button)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.players_button_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
 
-            prefs.edit().putBoolean("ShowedGroupTooltip", true).apply()
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(characters_button)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.characters_button_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
+
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(fab)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.add_game_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
+
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(group_code)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.group_code_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
+
+            sequence.start()
         }
     }
 
@@ -165,6 +198,8 @@ class GamesListActivity : BaseListActivity() {
         pullToRefreshView!!.refreshComplete()
 
         adapter!!.loadMoreComplete()
+
+        empty_state_text_view.visibility = if(games.size == 0) View.VISIBLE else View.GONE
 
         setContentShown(true)
     }

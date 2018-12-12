@@ -2,6 +2,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -17,6 +18,7 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_list.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class CharactersListActivity : BaseListActivity() {
@@ -32,6 +34,20 @@ class CharactersListActivity : BaseListActivity() {
         pullToRefreshView = findViewById(R.id.refresh_layout)
         recyclerView = findViewById(R.id.recycler_view)
         recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        recyclerView!!.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                MaterialShowcaseView.Builder(this@CharactersListActivity)
+                        .singleUse("CharactersListTooltip")
+                        .setTarget(view)
+                        .setDismissText("GOT IT")
+                        .setContentText(R.string.view_character_tooltip)
+                        .setDismissOnTouch(true)
+                        .withRectangleShape(true)
+                        .show()
+            }
+
+            override fun onChildViewDetachedFromWindow(view: View) {}
+        })
 
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object : EasyRefreshLayout.EasyEvent {
@@ -43,6 +59,8 @@ class CharactersListActivity : BaseListActivity() {
         })
 
         fab.hide()
+
+        empty_state_text_view.visibility = View.GONE
     }
 
     override fun onResume() {
@@ -95,7 +113,6 @@ class CharactersListActivity : BaseListActivity() {
         }
 
         recyclerView?.adapter?.notifyDataSetChanged()
-
         pullToRefreshView!!.refreshComplete()
         setContentShown(true)
     }

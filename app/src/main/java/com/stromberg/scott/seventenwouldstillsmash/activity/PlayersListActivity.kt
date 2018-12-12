@@ -3,6 +3,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -17,9 +18,10 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.*
 import kotlinx.android.synthetic.main.activity_list.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class PlayersListActivity : BaseListActivity() {
@@ -51,6 +53,8 @@ class PlayersListActivity : BaseListActivity() {
         fab.setOnClickListener {
             createPlayer()
         }
+
+        empty_state_text_view.text = getString(R.string.no_players_text)
     }
 
     override fun onResume() {
@@ -89,10 +93,14 @@ class PlayersListActivity : BaseListActivity() {
                     it.players.any { it.player!!.id == playerId }
                 }
 
-                gamesForPlayers.put(it, gamesForPlayer)
+                gamesForPlayers[it] = gamesForPlayer
             }
 
             calculateWinRates()
+        }
+        else {
+            empty_state_text_view.visibility = if(players.size == 0) View.VISIBLE else View.GONE
+            showTooltips()
         }
     }
 
@@ -172,6 +180,8 @@ class PlayersListActivity : BaseListActivity() {
         recyclerView?.adapter?.notifyDataSetChanged()
         pullToRefreshView!!.refreshComplete()
         setContentShown(true)
+
+        showTooltips()
     }
 
     private fun createPlayer() {
@@ -183,5 +193,32 @@ class PlayersListActivity : BaseListActivity() {
         val intent = Intent(this, PlayerActivity::class.java)
         intent.putExtra("player", player)
         startActivity(intent)
+    }
+
+    private fun showTooltips() {
+        val sequence = MaterialShowcaseSequence(this, "PlayersListTooltip")
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(fab)
+                .setDismissText("GOT IT")
+                .setContentText(R.string.add_player_tooltip)
+                .setDismissOnTouch(true)
+                .build())
+
+        val firstView = recyclerView!!.getChildAt(0)
+        if(firstView != null) {
+            val recyclerViewPadding = 4.toPx
+            val listItemMargin = 4.toPx
+
+            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                    .setTarget(firstView)
+                    .setDismissText("GOT IT")
+                    .setContentText(R.string.edit_player_tooltip)
+                    .setDismissOnTouch(true)
+                    .withRectangleShape(true)
+                    .setOffset(0, top_app_bar.measuredHeight + AndroidUtil.getStatusBarHeight(this) + recyclerViewPadding + listItemMargin)
+                    .build())
+        }
+
+        sequence.start()
     }
 }

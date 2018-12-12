@@ -57,6 +57,16 @@
             android:theme="@style/ProgressBar"
             android:visibility="gone"/>
 
+        <TextView
+            android:id="@+id/empty_state_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/no_games_text"
+            android:textSize="30sp"
+            android:padding="12dp"
+            android:gravity="center"
+            android:visibility="gone"/>
+
         <com.ajguan.library.EasyRefreshLayout
             android:id="@+id/refresh_layout"
             android:layout_width="match_parent"
