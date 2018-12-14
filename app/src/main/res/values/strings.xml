@@ -24,6 +24,7 @@
     <string name="group_code_tooltip">Tap here to add or switch between groups.</string>
     <string name="add_game_tooltip">Tap here to add a game.</string>
     <string name="add_player_tooltip">Tap here to add a player.</string>
+    <string name="edit_game_tooltip">Tap on a game to view or edit it.</string>
     <string name="edit_player_tooltip">Tap on a player to view or edit them. You can also see their games and stats here.</string>
     <string name="view_character_tooltip">Tap on a character to view their games and stats.</string>
     <string name="player_visibility_tooltip">Tap here to toggle a player\'s visibility. If you hide a player, they will no longer show up on the create game screen.</string>
@@ -31,6 +32,8 @@
     <string name="date_tooltip">Tap here to set the date of the game.</string>
     <string name="type_tooltip">Tap here to set the game type.</string>
     <string name="add_player_to_game_tooltip">Tap here to add a player to the game.</string>
+    <string name="join_group_tooltip">To join an existing group, enter the 5-digit group code here.</string>
+    <string name="create_group_tooltip">Or, tap here to create a new group.</string>
 
     <string-array name="character_sort_options">
         <item>Name</item>
@@ -42,4 +45,5 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="no_games_text">There are no games. You should add one.</string>
     <string name="no_players_text">There are no players. You should add one.</string>
+    <string name="tooltip_next">Next</string>
 </resources>

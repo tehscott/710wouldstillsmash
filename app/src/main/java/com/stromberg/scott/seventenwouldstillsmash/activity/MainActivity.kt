@@ -3,6 +3,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentPagerAdapter
@@ -14,12 +15,13 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
+import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewPagerAdapter: ListPagerAdapter
+    private val tooltipQueue = LinkedList<MaterialShowcaseView>()
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
@@ -41,6 +43,9 @@ class MainActivity : AppCompatActivity() {
                     0, 1 -> fab.show()
                     else -> fab.hide()
                 }
+
+                getCurrentFragment().hasFragmentBeenShown = true
+                getCurrentFragment().showTooltips()
             }
         })
 
@@ -63,14 +68,25 @@ class MainActivity : AppCompatActivity() {
         }
 
         setupGroupCodeText()
-        showTooltips()
         setSelectedButton(0)
+        getCurrentFragment().hasFragmentBeenShown = true
+        getCurrentFragment().showTooltips()
 
         fab.setOnClickListener {
-            ((view_pager.adapter!! as FragmentPagerAdapter).getItem(view_pager.currentItem) as BaseListFragment).fabClicked()
+            getCurrentFragment().fabClicked()
         }
 
         version_text.text = "v${BuildConfig.VERSION_NAME}"
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        showTooltips()
+    }
+
+    private fun getCurrentFragment(): BaseListFragment {
+        return ((view_pager.adapter!! as FragmentPagerAdapter).getItem(view_pager.currentItem) as BaseListFragment)
     }
 
     private fun setupGroupCodeText() {
@@ -137,48 +153,68 @@ class MainActivity : AppCompatActivity() {
 
     private fun showTooltips() {
         group_code.post {
-            val config = ShowcaseConfig()
-            config.fadeDuration = 50L
-
-            val sequence = MaterialShowcaseSequence(this, "GamesListTooltip")
-            sequence.setConfig(config)
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+            queueTooltip(MaterialShowcaseView.Builder(this)
                     .setTarget(games_button)
-                    .setDismissText("GOT IT")
+                    .singleUse("GamesButtonTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.games_button_tooltip)
                     .setDismissOnTouch(true)
+                    .setShapePadding(8)
                     .build())
 
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+            queueTooltip(MaterialShowcaseView.Builder(this)
                     .setTarget(players_button)
-                    .setDismissText("GOT IT")
+                    .singleUse("PlayersButtonTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.players_button_tooltip)
                     .setDismissOnTouch(true)
+                    .setShapePadding(8)
                     .build())
 
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+            queueTooltip(MaterialShowcaseView.Builder(this)
                     .setTarget(characters_button)
-                    .setDismissText("GOT IT")
+                    .singleUse("CharactersButtonTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.characters_button_tooltip)
                     .setDismissOnTouch(true)
+                    .setShapePadding(8)
                     .build())
 
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(fab)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.add_game_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+            queueTooltip(MaterialShowcaseView.Builder(this)
                     .setTarget(group_code)
-                    .setDismissText("GOT IT")
+                    .singleUse("GroupCodeTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.group_code_tooltip)
                     .setDismissOnTouch(true)
+                    .withRoundedRectangleShape(24, 24)
+                    .setShapePadding(24)
                     .build())
+        }
+    }
 
-            sequence.start()
+    fun queueTooltip(tooltip: MaterialShowcaseView) {
+        tooltip.addShowcaseListener(object: IShowcaseListener {
+            override fun onShowcaseDisplayed(showcaseView: MaterialShowcaseView?) {}
+
+            override fun onShowcaseDismissed(showcaseView: MaterialShowcaseView?) {
+                Log.d("Tooltip", "Dismissing tooltip: " + showcaseView?.showcaseId)
+                tooltipQueue.remove()
+
+                if(tooltipQueue.isNotEmpty()) {
+                    Log.d("Tooltip", "Showing tooltip: " + tooltipQueue.peek().showcaseId)
+                    tooltipQueue.peek().show(this@MainActivity)
+                }
+            }
+        })
+
+        if(tooltipQueue.firstOrNull { it.showcaseId == tooltip.showcaseId } == null) {
+            Log.d("Tooltip", "Queueing tooltip: " + tooltip.showcaseId)
+            tooltipQueue.add(tooltip)
+        }
+
+        if(tooltipQueue.size == 1) {
+            Log.d("Tooltip", "Showing tooltip: " + tooltip.showcaseId)
+            tooltipQueue.peek().show(this)
         }
     }
 }

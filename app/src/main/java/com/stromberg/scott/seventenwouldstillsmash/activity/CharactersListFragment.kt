@@ -43,14 +43,8 @@ class CharactersListFragment: BaseListFragment() {
         recyclerView!!.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         recyclerView!!.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {
             override fun onChildViewAttachedToWindow(view: View) {
-                MaterialShowcaseView.Builder(activity)
-                        .singleUse("CharactersListTooltip")
-                        .setTarget(view)
-                        .setDismissText("GOT IT")
-                        .setContentText(R.string.view_character_tooltip)
-                        .setDismissOnTouch(true)
-                        .withRectangleShape(true)
-                        .show()
+                readyToShowTooltips = true
+                showTooltips()
             }
 
             override fun onChildViewDetachedFromWindow(view: View) {}
@@ -131,8 +125,21 @@ class CharactersListFragment: BaseListFragment() {
     }
 
     override fun setContentShown(shown: Boolean) {
-        pullToRefreshView?.isRefreshing = !shown
+        progress.visibility = if(shown) View.GONE else View.VISIBLE
+        pullToRefreshView?.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun fabClicked() {}
+    override fun showTooltips() {
+        if(readyToShowTooltips && hasFragmentBeenShown) {
+            (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
+                    .singleUse("CharactersListTooltip")
+                    .setTarget(view)
+                    .setDismissText(getString(R.string.tooltip_next))
+                    .setContentText(R.string.view_character_tooltip)
+                    .setDismissOnTouch(true)
+                    .withRectangleShape(true)
+                    .build())
+        }
+    }
 }

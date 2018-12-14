@@ -1,6 +1,5 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -21,9 +20,8 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.*
+import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class GamesListFragment : BaseListFragment() {
@@ -55,6 +53,15 @@ class GamesListFragment : BaseListFragment() {
             }
 
             override fun onLoadMore() {}
+        })
+
+        recyclerView.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {
+            override fun onChildViewAttachedToWindow(view: View) {
+                readyToShowTooltips = true
+                showTooltips()
+            }
+
+            override fun onChildViewDetachedFromWindow(view: View) {}
         })
 
         emptyStateTextView.text = getString(R.string.no_games_text)
@@ -144,6 +151,11 @@ class GamesListFragment : BaseListFragment() {
         emptyStateTextView.visibility = if(games.size == 0) View.VISIBLE else View.GONE
 
         setContentShown(true)
+
+        if(games.isEmpty()) {
+            readyToShowTooltips = true
+            showTooltips()
+        }
     }
 
     override fun setContentShown(shown: Boolean) {
@@ -153,5 +165,34 @@ class GamesListFragment : BaseListFragment() {
 
     override fun fabClicked() {
         createGame(games)
+    }
+
+    override fun showTooltips() {
+        if(readyToShowTooltips && hasFragmentBeenShown) {
+            val firstView = recyclerView.getChildAt(0)
+
+            (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
+                    .setTarget(activity!!.findViewById(R.id.fab))
+                    .singleUse("AddGameTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
+                    .setContentText(R.string.add_game_tooltip)
+                    .setDismissOnTouch(true)
+                    .build())
+
+            if (firstView != null) {
+//                val recyclerViewPadding = 4.toPx
+//                val listItemMargin = 4.toPx
+
+                (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
+                        .setTarget(firstView)
+                        .singleUse("EditGameTooltip")
+                        .setDismissText(getString(R.string.tooltip_next))
+                        .setContentText(R.string.edit_game_tooltip)
+                        .setDismissOnTouch(true)
+                        .withRectangleShape(true)
+//                        .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + AndroidUtil.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
+                        .build())
+            }
+        }
     }
 }

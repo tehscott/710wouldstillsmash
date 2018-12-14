@@ -659,14 +659,14 @@ class PlayerActivity : BaseActivity() {
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
                 .setTarget(create_player_visibility_button)
-                .setDismissText("GOT IT")
+                .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.player_visibility_tooltip)
                 .setDismissOnTouch(true)
                 .build())
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
                 .setTarget(create_player_priority_button)
-                .setDismissText("GOT IT")
+                .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.player_priority_tooltip)
                 .setDismissOnTouch(true)
                 .build())

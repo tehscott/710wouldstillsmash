@@ -579,12 +579,12 @@ class GameActivity : BaseActivity() {
         val config = ShowcaseConfig()
         config.fadeDuration = 50L
 
-        val sequence = MaterialShowcaseSequence(this, "GameTooltipz")
+        val sequence = MaterialShowcaseSequence(this, "GameTooltip")
         sequence.setConfig(config)
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
                 .setTarget(dateTextView)
-                .setDismissText("GOT IT")
+                .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.date_tooltip)
                 .setDismissOnTouch(true)
                 .withRectangleShape()
@@ -592,7 +592,7 @@ class GameActivity : BaseActivity() {
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
                 .setTarget(findViewById(R.id.toggle_container))
-                .setDismissText("GOT IT")
+                .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.type_tooltip)
                 .setDismissOnTouch(true)
                 .withRectangleShape()
@@ -600,7 +600,7 @@ class GameActivity : BaseActivity() {
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
                 .setTarget(addPlayerButton)
-                .setDismissText("GOT IT")
+                .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.add_player_to_game_tooltip)
                 .setDismissOnTouch(true)
                 .withRectangleShape()

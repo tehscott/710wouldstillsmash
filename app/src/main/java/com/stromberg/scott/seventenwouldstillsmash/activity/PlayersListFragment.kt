@@ -105,6 +105,7 @@ class PlayersListFragment: BaseListFragment() {
         }
         else {
             emptyStateTextView.visibility = if(players.size == 0) View.VISIBLE else View.GONE
+            readyToShowTooltips = true
             showTooltips()
         }
     }
@@ -148,7 +149,8 @@ class PlayersListFragment: BaseListFragment() {
     }
 
     override fun setContentShown(shown: Boolean) {
-        pullToRefreshView.isRefreshing = !shown
+        progress.visibility = if(shown) View.GONE else View.VISIBLE
+        pullToRefreshView.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun fabClicked() {
@@ -190,6 +192,7 @@ class PlayersListFragment: BaseListFragment() {
         pullToRefreshView.refreshComplete()
         setContentShown(true)
 
+        readyToShowTooltips = true
         showTooltips()
     }
 
@@ -204,30 +207,32 @@ class PlayersListFragment: BaseListFragment() {
         startActivity(intent)
     }
 
-    private fun showTooltips() {
-        val sequence = MaterialShowcaseSequence(activity, "PlayersListTooltip")
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(activity)
-                .setTarget(activity!!.findViewById(R.id.fab))
-                .setDismissText("GOT IT")
-                .setContentText(R.string.add_player_tooltip)
-                .setDismissOnTouch(true)
-                .build())
+    override fun showTooltips() {
+        if(readyToShowTooltips && hasFragmentBeenShown) {
+            val firstView = recyclerView.getChildAt(0)
 
-        val firstView = recyclerView.getChildAt(0)
-        if(firstView != null) {
-            val recyclerViewPadding = 4.toPx
-            val listItemMargin = 4.toPx
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(activity)
-                    .setTarget(firstView)
-                    .setDismissText("GOT IT")
-                    .setContentText(R.string.edit_player_tooltip)
+            (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
+                    .setTarget(activity!!.findViewById(R.id.fab))
+                    .singleUse("AddPlayerTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
+                    .setContentText(R.string.add_player_tooltip)
                     .setDismissOnTouch(true)
-                    .withRectangleShape(true)
-                    .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + AndroidUtil.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
                     .build())
-        }
 
-        sequence.start()
+            if (firstView != null) {
+//                val recyclerViewPadding = 4.toPx
+//                val listItemMargin = 4.toPx
+
+                (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
+                        .setTarget(firstView)
+                        .singleUse("EditPlayerTooltip")
+                        .setDismissText(getString(R.string.tooltip_next))
+                        .setContentText(R.string.edit_player_tooltip)
+                        .setDismissOnTouch(true)
+                        .withRectangleShape(true)
+//                        .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + AndroidUtil.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
+                        .build())
+            }
+        }
     }
 }
