@@ -1,21 +1,22 @@
 package com.stromberg.scott.seventenwouldstillsmash.util
 
-import android.app.AlertDialog
 import android.content.Context
 import android.content.res.Resources
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Typeface
+import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.TextView
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.activity.BaseActivity
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import java.util.*
+
 
 val Int.toDp: Int get() = (this / Resources.getSystem().displayMetrics.density).toInt()
 val Int.toPx: Int get() = (this * Resources.getSystem().displayMetrics.density).toInt()
@@ -37,4 +38,40 @@ fun FirebaseDatabase.getReference(context: Context): DatabaseReference {
     else {
         reference
     }
+}
+
+fun Snackbar.setBackgroundColor(@ColorRes color: Int): Snackbar {
+    view.setBackgroundResource(color)
+
+    return this
+}
+
+fun Snackbar.setTextColor(@ColorInt color: Int): Snackbar {
+    val tv = view.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+    tv.setTextColor(color)
+
+    return this
+}
+
+fun Snackbar.setTextSize(size: Float): Snackbar {
+    val tv = view.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+
+    return this
+}
+
+fun Snackbar.setTextStyle(style: Int): Snackbar {
+    val tv = view.findViewById(com.google.android.material.R.id.snackbar_text) as TextView
+    val typeFace = Typeface.defaultFromStyle(style)
+    tv.typeface = typeFace
+
+    return this
+}
+
+fun Snackbar.setTextAttributes(@ColorInt color: Int, size: Float = 14f, style: Int = Typeface.NORMAL): Snackbar {
+    this.setTextColor(color)
+    this.setTextSize(size)
+    this.setTextStyle(style)
+
+    return this
 }

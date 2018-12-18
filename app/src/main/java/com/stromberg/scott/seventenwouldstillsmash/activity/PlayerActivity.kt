@@ -5,11 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -18,9 +22,7 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.*
 import kotlinx.android.synthetic.main.activity_player.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
@@ -86,15 +88,18 @@ class PlayerActivity : BaseActivity() {
         visibilityToggle.setOnClickListener {
             if(isPlayerHidden) {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
-                Toast.makeText(this, "Set player to visible", Toast.LENGTH_SHORT).show()
+                showSnackbar(player_title_text.text.toString() + " set to visible")
             }
             else {
                 visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
-                Toast.makeText(this, "Set player to hidden", Toast.LENGTH_SHORT).show()
+                showSnackbar(player_title_text.text.toString() + " set to hidden")
             }
 
-            hasMadeEdit = true
             isPlayerHidden = !isPlayerHidden
+
+            if(editingPlayer != null) {
+                updatePlayer(false)
+            }
         }
 
         if(isPlayerHidden) {
@@ -108,15 +113,18 @@ class PlayerActivity : BaseActivity() {
         priorityToggle.setOnClickListener {
             if(isPlayerLowPriority) {
                 priorityToggle.setImageResource(R.drawable.ic_priority_high)
-                Toast.makeText(this, "Set player to normal priority", Toast.LENGTH_SHORT).show()
+                showSnackbar(player_title_text.text.toString() + " set to normal priority")
             }
             else {
                 priorityToggle.setImageResource(R.drawable.ic_priority_low)
-                Toast.makeText(this, "Set player to low priority", Toast.LENGTH_SHORT).show()
+                showSnackbar(player_title_text.text.toString() + " set to low priority")
             }
-            hasMadeEdit = true
 
             isPlayerLowPriority = !isPlayerLowPriority
+
+            if(editingPlayer != null) {
+                updatePlayer(false)
+            }
         }
 
         if(isPlayerLowPriority) {
@@ -216,7 +224,7 @@ class PlayerActivity : BaseActivity() {
             delete_button?.visibility = View.VISIBLE
             delete_button?.setOnClickListener { deletePlayer() }
 
-            save_button?.setOnClickListener { updatePlayer() }
+            save_button?.setOnClickListener { updatePlayer(true) }
         }
     }
 
@@ -485,7 +493,7 @@ class PlayerActivity : BaseActivity() {
         }
     }
 
-    private fun updatePlayer() {
+    private fun updatePlayer(goBack: Boolean) {
         var playerName = nameEditText!!.text.toString()
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
@@ -497,7 +505,9 @@ class PlayerActivity : BaseActivity() {
                 .child(editingPlayer!!.id!!)
                 .setValue(editingPlayer)
                 .addOnCompleteListener {
-                    onBackPressed()
+                    if(goBack) {
+                        onBackPressed()
+                    }
                 }
         }
     }
@@ -672,5 +682,12 @@ class PlayerActivity : BaseActivity() {
                 .build())
 
         sequence.start()
+    }
+
+    private fun showSnackbar(text: String) {
+        Snackbar.make(create_player_navigation, text, Snackbar.LENGTH_LONG)
+                .setBackgroundColor(R.color.primary)
+                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                .show()
     }
 }

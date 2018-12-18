@@ -22,6 +22,8 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.setBackgroundColor
+import com.stromberg.scott.seventenwouldstillsmash.util.setTextAttributes
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.android.synthetic.main.activity_game.*
@@ -205,7 +207,10 @@ class GameActivity : BaseActivity() {
                         onBackPressed()
                     }
                     .addOnFailureListener {
-                        Snackbar.make(content, "Failed to create game", Snackbar.LENGTH_SHORT).show()
+                        Snackbar.make(content, "Failed to create game", Snackbar.LENGTH_LONG)
+                                .setBackgroundColor(R.color.primary)
+                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                                .show()
                     }
         }
         else {
