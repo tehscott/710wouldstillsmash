@@ -104,6 +104,8 @@ class PlayersListFragment: BaseListFragment() {
             calculateWinRates()
         }
         else {
+            setContentShown(true)
+
             emptyStateTextView.visibility = if(players.size == 0) View.VISIBLE else View.GONE
             readyToShowTooltips = true
             showTooltips()
@@ -143,7 +145,16 @@ class PlayersListFragment: BaseListFragment() {
 
                         adapter.setEnableLoadMore(false)
 
-                        getGames()
+                        if(players.size > 0) {
+                            getGames()
+                        }
+                        else {
+                            setContentShown(true)
+
+                            emptyStateTextView.visibility = View.VISIBLE
+                            readyToShowTooltips = true
+                            showTooltips()
+                        }
                     }
                 })
     }
