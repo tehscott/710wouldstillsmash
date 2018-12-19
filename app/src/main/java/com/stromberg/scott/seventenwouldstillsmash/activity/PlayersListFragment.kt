@@ -202,6 +202,7 @@ class PlayersListFragment: BaseListFragment() {
         recyclerView.adapter?.notifyDataSetChanged()
         pullToRefreshView.refreshComplete()
         setContentShown(true)
+        emptyStateTextView.visibility = View.GONE
 
         readyToShowTooltips = true
         showTooltips()
