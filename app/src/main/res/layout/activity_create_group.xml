@@ -40,28 +40,24 @@
         android:layout_marginRight="12dp">
 
         <TextView
+            android:id="@+id/group_code_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textAllCaps="true"
+            android:text="Group Code"/>
+
+        <TextView
             android:id="@+id/create_group_code_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/light_gray"
+            android:gravity="center"
             android:textAllCaps="true"
             android:textSize="40sp"
-            android:gravity="center"
             android:typeface="monospace"
-            android:enabled="false"/>
-
-        <EditText
-            android:id="@+id/create_group_name_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enter your group name."
-            android:gravity="center_horizontal"
-            android:textColor="@color/text_secondary"/>
+            android:textStyle="bold"
+            android:enabled="false"
+            tools:text="7F0BE"/>
 
         <RadioGroup
             android:layout_width="wrap_content"

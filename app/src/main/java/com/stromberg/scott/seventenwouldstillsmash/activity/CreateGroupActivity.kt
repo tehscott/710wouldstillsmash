@@ -24,7 +24,6 @@ class CreateGroupActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
 
     private lateinit var groupCodeTextView: TextView
-    private lateinit var groupNameEditText: EditText
     private lateinit var createGroupButton: Button
     private lateinit var ssb4RadioButton: RadioButton
     private lateinit var ssbUltimateRadioButton: RadioButton
@@ -36,7 +35,6 @@ class CreateGroupActivity : BaseActivity() {
         setContentView(R.layout.activity_create_group)
 
         groupCodeTextView = findViewById(R.id.create_group_code_text_view)
-        groupNameEditText = findViewById(R.id.create_group_name_edit_text)
         createGroupButton = findViewById(R.id.create_group_create_button)
         ssb4RadioButton = findViewById(R.id.ssb_4_radio_button)
         ssbUltimateRadioButton = findViewById(R.id.ssb_ultimate_radio_button)
@@ -51,17 +49,7 @@ class CreateGroupActivity : BaseActivity() {
             getGroupCode()
         }
 
-        createGroupButton.setOnClickListener {
-            if(groupNameEditText.text.isNotEmpty()) {
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.hideSoftInputFromWindow(createGroupButton.windowToken, 0)
-
-                createGroup()
-            }
-            else {
-                showDialog("Enter a name.")
-            }
-        }
+        createGroupButton.setOnClickListener { createGroup() }
     }
 
     private fun getGroupCode() {
@@ -94,7 +82,6 @@ class CreateGroupActivity : BaseActivity() {
 
         val group = Group()
         group.code = code
-        group.name = groupNameEditText.text.toString()
         group.type = if (ssb4RadioButton.isSelected) GroupType.SMASH4 else GroupType.ULTIMATE
         group.isSelected = true
 
