@@ -46,7 +46,7 @@ class PlayerActivity : BaseActivity() {
 
     private var editingPlayer: Player? = null
     private var hasMadeEdit: Boolean = false
-    private var isPlayerHidden = true
+    private var isPlayerHidden = false
     private var isPlayerLowPriority = false
     private var isFirstLoad = true
     private val characterStats = ArrayList<CharacterStats>()
