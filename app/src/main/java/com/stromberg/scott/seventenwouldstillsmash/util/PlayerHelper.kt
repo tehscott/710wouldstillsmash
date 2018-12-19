@@ -27,12 +27,12 @@ class PlayerHelper {
 
             Log.d("name", longestLength.toString())
 
+            val minWidth = (Resources.getSystem().displayMetrics.widthPixels / 8)
             val maxWidth = (Resources.getSystem().displayMetrics.widthPixels / 4)
-            if(longestLength > maxWidth) {
-                return maxWidth
-            }
-            else {
-                return (longestLength * 1.10).toInt()
+            return when {
+                longestLength > maxWidth -> maxWidth
+                longestLength < minWidth -> minWidth
+                else -> (longestLength * 1.2).toInt()
             }
         }
     }
