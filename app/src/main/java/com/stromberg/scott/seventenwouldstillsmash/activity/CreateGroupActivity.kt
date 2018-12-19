@@ -82,7 +82,7 @@ class CreateGroupActivity : BaseActivity() {
 
         val group = Group()
         group.code = code
-        group.type = if (ssb4RadioButton.isSelected) GroupType.SMASH4 else GroupType.ULTIMATE
+        group.type = if (ssb4RadioButton.isChecked) GroupType.SMASH4 else GroupType.ULTIMATE
         group.isSelected = true
 
         db.reference
