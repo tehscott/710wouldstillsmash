@@ -1,9 +1,13 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentPagerAdapter
@@ -22,6 +26,7 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
     private lateinit var viewPagerAdapter: ListPagerAdapter
     private val tooltipQueue = LinkedList<MaterialShowcaseView>()
+    private var currentItem: Int = -1
 
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
@@ -65,6 +70,10 @@ class MainActivity : AppCompatActivity() {
             if(view_pager.currentItem != 2) {
                 view_pager.setCurrentItem(2, true)
             }
+        }
+
+        game_types_button.setOnClickListener {
+            startActivity(Intent(this, GameTypeListActivity::class.java))
         }
 
         setupGroupCodeText()
@@ -140,14 +149,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setSelectedButton(currentItem: Int) {
-        games_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
-        players_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
-        characters_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+        if(this.currentItem != currentItem) {
+            games_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+            players_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+            characters_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+            game_types_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
 
-        when(currentItem) {
-            0 -> games_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-            1 -> players_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-            2 -> characters_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+            when (currentItem) {
+                0 -> games_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+                1 -> players_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+                2 -> characters_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+                3 -> game_types_button.drawable.setTint(resources.getColor(R.color.secondary, null))
+            }
+
+            when (this.currentItem) {
+                0 -> games_title.visibility = View.GONE //shrink(games_title, 100)
+                1 -> players_title.visibility = View.GONE //shrink(players_title, 100)
+                2 -> characters_title.visibility = View.GONE //shrink(characters_title, 100)
+            }
+
+            when (currentItem) {
+                0 -> games_title.visibility = View.VISIBLE //grow(games_title, 100)
+                1 -> players_title.visibility = View.VISIBLE //grow(players_title, 100)
+                2 -> characters_title.visibility = View.VISIBLE //grow(characters_title, 100)
+            }
+
+            this.currentItem = currentItem
         }
     }
 
@@ -176,6 +203,15 @@ class MainActivity : AppCompatActivity() {
                     .singleUse("CharactersButtonTooltip")
                     .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.characters_button_tooltip)
+                    .setDismissOnTouch(true)
+                    .setShapePadding(8)
+                    .build())
+
+            queueTooltip(MaterialShowcaseView.Builder(this)
+                    .setTarget(characters_button)
+                    .singleUse("GameTypesButtonTooltip")
+                    .setDismissText(getString(R.string.tooltip_next))
+                    .setContentText(R.string.game_types_button_tooltip)
                     .setDismissOnTouch(true)
                     .setShapePadding(8)
                     .build())

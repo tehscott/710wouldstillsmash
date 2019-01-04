@@ -21,6 +21,7 @@
     <string name="games_button_tooltip">Tap here to view your games.</string>
     <string name="players_button_tooltip">Tap here to view players and their stats.</string>
     <string name="characters_button_tooltip">Tap here to view characters and their stats.</string>
+    <string name="game_types_button_tooltip">Tap here to view and edit game types.</string>
     <string name="group_code_tooltip">Tap here to add or switch between groups.</string>
     <string name="add_game_tooltip">Tap here to add a game.</string>
     <string name="add_player_tooltip">Tap here to add a player.</string>
@@ -45,5 +46,6 @@
     <string name="title_activity_main2">Main2Activity</string>
     <string name="no_games_text">There are no games. You should add one.</string>
     <string name="no_players_text">There are no players. You should add one.</string>
+    <string name="no_game_types_text">There are no game types. You should add one.</string>
     <string name="tooltip_next">Next</string>
 </resources>

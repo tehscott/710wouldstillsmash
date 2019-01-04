@@ -6,6 +6,6 @@ class Group {
     var code: String? = null
     var type: GroupType = GroupType.SMASH4
 
-    @Exclude
+    @Exclude @set:Exclude @get:Exclude
     var isSelected: Boolean = false
 }

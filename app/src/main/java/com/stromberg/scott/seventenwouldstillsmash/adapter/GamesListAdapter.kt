@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var loserContainerWidth: Int) : BaseQuickAdapter<Game, BaseViewHolder>(R.layout.game_list_item, games), FastScrollRecyclerView.SectionedAdapter {
-    private var dateFormatter = SimpleDateFormat("MM/dd/yy", Locale.getDefault())
+    private var dateFormatter = SimpleDateFormat("MMM\ndd", Locale.getDefault())
     private var sectionDateFormatter = SimpleDateFormat("MMM yy", Locale.getDefault())
 
     enum class SortBy {
@@ -84,6 +84,7 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
         }
 
         viewHolder.setText(R.id.game_list_item_date, dateFormatter.format(Date(item.date)))
+        viewHolder.setVisible(R.id.more_players_text, players!!.size > 4)
     }
 
     override fun getSectionName(position: Int): String {

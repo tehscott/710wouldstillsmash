@@ -6,9 +6,7 @@ import com.google.firebase.database.Exclude
 import java.util.*
 
 class Game() : Parcelable {
-    @Exclude
     var id: String? = ""
-
     var date: Long = 0
     var players: ArrayList<GamePlayer> = ArrayList()
     var gameType: String? = null

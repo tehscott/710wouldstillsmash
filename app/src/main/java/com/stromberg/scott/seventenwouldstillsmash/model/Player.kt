@@ -7,7 +7,6 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import java.io.Serializable
 
 class Player : Serializable {
-    @Exclude
     var id: String? = null
 
     var isHidden: Boolean

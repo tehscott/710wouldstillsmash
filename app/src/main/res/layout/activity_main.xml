@@ -86,6 +86,16 @@
             android:src="@drawable/ic_games"
             android:background="?android:attr/selectableItemBackgroundBorderless"/>
 
+        <TextView
+            android:id="@+id/games_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/secondary"
+            fontPath="Quicksand-Bold.ttf"
+            tools:ignore="MissingPrefix"
+            android:text="Games"
+            android:visibility="gone"/>
+
         <ImageView
             android:id="@+id/players_button"
             android:layout_width="@dimen/bottom_app_bar_icon"
@@ -94,12 +104,40 @@
             android:src="@drawable/ic_players"
             android:background="?android:attr/selectableItemBackgroundBorderless"/>
 
+        <TextView
+            android:id="@+id/players_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Players"
+            android:textColor="@color/secondary"
+            fontPath="Quicksand-Bold.ttf"
+            tools:ignore="MissingPrefix"
+            android:visibility="gone"/>
+
         <ImageView
             android:id="@+id/characters_button"
             android:layout_width="@dimen/bottom_app_bar_icon"
             android:layout_height="@dimen/bottom_app_bar_icon"
             android:layout_margin="12dp"
             android:src="@drawable/ic_pikachu"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+
+        <TextView
+            android:id="@+id/characters_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Characters"
+            android:textColor="@color/secondary"
+            fontPath="Quicksand-Bold.ttf"
+            tools:ignore="MissingPrefix"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/game_types_button"
+            android:layout_width="@dimen/bottom_app_bar_icon"
+            android:layout_height="@dimen/bottom_app_bar_icon"
+            android:layout_margin="12dp"
+            android:src="@drawable/ic_game_types"
             android:background="?android:attr/selectableItemBackgroundBorderless"/>
     </com.google.android.material.bottomappbar.BottomAppBar>
 

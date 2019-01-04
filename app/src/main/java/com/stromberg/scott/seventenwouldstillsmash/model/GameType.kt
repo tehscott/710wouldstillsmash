@@ -1,5 +1,14 @@
 package com.stromberg.scott.seventenwouldstillsmash.model
 
+import com.google.firebase.database.Exclude
+
+data class GameType2 (
+    val id: String = "",
+    var name: String = "",
+    var iconName: String = "",
+    @Exclude @set:Exclude @get:Exclude var needsEdit: Boolean = false
+)
+
 enum class GameType {
     ROYALE {
         override fun toString(): String {
