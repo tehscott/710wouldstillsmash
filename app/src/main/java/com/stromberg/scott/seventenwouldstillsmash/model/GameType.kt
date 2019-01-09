@@ -6,6 +6,7 @@ data class GameType2 (
     val id: String = "",
     var name: String = "",
     var iconName: String = "",
+    var isDeleted: Boolean = false,
     @Exclude @set:Exclude @get:Exclude var needsEdit: Boolean = false
 )
 

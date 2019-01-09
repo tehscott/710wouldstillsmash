@@ -9,11 +9,18 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.BuildConfig
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
+import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_main.*
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 import uk.co.deanwild.materialshowcaseview.IShowcaseListener
@@ -21,6 +28,7 @@ import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    private var db = FirebaseDatabase.getInstance()
     private lateinit var viewPagerAdapter: ListPagerAdapter
     private val tooltipQueue = LinkedList<MaterialShowcaseView>()
     private var currentItem: Int = -1
@@ -73,6 +81,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, GameTypeListActivity::class.java))
         }
 
+        getGameTypes()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        showTooltips()
+    }
+
+    private fun setup() {
         setupGroupCodeText()
         setSelectedButton(0)
         getCurrentFragment().hasFragmentBeenShown = true
@@ -83,12 +101,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         version_text.text = "v${BuildConfig.VERSION_NAME}"
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        showTooltips()
     }
 
     private fun getCurrentFragment(): BaseListFragment {
@@ -249,5 +261,28 @@ class MainActivity : AppCompatActivity() {
             Log.d("Tooltip", "Showing tooltip: " + tooltip.showcaseId)
             tooltipQueue.peek().show(this)
         }
+    }
+
+    private fun getGameTypes() {
+        db.getReference(context = this)
+            .child("gameTypes")
+            .addListenerForSingleValueEvent( object : ValueEventListener {
+                override fun onCancelled(error: DatabaseError) { }
+
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val gameTypes = ArrayList<GameType2>()
+
+                    snapshot.children.reversed().forEach {
+                        val gameType: GameType2 = it.getValue(GameType2::class.java)!!
+                        gameTypes.add(gameType)
+                    }
+
+                    gameTypes.sortBy { it.name }
+
+                    GameTypeHelper.saveGameTypes(gameTypes)
+
+                    setup()
+                }
+            })
     }
 }

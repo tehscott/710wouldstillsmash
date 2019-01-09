@@ -61,6 +61,7 @@
                 android:paddingBottom="10dp">
 
                 <TextView
+                    android:id="@+id/character_list_win_rate_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="win rate"
@@ -70,23 +71,25 @@
                     tools:ignore="MissingPrefix"/>
 
                 <TextView
-                    android:id="@+id/character_list_item_royale_wins_text"
+                    android:id="@+id/character_list_game_type_1_wins_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="50.03%"
+                    tools:text="50.03%"
                     android:textSize="16sp"
                     android:drawableLeft="@drawable/ic_royale"
                     android:drawablePadding="8dp"
-                    android:layout_marginBottom="8dp"/>
+                    android:layout_marginBottom="8dp"
+                    android:visibility="gone"/>
 
                 <TextView
-                    android:id="@+id/character_list_item_sudden_death_wins_text"
+                    android:id="@+id/character_list_game_type_2_wins_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="40.03%"
+                    tools:text="40.03%"
                     android:textSize="16sp"
                     android:drawableLeft="@drawable/ic_sudden_death"
-                    android:drawablePadding="8dp"/>
+                    android:drawablePadding="8dp"
+                    android:visibility="gone"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

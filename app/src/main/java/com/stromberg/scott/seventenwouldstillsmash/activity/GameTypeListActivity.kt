@@ -11,10 +11,7 @@ import com.ajguan.library.EasyRefreshLayout
 import com.ajguan.library.LoadModel
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GameTypeListAdapter
@@ -22,7 +19,6 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
 import kotlinx.android.synthetic.main.activity_game_type_list.*
 import java.util.*
 import android.content.res.ColorStateList
-import android.media.Image
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -77,58 +73,49 @@ class GameTypeListActivity: BaseActivity() {
     private fun getGameTypes() {
         setContentShown(false)
 
-        db.getReference(context = this)
-                .child("gameTypes")
-                .addListenerForSingleValueEvent( object : ValueEventListener {
-                    override fun onCancelled(error: DatabaseError) { }
+        var gameTypes = GameTypeHelper.getGameTypes()
 
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        handleSnapshot(snapshot)
+        if(gameTypes != null) {
+            gameTypes = ArrayList(gameTypes.filter { !it.isDeleted })
+
+            val adapter = object : GameTypeListAdapter(this, gameTypes) {
+                override fun onNameChange(gameType: GameType2) {
+                    updateGameType(gameType)
+                }
+
+                override fun editGameTypeName(textView: EditText) {
+                    textView.postDelayed({
+                        textView.requestFocus()
+                        textView.selectAll()
+                        val imm = App.getContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                        imm.showSoftInput(textView, InputMethodManager.SHOW_IMPLICIT)
+
+                        this@GameTypeListActivity.recyclerView!!.smoothScrollToPosition(gameTypes.size - 1)
+                    }, 250)
+                }
+            }
+            adapter.setEnableLoadMore(false)
+
+            adapter.onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
+                val gameType = (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes[position]
+
+                when (view.tag) {
+                    "game_type_image" -> {
+                        showImageDialog(view as ImageView, gameType)
                     }
-                })
-    }
-
-    fun handleSnapshot(snapshot: DataSnapshot) {
-        val gameTypes = ArrayList<GameType2>()
-
-        snapshot.children.reversed().forEach {
-            val gameType: GameType2 = it.getValue(GameType2::class.java)!!
-            gameTypes.add(gameType)
-        }
-
-        gameTypes.sortBy { it.name }
-
-        val adapter = object: GameTypeListAdapter(this, gameTypes) {
-            override fun onNameChange(gameType: GameType2) {
-                updateGameType(gameType)
+                    "game_type_delete" -> {
+                        deleteGameType(gameType)
+                    }
+                }
             }
 
-            override fun editGameTypeName(textView: EditText) {
-                textView.postDelayed({
-                    textView.requestFocus()
-                    textView.selectAll()
-                    val imm = App.getContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.showSoftInput(textView, InputMethodManager.SHOW_IMPLICIT)
+            recyclerView!!.adapter = adapter as RecyclerView.Adapter<*>
 
-                    this@GameTypeListActivity.recyclerView!!.smoothScrollToPosition(gameTypes.size - 1)
-//                    bottom_appbar.hide
-                }, 250)
-            }
+            datasetChanged(gameTypes.size > 0)
         }
-        adapter.setEnableLoadMore(false)
-
-        adapter.onItemChildClickListener = BaseQuickAdapter.OnItemChildClickListener { adapter, view, position ->
-            val gameType = (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes[position]
-
-            when (view.tag) {
-                "game_type_image" -> { showImageDialog(view as ImageView, gameType) }
-                "game_type_delete" -> { deleteGameType(gameType) }
-            }
+        else {
+            setContentShown(true)
         }
-
-        recyclerView!!.adapter = adapter
-
-        datasetChanged(gameTypes.size > 0)
     }
 
     private fun datasetChanged(hasGameTypes: Boolean) {
@@ -196,6 +183,8 @@ class GameTypeListActivity: BaseActivity() {
                 .child(gameType.id)
                 .setValue(gameType)
                 .addOnCompleteListener {
+                    GameTypeHelper.addGameType(gameType)
+
                     (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.add(gameType)
                     datasetChanged(true)
                 }
@@ -208,6 +197,8 @@ class GameTypeListActivity: BaseActivity() {
     }
 
     private fun deleteGameType(gameType: GameType2) {
+        gameType.isDeleted = true
+
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Delete " + gameType.name)
         builder.setMessage("You can't undo this. Are you sure?")
@@ -217,6 +208,8 @@ class GameTypeListActivity: BaseActivity() {
                     .child(gameType.id)
                     .removeValue()
                     .addOnCompleteListener {
+                        GameTypeHelper.deleteGameType(gameType)
+
                         (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.remove(gameType)
                         datasetChanged((recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.size > 0)
 
@@ -242,6 +235,8 @@ class GameTypeListActivity: BaseActivity() {
                 .child(gameType.id)
                 .setValue(gameType)
                 .addOnCompleteListener {
+                    GameTypeHelper.updateGameType(gameType)
+
                     datasetChanged(true)
 
                     Snackbar.make(recyclerView!!, "Game type updated!", Snackbar.LENGTH_SHORT)

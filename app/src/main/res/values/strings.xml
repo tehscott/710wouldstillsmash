@@ -18,6 +18,7 @@
     <string name="header_completed">done!</string>
     <string name="characters">Characters</string>
     <string name="shared_prefs_group_codes">GroupCodes</string>
+    <string name="shared_prefs_game_types">GameTypes</string>
     <string name="games_button_tooltip">Tap here to view your games.</string>
     <string name="players_button_tooltip">Tap here to view players and their stats.</string>
     <string name="characters_button_tooltip">Tap here to view characters and their stats.</string>

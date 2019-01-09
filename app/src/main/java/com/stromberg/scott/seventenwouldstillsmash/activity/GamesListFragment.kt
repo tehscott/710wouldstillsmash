@@ -190,7 +190,7 @@ class GamesListFragment : BaseListFragment() {
                         .setContentText(R.string.edit_game_tooltip)
                         .setDismissOnTouch(true)
                         .withRectangleShape(true)
-//                        .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + AndroidUtil.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
+//                        .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + GameTypeHelper.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
                         .build())
             }
         }
