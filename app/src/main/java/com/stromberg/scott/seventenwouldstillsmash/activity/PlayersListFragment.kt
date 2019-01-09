@@ -137,7 +137,7 @@ class PlayersListFragment: BaseListFragment() {
                         val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
                         val adapter = PlayersListAdapter(players, playerNameWidth)
-                        recyclerView.adapter = adapter
+                        recyclerView.adapter = adapter as RecyclerView.Adapter<*>
 
                         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
                             editPlayer(players[position])

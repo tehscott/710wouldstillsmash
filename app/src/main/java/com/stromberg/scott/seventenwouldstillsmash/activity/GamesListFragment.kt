@@ -87,7 +87,7 @@ class GamesListFragment : BaseListFragment() {
             editGame(games[position], games)
         }
 
-        recyclerView.adapter = adapter
+        recyclerView.adapter = adapter as RecyclerView.Adapter<*>
     }
 
     private fun createGame(games: ArrayList<Game>) {

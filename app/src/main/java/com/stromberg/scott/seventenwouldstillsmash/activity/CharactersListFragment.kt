@@ -106,7 +106,7 @@ class CharactersListFragment: BaseListFragment() {
         characterIds.sortBy { it }
 
         val adapter = CharactersListAdapter(characterIds, gamesForCharacters)
-        recyclerView!!.adapter = adapter
+        recyclerView!!.adapter = adapter as RecyclerView.Adapter<*>
         adapter.setEnableLoadMore(false)
 
         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
