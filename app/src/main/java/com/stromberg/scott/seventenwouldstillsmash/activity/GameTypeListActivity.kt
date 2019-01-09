@@ -197,39 +197,20 @@ class GameTypeListActivity: BaseActivity() {
     }
 
     private fun deleteGameType(gameType: GameType2) {
-        gameType.isDeleted = true
-
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Delete " + gameType.name)
         builder.setMessage("You can't undo this. Are you sure?")
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
-            db.getReference(context = this)
-                    .child("gameTypes")
-                    .child(gameType.id)
-                    .removeValue()
-                    .addOnCompleteListener {
-                        GameTypeHelper.deleteGameType(gameType)
+            gameType.isDeleted = true
+            (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.remove(gameType)
 
-                        (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.remove(gameType)
-                        datasetChanged((recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.size > 0)
-
-                        Snackbar.make(recyclerView!!, "Game type deleted!", Snackbar.LENGTH_SHORT)
-                                .setBackgroundColor(R.color.primary)
-                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-                                .show()
-                    }
-                    .addOnFailureListener {
-                        Snackbar.make(recyclerView!!, "Failed to delete game type", Snackbar.LENGTH_LONG)
-                                .setBackgroundColor(R.color.primary)
-                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-                                .show()
-                    }
+            updateGameType(gameType, true)
         }
         builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
         builder.show()
     }
 
-    private fun updateGameType(gameType: GameType2) {
+    private fun updateGameType(gameType: GameType2, isDelete: Boolean = false) {
         db.getReference(context = this)
                 .child("gameTypes")
                 .child(gameType.id)
@@ -239,16 +220,33 @@ class GameTypeListActivity: BaseActivity() {
 
                     datasetChanged(true)
 
-                    Snackbar.make(recyclerView!!, "Game type updated!", Snackbar.LENGTH_SHORT)
-                            .setBackgroundColor(R.color.primary)
-                            .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-                            .show()
+                    if(isDelete) {
+                        Snackbar.make(recyclerView!!, "Game type deleted!", Snackbar.LENGTH_SHORT)
+                                .setBackgroundColor(R.color.primary)
+                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                                .show()
+
+                    }
+                    else {
+                        Snackbar.make(recyclerView!!, "Game type updated!", Snackbar.LENGTH_SHORT)
+                                .setBackgroundColor(R.color.primary)
+                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                                .show()
+                    }
                 }
                 .addOnFailureListener {
-                    Snackbar.make(recyclerView!!, "Failed to update game type", Snackbar.LENGTH_LONG)
-                            .setBackgroundColor(R.color.primary)
-                            .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-                            .show()
+                    if(isDelete) {
+                        Snackbar.make(recyclerView!!, "Failed to delete game type", Snackbar.LENGTH_LONG)
+                                .setBackgroundColor(R.color.primary)
+                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                                .show()
+                    }
+                    else {
+                        Snackbar.make(recyclerView!!, "Failed to update game type", Snackbar.LENGTH_LONG)
+                                .setBackgroundColor(R.color.primary)
+                                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+                                .show()
+                    }
                 }
     }
 }
