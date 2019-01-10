@@ -19,6 +19,7 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GameResult
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.model.Statistic
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
@@ -42,26 +43,6 @@ class CharacterActivity : BaseActivity() {
     private var progressBar: ProgressBar? = null
     private var tabs: BottomNavigationView? = null
     private lateinit var emptyStateTextView: TextView
-
-    enum class GameResult {
-        UNKNOWN,
-        WIN,
-        LOSS;
-
-        fun toString(gameCount: Int): String {
-            return when (this) {
-                UNKNOWN -> {
-                    "unknown"
-                }
-                WIN -> {
-                    if(gameCount != 1) "wins" else "win"
-                }
-                LOSS -> {
-                    if(gameCount != 1) "losses" else "loss"
-                }
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

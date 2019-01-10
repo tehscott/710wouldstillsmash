@@ -74,7 +74,7 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
         }
 
         val gameType = GameTypeHelper.getGameType(item!!.gameType)
-        var iconResId = App.getContext().resources.getIdentifier(gameType?.iconName, "drawable", App.getContext().packageName)
+        var iconResId = App.getContext().resources.getIdentifier(gameType?.iconName ?: "", "drawable", App.getContext().packageName)
 
         if(iconResId == -1) {
             iconResId = R.drawable.ic_royale
