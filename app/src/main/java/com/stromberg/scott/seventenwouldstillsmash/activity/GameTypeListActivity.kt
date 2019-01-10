@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import com.stromberg.scott.seventenwouldstillsmash.util.*
 
-
 class GameTypeListActivity: BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     private var recyclerView: RecyclerView? = null
@@ -206,7 +205,7 @@ class GameTypeListActivity: BaseActivity() {
 
             updateGameType(gameType, true)
         }
-        builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
         builder.show()
     }
 

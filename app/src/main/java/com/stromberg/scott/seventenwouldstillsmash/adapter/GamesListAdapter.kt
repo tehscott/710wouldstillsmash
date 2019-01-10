@@ -8,8 +8,8 @@ import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -73,16 +73,14 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
             container?.layoutParams = playerNameLayoutParams
         }
 
-        when (item!!.gameType) {
-            GameType.ROYALE.toString() -> {
-                viewHolder.setImageResource(R.id.game_list_item_game_type_image, R.drawable.ic_royale)
-            }
+        val gameType = GameTypeHelper.getGameType(item!!.gameType)
+        var iconResId = App.getContext().resources.getIdentifier(gameType?.iconName, "drawable", App.getContext().packageName)
 
-            GameType.SUDDEN_DEATH.toString() -> {
-                viewHolder.setImageResource(R.id.game_list_item_game_type_image, R.drawable.ic_sudden_death)
-            }
+        if(iconResId == -1) {
+            iconResId = R.drawable.ic_royale
         }
 
+        viewHolder.setImageResource(R.id.game_list_item_game_type_image, iconResId)
         viewHolder.setText(R.id.game_list_item_date, dateFormatter.format(Date(item.date)))
         viewHolder.setVisible(R.id.more_players_text, players!!.size > 4)
     }
