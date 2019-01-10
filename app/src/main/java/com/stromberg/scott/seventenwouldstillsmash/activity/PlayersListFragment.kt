@@ -1,6 +1,5 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -20,12 +19,12 @@ import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.model.PlayerStatistic
 import com.stromberg.scott.seventenwouldstillsmash.util.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
+import kotlin.collections.HashMap
 
 class PlayersListFragment: BaseListFragment() {
     private val db = FirebaseDatabase.getInstance()
@@ -136,7 +135,7 @@ class PlayersListFragment: BaseListFragment() {
 
                         val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
-                        val adapter = PlayersListAdapter(players, playerNameWidth)
+                        val adapter = PlayersListAdapter(players, playerNameWidth, HashMap())
                         recyclerView.adapter = adapter as RecyclerView.Adapter<*>
 
                         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
@@ -169,36 +168,52 @@ class PlayersListFragment: BaseListFragment() {
     }
 
     private fun calculateWinRates() {
-        gamesForPlayers.forEach {
-            val playerId = it.key.id
+        val playerStats = HashMap<Player, List<PlayerStatistic>>()
 
-            val royaleGamesCount = it.value.count { it.gameType.equals(GameType.ROYALE.toString()) }
-            val suddenDeathGamesCount = it.value.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
-            val royaleGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-            val royaleGamesLost: Float = royaleGamesCount - royaleGamesWon
-            val suddenDeathGamesWon: Float = (it.value.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-            val suddenDeathGamesLost: Float = suddenDeathGamesCount - suddenDeathGamesWon
+        gamesForPlayers.forEach { player, games ->
+            val gameTypesForThisPlayer = HashMap<String?, Int>()
+            games.map { it.gameType }.forEach { gameTypeId ->
+                val gameType = GameTypeHelper.getGameType(gameTypeId)
 
-            val last30RoyaleGames = it.value.filter { it.gameType.equals(GameType.ROYALE.toString()) }.sortedByDescending { it.date }.take(30)
-            val last30SuddenDeathGames = it.value.filter { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }.sortedByDescending { it.date }.take(30)
-            val royaleGames30GamesCount = last30RoyaleGames.count { it.gameType.equals(GameType.ROYALE.toString()) }
-            val suddenDeathGames30GamesCount = last30SuddenDeathGames.count { it.gameType.equals(GameType.SUDDEN_DEATH.toString()) }
-            val royaleGames30GamesWon: Float = (last30RoyaleGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.ROYALE.toString(), true) }).toFloat()
-            val royaleGames30GamesLost: Float = royaleGames30GamesCount - royaleGames30GamesWon
-            val suddenDeathGames30GamesWon: Float = (last30SuddenDeathGames.count { it.players.any { it.player!!.id == playerId && it.winner } && it.gameType!!.equals(GameType.SUDDEN_DEATH.toString(), true) }).toFloat()
-            val suddenDeathGames30GamesLost: Float = suddenDeathGames30GamesCount - suddenDeathGames30GamesWon
+                if(gameType != null && !gameType.isDeleted) {
+                    gameTypesForThisPlayer[gameTypeId] = games.count { game -> game.gameType == gameTypeId }
+                }
+            }
+            val top2GameTypes = gameTypesForThisPlayer.toList().sortedByDescending { (_, count) -> count}.take(2).map { it.first }
 
-            val prefs = activity!!.getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_won", royaleGamesWon).apply()
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "all_time_games_lost", royaleGamesLost).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_won", suddenDeathGamesWon).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "all_time_games_lost", suddenDeathGamesLost).apply()
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_games_won", royaleGames30GamesWon).apply()
-            prefs.edit().putFloat(playerId + GameType.ROYALE.toString() + "30_games_lost", royaleGames30GamesLost).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_games_won", suddenDeathGames30GamesWon).apply()
-            prefs.edit().putFloat(playerId + GameType.SUDDEN_DEATH.toString() + "30_games_lost", suddenDeathGames30GamesLost).apply()
+            val stats = ArrayList<PlayerStatistic>()
+
+            top2GameTypes.forEach { gameTypeId ->
+                val allGamesForThisType = games.filter { it.gameType == gameTypeId }
+                val allGamesWonCount = allGamesForThisType.count { it.players.any { it.player!!.id == player.id && it.winner } }
+                val last30Games = allGamesForThisType.sortedByDescending { it.date }.take(30)
+                val last30GamesWonCount = last30Games.count { it.players.any { it.player!!.id == player.id && it.winner } }
+
+                stats.add(PlayerStatistic().also {
+                    val gameType = GameTypeHelper.getGameType(gameTypeId)
+
+                    it.gameType = gameType
+                    it.gamesPlayed = allGamesForThisType.size
+                    it.gamesWon = allGamesWonCount
+                    it.player = player
+                    it.is30GameStat = false
+                })
+
+                stats.add(PlayerStatistic().also {
+                    val gameType = GameTypeHelper.getGameType(gameTypeId)
+
+                    it.gameType = gameType
+                    it.gamesPlayed = last30Games.size
+                    it.gamesWon = last30GamesWonCount
+                    it.player = player
+                    it.is30GameStat = true
+                })
+            }
+
+            playerStats[player] = stats
         }
 
+        (recyclerView.adapter as PlayersListAdapter).setPlayerStats(playerStats)
         recyclerView.adapter?.notifyDataSetChanged()
         pullToRefreshView.refreshComplete()
         setContentShown(true)

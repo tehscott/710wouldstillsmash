@@ -43,6 +43,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
+                android:id="@+id/last_30_stats_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -59,28 +60,10 @@
                     android:gravity="center"
                     fontPath="Quicksand-Bold.ttf"
                     tools:ignore="MissingPrefix"/>
-
-                <TextView
-                    android:id="@+id/player_list_item_30_day_royale_wins_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="50.03%"
-                    android:textSize="16sp"
-                    android:drawableLeft="@drawable/ic_royale"
-                    android:drawablePadding="8dp"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/player_list_item_30_day_sudden_death_wins_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="40.03%"
-                    android:textSize="16sp"
-                    android:drawableLeft="@drawable/ic_sudden_death"
-                    android:drawablePadding="8dp"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/all_time_stats_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -97,23 +80,6 @@
                     android:gravity="center"
                     fontPath="Quicksand-Bold.ttf"
                     tools:ignore="MissingPrefix"/>
-
-                <TextView
-                    android:id="@+id/player_list_item_all_time_royale_wins_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="50.03%"
-                    android:textSize="16sp"
-                    android:drawablePadding="8dp"
-                    android:layout_marginBottom="8dp"/>
-
-                <TextView
-                    android:id="@+id/player_list_item_all_time_sudden_death_wins_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="40.03%"
-                    android:textSize="16sp"
-                    android:drawablePadding="8dp"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
