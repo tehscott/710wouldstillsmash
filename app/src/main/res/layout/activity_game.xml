@@ -81,21 +81,24 @@
                 android:padding="@dimen/space_8dp"/>
 
             <LinearLayout
-                android:id="@+id/toggle_container"
+                android:id="@+id/toggle_super_container"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_gravity="center_horizontal"
                 android:gravity="center"
-                android:layout_marginTop="8dp">
+                android:layout_marginTop="8dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:background="@drawable/toggle_container_bg">
 
-                <Button
-                    android:id="@+id/create_game_royale_toggle"
+                <ImageButton
+                    android:id="@+id/add_game_type_button"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:text="Royale"
                     android:textColor="@color/text_primary"
                     android:textAllCaps="true"
-                    android:background="@drawable/toggle_left_selected_ripple"
+                    android:src="@drawable/plus"
+                    android:background="@drawable/toggle_left_deselected_ripple"
                     android:paddingTop="8dp"
                     android:paddingBottom="8dp"
                     android:paddingLeft="16dp"
@@ -103,20 +106,17 @@
                     android:gravity="center"
                     android:layout_gravity="center"/>
 
-                <Button
-                    android:id="@+id/create_game_sudden_death_royale_toggle"
+                <HorizontalScrollView
+                    android:id="@+id/toggle_scrollview"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:text="Sudden Death"
-                    android:textColor="@color/text_secondary"
-                    android:textAllCaps="true"
-                    android:background="@drawable/toggle_right_deselected_ripple"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="8dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:gravity="center"
-                    android:layout_gravity="center"/>
+                    android:layout_height="match_parent">
+
+                    <LinearLayout
+                        android:id="@+id/toggle_container"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"/>
+                </HorizontalScrollView>
             </LinearLayout>
 
             <TextView

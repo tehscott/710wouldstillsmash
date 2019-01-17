@@ -2,7 +2,6 @@
 <inset xmlns:android="http://schemas.android.com/apk/res/android">
     <shape xmlns:android="http://schemas.android.com/apk/res/android">
         <solid android:color="@color/primary"/>
-        <corners android:topRightRadius="@dimen/toggle_button_corner_radius" android:bottomRightRadius="@dimen/toggle_button_corner_radius"/>
         <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp" />
     </shape>
 </inset>

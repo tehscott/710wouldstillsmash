@@ -3,6 +3,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
@@ -16,14 +17,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
-import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import com.stromberg.scott.seventenwouldstillsmash.util.setBackgroundColor
-import com.stromberg.scott.seventenwouldstillsmash.util.setTextAttributes
+import com.stromberg.scott.seventenwouldstillsmash.model.*
+import com.stromberg.scott.seventenwouldstillsmash.util.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlinx.android.synthetic.main.activity_game.*
@@ -36,8 +31,6 @@ class GameActivity : BaseActivity() {
     var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
 
     private var game: Game = Game()
-    private var royaleToggleWidth: Int = 0
-    private var suddenDeathToggleWidth: Int = 0
     private var isEdit: Boolean = false
     private var hasMadeEdit: Boolean = false
     private var players = ArrayList<Player>()
@@ -45,8 +38,6 @@ class GameActivity : BaseActivity() {
     private lateinit var topFiveCharacters: HashMap<String, ArrayList<Int>>
 
     private var dateTextView: TextView? = null
-    private var royaleToggle: Button? = null
-    private var suddenDeathToggle: Button? = null
     private var playersList: RecyclerView? = null
     private var addPlayerButton: TextView? = null
     private var addPlayerDialog: AlertDialog? = null
@@ -59,8 +50,6 @@ class GameActivity : BaseActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         dateTextView = findViewById(R.id.create_game_date)
-        royaleToggle = findViewById(R.id.create_game_royale_toggle)
-        suddenDeathToggle = findViewById(R.id.create_game_sudden_death_royale_toggle)
         playersList = findViewById(R.id.create_game_players_list)
         addPlayerButton = findViewById(R.id.create_game_players_title)
 
@@ -70,7 +59,7 @@ class GameActivity : BaseActivity() {
             game = intent.extras!!.getParcelable("Game")!!
         }
         else {
-            game.gameType = GameType.ROYALE.toString()
+            game.gameType = GameTypeHelper.getGameTypes()?.firstOrNull()?.id
             game.date = Calendar.getInstance().time.time
         }
 
@@ -114,6 +103,10 @@ class GameActivity : BaseActivity() {
             save_button.setOnClickListener { createGame() }
         }
 
+        add_game_type_button.setOnClickListener {
+            startActivityForResult(Intent(this, GameTypeListActivity::class.java), 6969)
+        }
+
         setContentShown(false)
         getPlayers()
     }
@@ -125,12 +118,12 @@ class GameActivity : BaseActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
+        return when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
-                return true
+                true
             }
-            else -> return super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
@@ -146,6 +139,20 @@ class GameActivity : BaseActivity() {
         }
         else {
             super.onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(requestCode == 6969) {
+            val gameTypeId = data?.extras?.getString("gameTypeId", null)
+
+            if(gameTypeId != null) {
+                hasMadeEdit = true
+                game.gameType = gameTypeId
+                setupToggle()
+            }
         }
     }
 
@@ -441,78 +448,114 @@ class GameActivity : BaseActivity() {
     }
 
     private fun setupToggle() {
-        royaleToggle!!.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                royaleToggleWidth = royaleToggle!!.measuredWidth
-                royaleToggle!!.getViewTreeObserver().removeOnPreDrawListener(this)
-                toggleMeasured()
-                return false
+        toggle_container.removeAllViews()
+
+        val gameTypes = GameTypeHelper.getGameTypes()
+
+        var selectedView: View? = null
+        if(gameTypes?.isNotEmpty() == true) {
+            val firstSeparator = View(this)
+            val firstParams = LinearLayout.LayoutParams(1.toPx, LinearLayout.LayoutParams.MATCH_PARENT)
+            firstSeparator.layoutParams = firstParams
+            firstSeparator.setBackgroundColor(resources.getColor(R.color.light_gray, null))
+
+            toggle_container.addView(firstSeparator)
+
+            gameTypes.forEachIndexed { index, gameType ->
+                val selected = game.gameType == gameType.id
+
+                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT)
+                lp.gravity = Gravity.CENTER
+                val padding = resources.getDimensionPixelSize(R.dimen.space_8dp)
+
+                val button = Button(this)
+                button.layoutParams = lp
+                button.text = gameType.name
+//            button.compoundDrawables = gameType.icon
+                button.isAllCaps = true
+                button.setPadding(padding, padding, padding, padding)
+                button.gravity = Gravity.CENTER
+                button.tag = gameType.id
+
+                button.setOnClickListener { gameTypeClicked(gameType) }
+
+                if(selected) {
+                    button.setTextColor(resources.getColor(R.color.text_primary, null))
+                }
+                else {
+                    button.setTextColor(resources.getColor(R.color.text_secondary, null))
+                }
+
+                if(index == gameTypes.size - 1) {
+                    if(selected) {
+                        button.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
+                    }
+                    else {
+                        button.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
+                    }
+                }
+                else {
+                    if(selected) {
+                        button.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
+                    }
+                    else {
+                        button.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
+                    }
+                }
+
+                toggle_container.addView(button)
+
+                if(index != gameTypes.size - 1) {
+                    val separator = View(this)
+                    val params = LinearLayout.LayoutParams(1.toPx, LinearLayout.LayoutParams.MATCH_PARENT)
+                    separator.layoutParams = params
+                    separator.setBackgroundResource(R.color.light_gray)
+
+                    toggle_container.addView(separator)
+                }
+
+                if(selected) {
+                    selectedView = button
+                }
             }
-        })
 
-        royaleToggle!!.setOnClickListener {
-            royaleToggleClicked()
-            hasMadeEdit = true
+            selectedView?.postDelayed({ toggle_scrollview.scrollToView(selectedView) }, 250)
+
         }
-
-        suddenDeathToggle!!.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                suddenDeathToggleWidth = suddenDeathToggle!!.measuredWidth
-                suddenDeathToggle!!.getViewTreeObserver().removeOnPreDrawListener(this)
-                toggleMeasured()
-                return false
-            }
-        })
-
-        suddenDeathToggle!!.setOnClickListener {
-            suddenDeathToggleClicked()
-            hasMadeEdit = true
+        else {
+            add_game_type_button.setBackgroundResource(R.drawable.toggle_add_deselected_ripple)
         }
+    }
 
-        if(isEdit) {
-            if(game.gameType.equals(GameType.ROYALE.toString())) {
-                royaleToggle?.performClick()
+    private fun gameTypeClicked(gameType: GameType2) {
+        if(game.gameType != gameType.id) {
+            hasMadeEdit = true
+
+            val selectedButton = toggle_container.findViewWithTag<Button>(game.gameType)
+            val buttonToSelect = toggle_container.findViewWithTag<Button>(gameType.id)
+
+            game.gameType = gameType.id
+
+            val selectedButtonIndex = toggle_container.indexOfChild(selectedButton)
+            val buttonToSelectIndex = toggle_container.indexOfChild(buttonToSelect)
+
+            if(selectedButtonIndex == toggle_container.childCount - 1) {
+                selectedButton.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
             }
             else {
-                suddenDeathToggle?.performClick()
+                selectedButton.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
             }
-        }
-    }
 
-    private fun royaleToggleClicked() {
-        game.gameType = "royale"
-        royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_selected_ripple)
-        royaleToggle!!.setTextColor(resources.getColor(R.color.text_primary, null))
-        suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
-        suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_secondary, null))
-        fixTogglePadding()
-    }
+            selectedButton.setTextColor(resources.getColor(R.color.text_secondary, null))
 
-    private fun suddenDeathToggleClicked() {
-        game.gameType = "sudden_death"
-        royaleToggle!!.setBackgroundResource(R.drawable.toggle_left_deselected_ripple)
-        royaleToggle!!.setTextColor(resources.getColor(R.color.text_secondary, null))
-        suddenDeathToggle!!.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
-        suddenDeathToggle!!.setTextColor(resources.getColor(R.color.text_primary, null))
-        fixTogglePadding()
-    }
+            if(buttonToSelectIndex == toggle_container.childCount - 1) {
+                buttonToSelect.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
+            }
+            else {
+                buttonToSelect.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
+            }
 
-    private fun fixTogglePadding() {
-        royaleToggle!!.setPadding(resources.getDimensionPixelSize(R.dimen.space_16dp),resources.getDimensionPixelSize(R.dimen.space_8dp),resources.getDimensionPixelSize(R.dimen.space_16dp),resources.getDimensionPixelSize(R.dimen.space_8dp))
-        suddenDeathToggle!!.setPadding(resources.getDimensionPixelSize(R.dimen.space_16dp),resources.getDimensionPixelSize(R.dimen.space_8dp),resources.getDimensionPixelSize(R.dimen.space_16dp),resources.getDimensionPixelSize(R.dimen.space_8dp))
-    }
-
-    private fun toggleMeasured() {
-        if(royaleToggleWidth > 0 && suddenDeathToggleWidth > 0) {
-            var largestWidth = Math.max(royaleToggleWidth, suddenDeathToggleWidth)
-
-            var royaleLP = royaleToggle!!.layoutParams
-            royaleLP.width = largestWidth
-            royaleToggle!!.layoutParams = royaleLP
-
-            var suddenDeathLP = suddenDeathToggle!!.layoutParams
-            suddenDeathLP.width = largestWidth
-            suddenDeathToggle!!.layoutParams = suddenDeathLP
+            buttonToSelect.setTextColor(resources.getColor(R.color.text_primary, null))
         }
     }
 
@@ -596,7 +639,7 @@ class GameActivity : BaseActivity() {
                 .build())
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.toggle_container))
+                .setTarget(findViewById(R.id.toggle_super_container))
                 .setDismissText(getString(R.string.tooltip_next))
                 .setContentText(R.string.type_tooltip)
                 .setDismissOnTouch(true)

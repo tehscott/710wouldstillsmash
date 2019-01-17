@@ -2,6 +2,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -19,6 +20,7 @@ import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
 import kotlinx.android.synthetic.main.activity_game_type_list.*
 import java.util.*
 import android.content.res.ColorStateList
+import android.view.MenuItem
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
@@ -28,6 +30,7 @@ import com.stromberg.scott.seventenwouldstillsmash.util.*
 class GameTypeListActivity: BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     private var recyclerView: RecyclerView? = null
+    private var lastGameTypeEdited: GameType2? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +72,26 @@ class GameTypeListActivity: BaseActivity() {
         getGameTypes()
     }
 
+    override fun onBackPressed() {
+        if(lastGameTypeEdited != null) {
+            val data = Intent()
+            data.putExtra("gameTypeId", lastGameTypeEdited!!.id)
+            setResult(6969, data)
+        }
+
+        super.onBackPressed()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     private fun getGameTypes() {
         setContentShown(false)
 
@@ -79,6 +102,7 @@ class GameTypeListActivity: BaseActivity() {
 
             val adapter = object : GameTypeListAdapter(this, gameTypes) {
                 override fun onNameChange(gameType: GameType2) {
+                    lastGameTypeEdited = gameType
                     updateGameType(gameType)
                 }
 
@@ -169,6 +193,7 @@ class GameTypeListActivity: BaseActivity() {
             val imageName = resources.getResourceEntryName(resId)
             gameType.iconName = imageName
 
+            lastGameTypeEdited = gameType
             updateGameType(gameType)
         }
         builderSingle.show()
@@ -182,6 +207,7 @@ class GameTypeListActivity: BaseActivity() {
                 .child(gameType.id)
                 .setValue(gameType)
                 .addOnCompleteListener {
+                    lastGameTypeEdited = gameType
                     GameTypeHelper.addGameType(gameType)
 
                     (recyclerView!!.adapter!! as GameTypeListAdapter).gameTypes.add(gameType)

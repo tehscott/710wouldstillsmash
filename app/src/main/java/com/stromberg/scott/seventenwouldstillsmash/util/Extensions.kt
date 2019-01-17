@@ -2,10 +2,12 @@ package com.stromberg.scott.seventenwouldstillsmash.util
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.TypedValue
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -74,4 +76,15 @@ fun Snackbar.setTextAttributes(@ColorInt color: Int, size: Float = 14f, style: I
     this.setTextStyle(style)
 
     return this
+}
+
+fun HorizontalScrollView.scrollToView(view: View?) {
+    if(view == null) {
+        return
+    }
+
+    val rect = Rect(0, 0, view.width, view.height)
+    view.getHitRect(rect)
+
+    smoothScrollTo(rect.left, 0)
 }
