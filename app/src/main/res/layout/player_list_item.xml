@@ -55,7 +55,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="30 games"
+                    android:text="last 30 games"
                     android:textSize="16sp"
                     android:gravity="center"
                     fontPath="Quicksand-Bold.ttf"
@@ -75,7 +75,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="all time"
+                    android:text="all games"
                     android:textSize="16sp"
                     android:gravity="center"
                     fontPath="Quicksand-Bold.ttf"

@@ -256,7 +256,7 @@ class CharacterActivity : BaseActivity() {
 
         val allTimeWinRates = Statistic()
         allTimeWinRates.characterId = mCharacterId
-        allTimeWinRates.playerValue = " Win rates (all time):\n\t " +
+        allTimeWinRates.playerValue = " Win rates (all games):\n\t " +
                 "Overall: " + allGameTypesOverallWinRate + "\n\t "
 
         top2GameTypeAllTimeStats.forEach { gameTypeId, winRateText ->
