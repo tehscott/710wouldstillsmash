@@ -345,8 +345,8 @@ class PlayerActivity : BaseActivity() {
         top2GameTypeAllTimeStats.forEach { gameTypeId, winRateText ->
             val gameType = GameTypeHelper.getGameType(gameTypeId)
 
-            if(gameType != null) {
-                allTimeWinRates.playerValue += "${gameType.name}: $winRateText\n\t "
+            gameType?.let {
+                allTimeWinRates.playerValue += "${it.name}: $winRateText\n\t "
             }
         }
         allTimeWinRates.playerValue = allTimeWinRates.playerValue.removeSuffix("\n\t ")
@@ -357,7 +357,13 @@ class PlayerActivity : BaseActivity() {
         thirtyDayWinRates.playerValue = " Win rates (30 days):\n\t " +
                 "Overall: " + allGameTypesLast30DaysWinRate + "\n\t "
 
-        top2GameTypeLast30DaysStats.forEach { gameType, winRateText -> thirtyDayWinRates.playerValue += "$gameType: $winRateText\n\t " }
+        top2GameTypeLast30DaysStats.forEach { gameTypeId, winRateText ->
+            val gameType = GameTypeHelper.getGameType(gameTypeId)
+
+            gameType?.let {
+                thirtyDayWinRates.playerValue += "${it.name}: $winRateText\n\t "
+            }
+        }
         thirtyDayWinRates.playerValue = thirtyDayWinRates.playerValue.removeSuffix("\n\t ")
 
         statistics.add(thirtyDayWinRates)

@@ -2,7 +2,7 @@ package com.stromberg.scott.seventenwouldstillsmash.model
 
 import com.google.firebase.database.Exclude
 
-data class GameType2 (
+data class GameType (
     val id: String = "",
     var name: String = "",
     var iconName: String = "",

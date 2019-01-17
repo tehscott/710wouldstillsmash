@@ -84,8 +84,6 @@ class GameActivity : BaseActivity() {
 
         game_title_text.text = if (isEdit) "Edit Game" else "New Game"
 
-        setupToggle()
-
         addPlayerButton?.setOnClickListener { addPlayer(null) }
 
         playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
@@ -114,6 +112,7 @@ class GameActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
 
+        setupToggle()
         showTooltips()
     }
 
@@ -450,7 +449,7 @@ class GameActivity : BaseActivity() {
     private fun setupToggle() {
         toggle_container.removeAllViews()
 
-        val gameTypes = GameTypeHelper.getGameTypes()
+        val gameTypes = GameTypeHelper.getGameTypes()?.filter { !it.isDeleted }
 
         var selectedView: View? = null
         if(gameTypes?.isNotEmpty() == true) {
@@ -527,7 +526,7 @@ class GameActivity : BaseActivity() {
         }
     }
 
-    private fun gameTypeClicked(gameType: GameType2) {
+    private fun gameTypeClicked(gameType: GameType) {
         if(game.gameType != gameType.id) {
             hasMadeEdit = true
 
@@ -540,22 +539,22 @@ class GameActivity : BaseActivity() {
             val buttonToSelectIndex = toggle_container.indexOfChild(buttonToSelect)
 
             if(selectedButtonIndex == toggle_container.childCount - 1) {
-                selectedButton.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
+                selectedButton?.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
             }
             else {
-                selectedButton.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
+                selectedButton?.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
             }
 
-            selectedButton.setTextColor(resources.getColor(R.color.text_secondary, null))
+            selectedButton?.setTextColor(resources.getColor(R.color.text_secondary, null))
 
             if(buttonToSelectIndex == toggle_container.childCount - 1) {
-                buttonToSelect.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
+                buttonToSelect?.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
             }
             else {
-                buttonToSelect.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
+                buttonToSelect?.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
             }
 
-            buttonToSelect.setTextColor(resources.getColor(R.color.text_primary, null))
+            buttonToSelect?.setTextColor(resources.getColor(R.color.text_primary, null))
         }
     }
 
@@ -644,6 +643,15 @@ class GameActivity : BaseActivity() {
                 .setContentText(R.string.type_tooltip)
                 .setDismissOnTouch(true)
                 .withRectangleShape()
+                .build())
+
+        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
+                .setTarget(add_game_type_button)
+                .singleUse("GameTypesButtonTooltip")
+                .setDismissText(getString(R.string.tooltip_next))
+                .setContentText(R.string.game_types_button_tooltip)
+                .setDismissOnTouch(true)
+                .setShapePadding(8)
                 .build())
 
         sequence.addSequenceItem(MaterialShowcaseView.Builder(this)

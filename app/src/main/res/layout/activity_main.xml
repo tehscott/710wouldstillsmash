@@ -131,14 +131,6 @@
             fontPath="Quicksand-Bold.ttf"
             tools:ignore="MissingPrefix"
             android:visibility="gone"/>
-
-        <ImageView
-            android:id="@+id/game_types_button"
-            android:layout_width="@dimen/bottom_app_bar_icon"
-            android:layout_height="@dimen/bottom_app_bar_icon"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_game_types"
-            android:background="?android:attr/selectableItemBackgroundBorderless"/>
     </com.google.android.material.bottomappbar.BottomAppBar>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

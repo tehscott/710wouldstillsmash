@@ -17,7 +17,7 @@ import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.BuildConfig
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
@@ -75,10 +75,6 @@ class MainActivity : AppCompatActivity() {
             if(view_pager.currentItem != 2) {
                 view_pager.setCurrentItem(2, true)
             }
-        }
-
-        game_types_button.setOnClickListener {
-            startActivity(Intent(this, GameTypeListActivity::class.java))
         }
 
         getGameTypes()
@@ -162,13 +158,11 @@ class MainActivity : AppCompatActivity() {
             games_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
             players_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
             characters_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
-            game_types_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
 
             when (currentItem) {
                 0 -> games_button.drawable.setTint(resources.getColor(R.color.secondary, null))
                 1 -> players_button.drawable.setTint(resources.getColor(R.color.secondary, null))
                 2 -> characters_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-                3 -> game_types_button.drawable.setTint(resources.getColor(R.color.secondary, null))
             }
 
             when (this.currentItem) {
@@ -212,15 +206,6 @@ class MainActivity : AppCompatActivity() {
                     .singleUse("CharactersButtonTooltip")
                     .setDismissText(getString(R.string.tooltip_next))
                     .setContentText(R.string.characters_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .setShapePadding(8)
-                    .build())
-
-            queueTooltip(MaterialShowcaseView.Builder(this)
-                    .setTarget(characters_button)
-                    .singleUse("GameTypesButtonTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.game_types_button_tooltip)
                     .setDismissOnTouch(true)
                     .setShapePadding(8)
                     .build())
@@ -270,10 +255,10 @@ class MainActivity : AppCompatActivity() {
                 override fun onCancelled(error: DatabaseError) { }
 
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val gameTypes = ArrayList<GameType2>()
+                    val gameTypes = ArrayList<GameType>()
 
                     snapshot.children.reversed().forEach {
-                        val gameType: GameType2 = it.getValue(GameType2::class.java)!!
+                        val gameType: GameType = it.getValue(GameType::class.java)!!
                         gameTypes.add(gameType)
                     }
 

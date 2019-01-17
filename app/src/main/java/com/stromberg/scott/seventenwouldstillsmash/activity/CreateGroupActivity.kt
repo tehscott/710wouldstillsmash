@@ -9,14 +9,21 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.adapter.GameTypeListAdapter
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.model.GroupType
+import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import com.stromberg.scott.seventenwouldstillsmash.util.setBackgroundColor
+import com.stromberg.scott.seventenwouldstillsmash.util.setTextAttributes
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -104,13 +111,27 @@ class CreateGroupActivity : BaseActivity() {
 
                     prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
-//                    startActivity(Intent(this@CreateGroupActivity, GamesListFragment::class.java))
-                    startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
+                    createGameType()
                 } else {
                     setContentShown(true)
 
                     showDialog("Failed to create a Group. Try again.")
                 }
+            }
+    }
+
+    private fun createGameType() {
+        val gameType = GameType(Calendar.getInstance().timeInMillis.toString(), "FFA", "ic_royale", false)
+
+        db.getReference(context = this)
+            .child("gameTypes")
+            .child(gameType.id)
+            .setValue(gameType)
+            .addOnCompleteListener {
+                startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
+            }
+            .addOnFailureListener {
+                startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
             }
     }
 

@@ -16,7 +16,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GameTypeListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import kotlinx.android.synthetic.main.activity_game_type_list.*
 import java.util.*
 import android.content.res.ColorStateList
@@ -30,7 +30,7 @@ import com.stromberg.scott.seventenwouldstillsmash.util.*
 class GameTypeListActivity: BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
     private var recyclerView: RecyclerView? = null
-    private var lastGameTypeEdited: GameType2? = null
+    private var lastGameTypeEdited: GameType? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,7 +101,7 @@ class GameTypeListActivity: BaseActivity() {
             gameTypes = ArrayList(gameTypes.filter { !it.isDeleted })
 
             val adapter = object : GameTypeListAdapter(this, gameTypes) {
-                override fun onNameChange(gameType: GameType2) {
+                override fun onNameChange(gameType: GameType) {
                     lastGameTypeEdited = gameType
                     updateGameType(gameType)
                 }
@@ -157,7 +157,7 @@ class GameTypeListActivity: BaseActivity() {
 
     }
 
-    private fun showImageDialog(imageView: ImageView, gameType: GameType2) {
+    private fun showImageDialog(imageView: ImageView, gameType: GameType) {
         val gameTypeImages = intArrayOf(
                 R.drawable.ic_delete,
                 R.drawable.ic_games,
@@ -200,7 +200,7 @@ class GameTypeListActivity: BaseActivity() {
     }
 
     private fun createGameType() {
-        val gameType = GameType2(Calendar.getInstance().timeInMillis.toString(), "testing", "ic_royale", true)
+        val gameType = GameType(Calendar.getInstance().timeInMillis.toString(), "", "ic_royale", false)
 
         db.getReference(context = this)
                 .child("gameTypes")
@@ -221,7 +221,7 @@ class GameTypeListActivity: BaseActivity() {
                 }
     }
 
-    private fun deleteGameType(gameType: GameType2) {
+    private fun deleteGameType(gameType: GameType) {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Delete " + gameType.name)
         builder.setMessage("You can't undo this. Are you sure?")
@@ -235,7 +235,7 @@ class GameTypeListActivity: BaseActivity() {
         builder.show()
     }
 
-    private fun updateGameType(gameType: GameType2, isDelete: Boolean = false) {
+    private fun updateGameType(gameType: GameType, isDelete: Boolean = false) {
         db.getReference(context = this)
                 .child("gameTypes")
                 .child(gameType.id)

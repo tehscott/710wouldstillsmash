@@ -3,16 +3,15 @@ package com.stromberg.scott.seventenwouldstillsmash.adapter
 import android.content.Context
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.TextView
 import android.widget.Toast
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType2
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 
-abstract class GameTypeListAdapter(val context: Context, val gameTypes: ArrayList<GameType2>) : BaseQuickAdapter<GameType2, BaseViewHolder>(R.layout.game_type_list_item, gameTypes) {
-    override fun convert(viewHolder: BaseViewHolder?, gameType: GameType2) {
+abstract class GameTypeListAdapter(val context: Context, val gameTypes: ArrayList<GameType>) : BaseQuickAdapter<GameType, BaseViewHolder>(R.layout.game_type_list_item, gameTypes) {
+    override fun convert(viewHolder: BaseViewHolder?, gameType: GameType) {
         var iconResId = context.resources.getIdentifier(gameType.iconName, "drawable", context.packageName)
 
         if(iconResId == -1) {
@@ -47,6 +46,6 @@ abstract class GameTypeListAdapter(val context: Context, val gameTypes: ArrayLis
         }
     }
 
-    abstract fun onNameChange(gameType: GameType2)
+    abstract fun onNameChange(gameType: GameType)
     abstract fun editGameTypeName(textView: EditText)
 }
