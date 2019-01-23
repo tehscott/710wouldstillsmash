@@ -31,6 +31,7 @@ class GameActivity : BaseActivity() {
     var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
 
     private var game: Game = Game()
+    private var lastGame: Game? = null
     private var isEdit: Boolean = false
     private var hasMadeEdit: Boolean = false
     private var players = ArrayList<Player>()
@@ -66,6 +67,10 @@ class GameActivity : BaseActivity() {
         if(intent?.extras != null) {
             topFiveCharacters = intent.extras!!.getSerializable("TopCharacters") as HashMap<String, ArrayList<Int>>
             topFiveCharacters.forEach { it.value.sort() }
+
+            if(intent?.hasExtra("LastGame") == true) {
+                lastGame = intent.extras!!.getParcelable("LastGame")
+            }
         }
 
         dateTextView!!.text = dateFormatter.format(Date(game.date))
@@ -576,6 +581,8 @@ class GameActivity : BaseActivity() {
                         players.sortBy { it.name }
                         hasMadeEdit = false
 
+                        addPlayersFromLastGame()
+
                         setContentShown(true)
                     }
                 })
@@ -584,6 +591,52 @@ class GameActivity : BaseActivity() {
     override fun setContentShown(shown: Boolean) {
         findViewById<View>(R.id.progress).visibility = if(shown) View.GONE else View.VISIBLE
         findViewById<View>(R.id.content).visibility = if(shown) View.VISIBLE else View.GONE
+    }
+
+    private fun addPlayersFromLastGame() {
+        val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
+        var showPrompt = prefs.getBoolean(getString(R.string.shared_prefs_show_copy_last_game_prompt), true)
+
+        if(!isEdit && lastGame != null && showPrompt) {
+//            Snackbar.make(content, "Copy the players from last game?", 10000)
+//                    .setBackgroundColor(R.color.primary)
+//                    .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
+//                    .setAction("Do It") {
+//                            lastGame!!.players.forEach { player ->
+//                                game.players.add(player)
+//                            }
+//
+//                            playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
+//                            playersList!!.adapter = playersAdapter
+//                            playersAdapter!!.notifyDataSetChanged()
+//                            playersList?.adapter?.notifyDataSetChanged()
+//                        }
+//                    .show()
+
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Copy last game?")
+            builder.setMessage("Do you want to copy the players from last game?")
+            builder.setPositiveButton("Yes") { dialog, _ ->
+                lastGame!!.players.sortedBy { it.player?.name }.forEach { player ->
+                    player.winner = false
+                    game.players.add(player)
+                }
+
+                playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
+                playersList!!.adapter = playersAdapter
+                playersAdapter!!.notifyDataSetChanged()
+                playersList?.adapter?.notifyDataSetChanged()
+
+                dialog.dismiss()
+            }
+            builder.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            builder.setNeutralButton("Stop Asking") { dialog, _ ->
+                prefs.edit().putBoolean(getString(R.string.shared_prefs_show_copy_last_game_prompt), false).apply()
+
+                dialog.dismiss()
+            }
+            builder.show()
+        }
     }
 
     private class CharacterNameAdapter(context: Context, var recentCharacters: ArrayList<String>, var allCharacters: ArrayList<String>) : ArrayAdapter<String>(context, android.R.layout.select_dialog_item) {

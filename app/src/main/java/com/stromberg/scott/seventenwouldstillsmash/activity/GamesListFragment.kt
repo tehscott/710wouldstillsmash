@@ -107,6 +107,11 @@ class GamesListFragment : BaseListFragment() {
 
         val intent = Intent(activity, GameActivity::class.java)
         intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(allPlayers, games))
+
+        games.firstOrNull()?.let {
+            intent.putExtra("LastGame", it)
+        }
+
         startActivity(intent)
     }
 
