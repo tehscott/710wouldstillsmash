@@ -60,7 +60,7 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
 
         val winRate = Math.round((stat.gamesWon.toFloat() / stat.gamesPlayed.toFloat()) * 100f)
 
-        tv.text = "$winRate% (${stat.gamesWon} / ${stat.gamesPlayed})"
+        tv.text = "$winRate% (${stat.gamesWon}/${stat.gamesPlayed})"
 
         container?.addView(tv)
     }

@@ -303,37 +303,33 @@ class PlayerActivity : BaseActivity() {
 
         val gameTypesSorted = gameTypes.toList().sortedByDescending { (_, count) -> count}.take(2).map { it.first }
 
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -30)
-        val thirtyDaysAgo = calendar.timeInMillis
-
         val gamesThisPlayerPlayedAllTime = games.filter { it.players.any { player -> player.player?.id == editingPlayer!!.id } }
         val gamesThisPlayerWonAllTime: Float = (gamesThisPlayerPlayedAllTime.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }).toFloat()
-        val gamesThisPlayerPlayedLast30Days = gamesThisPlayerPlayedAllTime.filter { it.date >= thirtyDaysAgo }
-        val gamesThisPlayerWonLast30Days: Float = (gamesThisPlayerPlayedLast30Days.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }).toFloat()
+        val last30GamesThisPlayerPlayed = gamesThisPlayerPlayedAllTime.sortedByDescending { it.date }.take(30)
+        val gamesThisPlayerWonOutOfLast30Games: Float = (last30GamesThisPlayerPlayed.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }).toFloat()
 
         val allGameTypesOverallWinRate = Math.round(((gamesThisPlayerWonAllTime) / (gamesThisPlayerPlayedAllTime.size)) * 100).toString() + "% (" + (gamesThisPlayerWonAllTime).toInt() + "/" + gamesThisPlayerPlayedAllTime.size + ")"
-        val allGameTypesLast30DaysWinRate = Math.round(((gamesThisPlayerWonLast30Days) / (gamesThisPlayerPlayedLast30Days.size)) * 100).toString() + "% (" + (gamesThisPlayerWonLast30Days).toInt() + "/" + gamesThisPlayerPlayedLast30Days.size + ")"
+        val allGameTypesLast30GamesWinRate = Math.round(((gamesThisPlayerWonOutOfLast30Games) / (last30GamesThisPlayerPlayed.size)) * 100).toString() + "% (" + (gamesThisPlayerWonOutOfLast30Games).toInt() + "/" + last30GamesThisPlayerPlayed.size + ")"
 
         val top2GameTypeAllTimeStats = HashMap<String?, String>()
-        val top2GameTypeLast30DaysStats = HashMap<String?, String>()
+        val top2GameTypeLast30GamesStats = HashMap<String?, String>()
         gameTypesSorted.forEach { gameTypeId ->
             val gamesThisCharacterPlayedForThisGameTypeAllTime = gamesThisPlayerPlayedAllTime.filter { game -> game.gameType == gameTypeId }
             val gamesThisCharacterWonForThisGameTypeAllTimeCount = gamesThisCharacterPlayedForThisGameTypeAllTime.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }
             val thisGameTypeAllTimeWinRateDouble  = Math.round((gamesThisCharacterWonForThisGameTypeAllTimeCount / gamesThisCharacterPlayedForThisGameTypeAllTime.size.toDouble()) * 100)
             val thisGameTypeAllTimeWinRate = thisGameTypeAllTimeWinRateDouble.toString() + "% (" + gamesThisCharacterWonForThisGameTypeAllTimeCount + "/" + gamesThisCharacterPlayedForThisGameTypeAllTime.size + ")"
 
-            val gamesThisCharacterPlayedForThisGameTypeLast30Days = gamesThisPlayerPlayedLast30Days.filter { game -> game.gameType == gameTypeId }
-            val gamesThisCharacterWonForThisGameTypeLast30DaysCount = gamesThisCharacterPlayedForThisGameTypeLast30Days.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }
-            val thisGameTypeLast30DaysWinRateDouble = Math.round((gamesThisCharacterWonForThisGameTypeLast30DaysCount / gamesThisCharacterPlayedForThisGameTypeLast30Days.size.toDouble()) * 100)
-            val thisGameTypeLast30DaysWinRate = thisGameTypeLast30DaysWinRateDouble.toString() + "% (" + gamesThisCharacterWonForThisGameTypeLast30DaysCount + "/" + gamesThisCharacterPlayedForThisGameTypeLast30Days.size + ")"
+            val last30GamesThisPlayerPlayedForThisGameType = gamesThisPlayerPlayedAllTime.filter{ game -> game.gameType == gameTypeId }.sortedByDescending { it.date }.take(30)
+            val gamesThisCharacterWonForThisGameType30GamesCount = last30GamesThisPlayerPlayedForThisGameType.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }
+            val thisGameTypeLast30GamesWinRateDouble = Math.round((gamesThisCharacterWonForThisGameType30GamesCount / last30GamesThisPlayerPlayedForThisGameType.size.toDouble()) * 100)
+            val thisGameTypeLast30GamesWinRate = thisGameTypeLast30GamesWinRateDouble.toString() + "% (" + gamesThisCharacterWonForThisGameType30GamesCount + "/" + last30GamesThisPlayerPlayedForThisGameType.size + ")"
 
-            if(thisGameTypeAllTimeWinRateDouble > 0) {
+            if(gamesThisCharacterPlayedForThisGameTypeAllTime.isNotEmpty()) {
                 top2GameTypeAllTimeStats[gameTypeId] = thisGameTypeAllTimeWinRate
             }
 
-            if(thisGameTypeLast30DaysWinRateDouble > 0) {
-                top2GameTypeLast30DaysStats[gameTypeId] = thisGameTypeLast30DaysWinRate
+            if(last30GamesThisPlayerPlayedForThisGameType.isNotEmpty()) {
+                top2GameTypeLast30GamesStats[gameTypeId] = thisGameTypeLast30GamesWinRate
             }
         }
 
@@ -352,21 +348,21 @@ class PlayerActivity : BaseActivity() {
         allTimeWinRates.playerValue = allTimeWinRates.playerValue.removeSuffix("\n\t ")
         statistics.add(allTimeWinRates)
 
-        val thirtyDayWinRates = Statistic()
-        thirtyDayWinRates.playerId = editingPlayer!!.id!!
-        thirtyDayWinRates.playerValue = " Win rates (30 days):\n\t " +
-                "Overall: " + allGameTypesLast30DaysWinRate + "\n\t "
+        val thirtyGameWinRates = Statistic()
+        thirtyGameWinRates.playerId = editingPlayer!!.id!!
+        thirtyGameWinRates.playerValue = " Win rates (last 30 games):\n\t " +
+                "Overall: " + allGameTypesLast30GamesWinRate + "\n\t "
 
-        top2GameTypeLast30DaysStats.forEach { gameTypeId, winRateText ->
+        top2GameTypeLast30GamesStats.forEach { gameTypeId, winRateText ->
             val gameType = GameTypeHelper.getGameType(gameTypeId)
 
             gameType?.let {
-                thirtyDayWinRates.playerValue += "${it.name}: $winRateText\n\t "
+                thirtyGameWinRates.playerValue += "${it.name}: $winRateText\n\t "
             }
         }
-        thirtyDayWinRates.playerValue = thirtyDayWinRates.playerValue.removeSuffix("\n\t ")
+        thirtyGameWinRates.playerValue = thirtyGameWinRates.playerValue.removeSuffix("\n\t ")
 
-        statistics.add(thirtyDayWinRates)
+        statistics.add(thirtyGameWinRates)
 
         // Best/Worst vs player
         var bestVsPlayer: Player? = null
@@ -406,14 +402,28 @@ class PlayerActivity : BaseActivity() {
         if(bestVsPlayer != null) {
             val bestVsPlayerStat = Statistic()
             bestVsPlayerStat.playerId = editingPlayer!!.id!!
-            bestVsPlayerStat.playerValue = " Best vs " + bestVsPlayer?.name + " (won " + Math.round(bestVsPlayerWinRate * 100) + "% of " + bestVsPlayerNumGames + " games)"
+
+            if(bestVsPlayerWinRate > 0) {
+                bestVsPlayerStat.playerValue = " Best vs " + bestVsPlayer?.name + " (won " + Math.round(bestVsPlayerWinRate * 100) + "% of " + bestVsPlayerNumGames + " games)"
+            }
+            else {
+                bestVsPlayerStat.playerValue = " Best vs no players...git gud nerd"
+            }
+
             statistics.add(bestVsPlayerStat)
         }
 
         if(worstVsPlayer != null) {
             val worstVsPlayerStat = Statistic()
             worstVsPlayerStat.playerId = editingPlayer!!.id!!
-            worstVsPlayerStat.playerValue = " Worst vs " + worstVsPlayer?.name + " (lost " + Math.round(worstVsPlayerWinRate * 100) + "% of " + worstVsPlayerNumGames + " games)"
+
+            if(worstVsPlayerWinRate > 0) {
+                worstVsPlayerStat.playerValue = " Worst vs " + worstVsPlayer?.name + " (lost " + Math.round(worstVsPlayerWinRate * 100) + "% of " + worstVsPlayerNumGames + " games)"
+            }
+            else {
+                worstVsPlayerStat.playerValue = " Worst vs no players...you are supreme"
+            }
+
             statistics.add(worstVsPlayerStat)
         }
 
@@ -456,14 +466,28 @@ class PlayerActivity : BaseActivity() {
         if(bestVsCharacterId != null) {
             val bestVsCharacterStat = Statistic()
             bestVsCharacterStat.playerId = editingPlayer!!.id!!
-            bestVsCharacterStat.playerValue = " Best vs " + CharacterHelper.getName(bestVsCharacterId!!) + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+
+            if(bestVsCharacterWinRate > 0) {
+                bestVsCharacterStat.playerValue = " Best vs " + CharacterHelper.getName(bestVsCharacterId!!) + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+            }
+            else {
+                bestVsCharacterStat.playerValue = " Best vs no characters...git gud nerd"
+            }
+
             statistics.add(bestVsCharacterStat)
         }
 
         if(worstVsCharacterId != null) {
             val worstVsCharacterStat = Statistic()
             worstVsCharacterStat.playerId = editingPlayer!!.id!!
-            worstVsCharacterStat.playerValue = " Worst vs " + CharacterHelper.getName(worstVsCharacterId!!) + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+
+            if(worstVsCharacterWinRate > 0) {
+                worstVsCharacterStat.playerValue = " Worst vs " + CharacterHelper.getName(worstVsCharacterId!!) + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+            }
+            else {
+                worstVsCharacterStat.playerValue = " Worst vs no characters...you are supreme"
+            }
+
             statistics.add(worstVsCharacterStat)
         }
 
