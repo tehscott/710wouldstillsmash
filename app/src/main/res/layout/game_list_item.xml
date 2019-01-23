@@ -54,12 +54,10 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/game_list_item_winner_image"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
                 android:elevation="7dp"
                 android:layout_marginLeft="4dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
                 android:layout_marginRight="8dp"
                 tools:src="@drawable/ssbu_character_ness"/>
 

@@ -86,7 +86,8 @@ class GameActivity : BaseActivity() {
 
         addPlayerButton?.setOnClickListener { addPlayer(null) }
 
-        playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
+        val sortedPlayers = game.players.sortedBy { it.player?.name }.sortedByDescending { it.winner }
+        playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
         playersList!!.adapter = playersAdapter
         playersList!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
