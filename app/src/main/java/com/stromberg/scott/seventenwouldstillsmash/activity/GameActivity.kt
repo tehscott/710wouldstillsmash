@@ -1,12 +1,12 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,15 +16,21 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.adapter.CharacterPagerAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.*
+import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayerPagerAdapter
+import com.stromberg.scott.seventenwouldstillsmash.model.Game
+import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
+import com.stromberg.scott.seventenwouldstillsmash.model.GameType
+import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.util.*
-import java.text.SimpleDateFormat
-import java.util.*
+import com.stromberg.scott.seventenwouldstillsmash.view.VelocityViewPager
 import kotlinx.android.synthetic.main.activity_game.*
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
+import java.text.SimpleDateFormat
+import java.util.*
 
 class GameActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -233,43 +239,77 @@ class GameActivity : BaseActivity() {
     private fun addPlayer(editingPlayer: GamePlayer?) {
         val gamePlayer = editingPlayer ?: GamePlayer()
         val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
-        val playerSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-        val characterSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_character_spinner)
+//        val playerSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+//        val characterSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_character_spinner)
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
         val editingCharacterId = gamePlayer.characterId
 
-        val playerNames = ArrayList<String>(getUnusedPlayers(gamePlayer).map { it.name })
-        playerNames.add(0, "")
-        playerNames.add(1, "Add Player")
+        val playerPager = layout.findViewById<VelocityViewPager>(R.id.player_view_pager)
+        playerPager.offscreenPageLimit = 10
+        playerPager.pageMargin = 2
+        playerPager.adapter = PlayerPagerAdapter(this@GameActivity, getUnusedPlayers(gamePlayer))
+        playerPager.viewTreeObserver.addOnPreDrawListener(object: ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val width = playerPager.measuredWidth
+                val desiredWidth = 96.toPx
+                val padding = (width - desiredWidth) / 2
+                playerPager.setPadding(padding, 0, padding, 0)
 
-        val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
+                playerPager.viewTreeObserver.removeOnPreDrawListener(this)
 
-        playerSpinner.adapter = playerAdapter
-
-        if(editingPlayer != null) {
-            val player = players.find { it.id.equals(editingPlayer.player!!.id) }
-            playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
-
-            setupCharacterDropdown(characterSpinner, gamePlayer)
-            val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
-            characterSpinner.setSelection(editingPlayer.characterId + topCharactersForThisPlayer.size, true)
-
-            isWinnerCheckbox.isChecked = editingPlayer.winner
-        }
-
-        playerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                when (position) {
-                    0 -> characterSpinner.adapter = null
-                    1 -> showNameEntryDialog(gamePlayer)
-                    else -> {
-                        gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
-                        setupCharacterDropdown(characterSpinner, gamePlayer)
-                    }
-                }
+                return true
             }
-            override fun onNothingSelected(arg0: AdapterView<*>) {}
-        }
+        })
+
+        val characterPager = layout.findViewById<VelocityViewPager>(R.id.character_view_pager)
+        characterPager.offscreenPageLimit = 10
+        characterPager.pageMargin = 2
+        characterPager.adapter = CharacterPagerAdapter(this@GameActivity)
+        characterPager.viewTreeObserver.addOnPreDrawListener(object: ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val width = characterPager.measuredWidth
+                val desiredWidth = 96.toPx
+                val padding = (width - desiredWidth) / 2
+                characterPager.setPadding(padding, 8.toPx, padding, 8.toPx)
+
+                characterPager.viewTreeObserver.removeOnPreDrawListener(this)
+
+                return true
+            }
+        })
+
+//        val playerNames = ArrayList<String>(getUnusedPlayers(gamePlayer).map { it.name })
+//        playerNames.add(0, "")
+//        playerNames.add(1, "Add Player")
+
+//        val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
+
+//        playerSpinner.adapter = playerAdapter
+//
+//        if(editingPlayer != null) {
+//            val player = players.find { it.id.equals(editingPlayer.player!!.id) }
+//            playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
+//
+//            setupCharacterDropdown(characterSpinner, gamePlayer)
+//            val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
+//            characterSpinner.setSelection(editingPlayer.characterId + topCharactersForThisPlayer.size, true)
+//
+//            isWinnerCheckbox.isChecked = editingPlayer.winner
+//        }
+//
+//        playerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+//                when (position) {
+//                    0 -> characterSpinner.adapter = null
+//                    1 -> showNameEntryDialog(gamePlayer)
+//                    else -> {
+//                        gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
+//                        setupCharacterDropdown(characterSpinner, gamePlayer)
+//                    }
+//                }
+//            }
+//            override fun onNothingSelected(arg0: AdapterView<*>) {}
+//        }
 
         isWinnerCheckbox.setOnCheckedChangeListener { _, isChecked -> gamePlayer.winner = isChecked }
 
@@ -368,28 +408,28 @@ class GameActivity : BaseActivity() {
                 players.add(gamePlayer.player!!)
                 players.sortByDescending { it.name }
 
-                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-                val playerList = getUnusedPlayers(gamePlayer)
-                val playerNames = ArrayList<String>(playerList.map { it.name })
-                playerNames.add(0, "")
-                playerNames.add(1, "Add Player")
-
-                val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
-                playerSpinner.adapter = playerAdapter
-                playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
+//                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+//                val playerList = getUnusedPlayers(gamePlayer)
+//                val playerNames = ArrayList<String>(playerList.map { it.name })
+//                playerNames.add(0, "")
+//                playerNames.add(1, "Add Player")
+//
+//                val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
+//                playerSpinner.adapter = playerAdapter
+//                playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
 
                 dialog.dismiss()
             }
             else {
-                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-                playerSpinner.setSelection(0)
-                dialog.dismiss()
+//                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+//                playerSpinner.setSelection(0)
+//                dialog.dismiss()
             }
         }
         builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
-            val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-            playerSpinner.setSelection(0)
-            dialog.dismiss()
+//            val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
+//            playerSpinner.setSelection(0)
+//            dialog.dismiss()
         }
         builder.show()
     }

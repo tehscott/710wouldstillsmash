@@ -1,38 +1,22 @@
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryDark">@color/primary_dark</item>
         <item name="colorAccent">@color/accent</item>
-
-        <item name="buttonStyle">@style/MyCustomButton</item>
-        <item name="android:buttonStyle">@style/MyCustomButton</item>
         <item name="colorButtonNormal">@android:color/white</item>
-
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:textColorPrimary">@color/text_secondary</item>
         <item name="android:textColor">@color/text_secondary</item>
         <item name="windowActionBar">false</item>
-        <item name="android:windowTitleStyle">@style/MyCustomButton</item>
         <item name="android:windowBackground">@android:color/white</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="MyCustomButton" parent="Base.Widget.AppCompat.Button">
-        <item name="android:textColor">@color/text_secondary</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
-    </style>
-
-    <style name="NavDrawerTextStyle" parent="Base.TextAppearance.AppCompat">
-        <item name="android:textColor">@color/text_secondary</item>
-        <item name="android:textSize">16sp</item>
-        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="ProgressBar" parent="AppTheme">
         <item name="colorControlActivated">@color/primary</item>
     </style>
 
-    <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.ActionBar">
+    <style name="ToolbarTheme" parent="@style/ThemeOverlay.MaterialComponents.ActionBar">
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:background">@color/primary</item>
     </style>

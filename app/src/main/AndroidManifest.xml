@@ -41,6 +41,7 @@
             android:name=".activity.MainActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait" />
+
         <activity android:name=".activity.GameTypeListActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"

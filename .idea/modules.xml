@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/710wouldstillsmash.iml" filepath="$PROJECT_DIR$/710wouldstillsmash.iml" />
-      <module fileurl="file://$PROJECT_DIR$/MaterialShowcaseView/MaterialShowcaseView.iml" filepath="$PROJECT_DIR$/MaterialShowcaseView/MaterialShowcaseView.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/710wouldstillsmash.iml" filepath="$PROJECT_DIR$/710wouldstillsmash.iml" group="710wouldstillsmash" />
+      <module fileurl="file://$PROJECT_DIR$/MaterialShowcaseView/MaterialShowcaseView.iml" filepath="$PROJECT_DIR$/MaterialShowcaseView/MaterialShowcaseView.iml" group="710wouldstillsmash/MaterialShowcaseView" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="710wouldstillsmash/app" />
     </modules>
   </component>
 </project>

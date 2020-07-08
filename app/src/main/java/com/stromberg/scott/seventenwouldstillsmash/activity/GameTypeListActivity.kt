@@ -1,6 +1,6 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -187,7 +187,7 @@ class GameTypeListActivity: BaseActivity() {
         builderSingle.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
 
         builderSingle.setAdapter(arrayAdapter) { _, which ->
-            val resId = arrayAdapter.getItem(which)
+            val resId = arrayAdapter.getItem(which) ?: 0
 
             imageView.setImageResource(resId)
             val imageName = resources.getResourceEntryName(resId)

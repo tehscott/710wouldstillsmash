@@ -89,15 +89,7 @@
         app:backgroundTint="@color/primary"
         app:hideOnScroll="true"
         app:layout_scrollFlags="scroll|enterAlways"
-        android:transitionName="bottom_app_bar">
-
-        <ImageView
-            android:layout_width="@dimen/bottom_app_bar_icon"
-            android:layout_height="@dimen/bottom_app_bar_icon"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_games"
-            android:visibility="invisible"/>
-    </com.google.android.material.bottomappbar.BottomAppBar>
+        android:transitionName="bottom_app_bar"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
@@ -105,7 +97,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:src="@drawable/plus"
-        android:tint="@color/text_primary"
+        android:foregroundTint="#fff"
         app:backgroundTint="@color/primary"
         app:layout_anchor="@+id/bottom_appbar"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

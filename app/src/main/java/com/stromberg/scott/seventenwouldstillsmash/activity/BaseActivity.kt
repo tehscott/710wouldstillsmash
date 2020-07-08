@@ -1,8 +1,7 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import android.app.AlertDialog
 import android.content.Context
-import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
 

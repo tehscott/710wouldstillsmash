@@ -6,9 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.ViewPager
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -27,7 +26,7 @@ import uk.co.deanwild.materialshowcaseview.IShowcaseListener
 import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : FragmentActivity() {
     private var db = FirebaseDatabase.getInstance()
     private lateinit var viewPagerAdapter: ListPagerAdapter
     private val tooltipQueue = LinkedList<MaterialShowcaseView>()
@@ -41,11 +40,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewPagerAdapter = ListPagerAdapter(supportFragmentManager)
+        viewPagerAdapter = ListPagerAdapter(this)
         view_pager.adapter = viewPagerAdapter
-        view_pager.addOnPageChangeListener(object: ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {}
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+        view_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 setSelectedButton(position)
 
@@ -100,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getCurrentFragment(): BaseListFragment {
-        return ((view_pager.adapter!! as FragmentPagerAdapter).getItem(view_pager.currentItem) as BaseListFragment)
+        return ((view_pager.adapter!! as ListPagerAdapter).getFragmentAt(view_pager.currentItem) as BaseListFragment)
     }
 
     private fun setupGroupCodeText() {

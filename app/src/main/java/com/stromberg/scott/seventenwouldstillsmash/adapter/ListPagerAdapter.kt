@@ -1,32 +1,35 @@
 package com.stromberg.scott.seventenwouldstillsmash.adapter
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.stromberg.scott.seventenwouldstillsmash.activity.CharactersListFragment
 import com.stromberg.scott.seventenwouldstillsmash.activity.GamesListFragment
 import com.stromberg.scott.seventenwouldstillsmash.activity.PlayersListFragment
 
-class ListPagerAdapter(fragmentManager: FragmentManager) : FragmentPagerAdapter(fragmentManager) {
+class ListPagerAdapter(framentActivity: FragmentActivity) : FragmentStateAdapter(framentActivity) {
     private val gamesListFragment = GamesListFragment()
     private val playersListFragment = PlayersListFragment()
     private val charactersListFragment = CharactersListFragment()
 
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return NUM_ITEMS
     }
 
-    override fun getItem(position: Int): Fragment? {
+    override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> gamesListFragment
             1 -> playersListFragment
             2 -> charactersListFragment
-            else -> null
+            else -> gamesListFragment
         }
     }
 
-    override fun getPageTitle(position: Int): CharSequence? {
-        return "Page $position"
+    fun getFragmentAt(position: Int): Fragment {
+        return when (position) {
+            1 -> playersListFragment
+            2 -> charactersListFragment
+            else -> gamesListFragment
+        }
     }
 
     companion object {

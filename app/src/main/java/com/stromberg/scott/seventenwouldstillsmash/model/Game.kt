@@ -2,7 +2,6 @@ package com.stromberg.scott.seventenwouldstillsmash.model
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.google.firebase.database.Exclude
 import java.util.*
 
 class Game() : Parcelable {
@@ -21,7 +20,7 @@ class Game() : Parcelable {
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(id)
         parcel.writeLong(date)
-        parcel.writeList(players)
+        parcel.writeList(players.toList())
         parcel.writeString(gameType)
     }
 
