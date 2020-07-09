@@ -1,5 +1,6 @@
 package com.stromberg.scott.seventenwouldstillsmash.util
 
+import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 
@@ -10,9 +11,9 @@ class CharacterHelper {
 
             players.forEach { player ->
                 val gamesWithCharacters = HashMap<Int, Int>()
-                (0..Character.SIZE).forEachIndexed { _, characterId ->
-                    val numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == characterId && gamePlayer.player!!.id == player.id } }
-                    gamesWithCharacters[characterId] = numGamesWithThisCharacter
+                Characters.values().forEach { character ->
+                    val numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player!!.id == player.id } }
+                    gamesWithCharacters[character.id] = numGamesWithThisCharacter
                 }
 
                 val characterIds = ArrayList<Int>()

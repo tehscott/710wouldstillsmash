@@ -25,6 +25,7 @@ import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.*
 import kotlinx.android.synthetic.main.activity_player.*
 import java.util.*
+import kotlin.math.roundToLong
 
 class PlayerActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -431,14 +432,13 @@ class PlayerActivity : BaseActivity() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..Characters.count()).sumBy {
-            val characterId = it
-            games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } } } / 58
+        val averageGamesPlayed = Characters.values().sumBy { character ->
+            games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } } } / 58 // todo wtf does 58 mean???
 
-        (0..Characters.count()).forEachIndexed { _, characterId ->
-            val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } }
-            val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
-            val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
+        Characters.values().forEach { character ->
+            val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } }
+            val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
+            val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
 
             val thisCharacterWinRate = numGamesThisCharacterWon / numGamesWithThisCharacter.toFloat()
             val winRateVsThisCharacter = numGamesIWonVsThisCharacter / numGamesWithThisCharacter.toFloat()
@@ -447,13 +447,13 @@ class PlayerActivity : BaseActivity() {
                 if (bestVsCharacterId == null || winRateVsThisCharacter > bestVsCharacterWinRate) {
                     bestVsCharacterNumGames = numGamesWithThisCharacter
                     bestVsCharacterWinRate = winRateVsThisCharacter
-                    bestVsCharacterId = characterId
+                    bestVsCharacterId = character.id
                 }
 
                 if (worstVsCharacterId == null || worstVsCharacterWinRate < thisCharacterWinRate) {
                     worstVsCharacterNumGames = numGamesWithThisCharacter
                     worstVsCharacterWinRate = thisCharacterWinRate
-                    worstVsCharacterId = characterId
+                    worstVsCharacterId = character.id
                 }
             }
         }
@@ -583,15 +583,15 @@ class PlayerActivity : BaseActivity() {
     private fun getCharacterStats(statistics: ArrayList<Statistic>) {
         var statsString = " Character stats:\n"
 
-        for(characterId in 0..Characters.count()) {
+        Characters.values().sortedBy { it.characterName }.forEach { character ->
             val gamesForCharacter = games.filter {
-                it.players.any {player -> player.characterId == characterId && player.player!!.id == editingPlayer!!.id }
+                it.players.any {player -> player.characterId == character.id && player.player!!.id == editingPlayer!!.id }
             }
 
-            val gamesWonCount = gamesForCharacter.count { it.players.any { player -> player.characterId == characterId && player.winner } }
+            val gamesWonCount = gamesForCharacter.count { it.players.any { player -> player.characterId == character.id && player.winner } }
             val gamesWinPercentage = Math.round(gamesWonCount.toDouble() / gamesForCharacter.size.toDouble()) * 100
 
-            statsString += "  ${Characters.byId(characterId)?.characterName}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
+            statsString += "  ${Characters.byId(character.id)?.characterName}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
         }
 
         val stat = Statistic()

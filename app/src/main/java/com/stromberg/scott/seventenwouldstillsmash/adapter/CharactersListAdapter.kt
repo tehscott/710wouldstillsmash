@@ -8,21 +8,18 @@ import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import java.util.*
 
-class CharactersListAdapter(characterIds: List<Int>, private var gamesForAllPlayers: HashMap<Int, List<Game>>) : BaseQuickAdapter<Int, BaseViewHolder>(R.layout.character_list_item, characterIds) {
-    override fun convert(viewHolder: BaseViewHolder?, characterId: Int) {
-        val character = Characters.byId(characterId)
-
+class CharactersListAdapter(private var gamesForAllPlayers: SortedMap<Characters, List<Game>>) : BaseQuickAdapter<Characters, BaseViewHolder>(R.layout.character_list_item, gamesForAllPlayers.keys.toList()) {
+    override fun convert(viewHolder: BaseViewHolder?, character: Characters) {
         val characterImage = viewHolder?.getView<ImageView>(R.id.character_list_item_character_image)
         val characterName = viewHolder?.getView<TextView>(R.id.character_list_item_character_name)
 
-        characterImage?.setImageResource(character?.imageRes ?: 0)
-        characterName?.text = character?.characterName
+        characterImage?.setImageResource(character.imageRes ?: 0)
+        characterName?.text = character.characterName
 
-        val gamesForThisPlayer = gamesForAllPlayers[characterId]
+        val gamesForThisPlayer = gamesForAllPlayers[character]
         val gameTypesForThisPlayer = HashMap<String?, Int>()
         gamesForThisPlayer?.map { it.gameType }?.forEach { gameTypeId ->
             val gameType = GameTypeHelper.getGameType(gameTypeId)
@@ -39,10 +36,10 @@ class CharactersListAdapter(characterIds: List<Int>, private var gamesForAllPlay
 
         top2GameTypes.forEachIndexed { index, gameTypeId ->
             val gameType = GameTypeHelper.getGameType(gameTypeId)
-            val gamesPlayed: Float = (gamesForThisPlayer!!.count { it.players.any { it.characterId == characterId } && it.gameType!!.equals(gameTypeId, true) }).toFloat()
+            val gamesPlayed: Float = (gamesForThisPlayer!!.count { it.players.any { it.characterId == character.id } && it.gameType!!.equals(gameTypeId, true) }).toFloat()
 
             if(gamesPlayed > 0) {
-                val gamesWon: Float = (gamesForThisPlayer.count { it.players.any { it.characterId == characterId && it.winner } && it.gameType!!.equals(gameTypeId, true) }).toFloat()
+                val gamesWon: Float = (gamesForThisPlayer.count { it.players.any { it.characterId == character.id && it.winner } && it.gameType!!.equals(gameTypeId, true) }).toFloat()
                 val winPercentage = if (gamesPlayed > 0) gamesWon / gamesPlayed else 0f
 
                 when (index) {

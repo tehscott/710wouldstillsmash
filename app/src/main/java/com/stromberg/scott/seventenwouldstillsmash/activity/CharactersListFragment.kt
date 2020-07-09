@@ -22,6 +22,7 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import java.util.*
+import kotlin.Comparator
 
 class CharactersListFragment: BaseListFragment() {
     private var db = FirebaseDatabase.getInstance()
@@ -77,7 +78,7 @@ class CharactersListFragment: BaseListFragment() {
 
     fun handleSnapshot(snapshot: DataSnapshot) {
         var games = ArrayList<Game>()
-        val gamesForCharacters = HashMap<Int, List<Game>>()
+        val gamesForCharacters = HashMap<Characters, List<Game>>()
 
         snapshot.children.reversed().forEach {
             val game: Game = it.getValue(Game::class.java)!!
@@ -85,23 +86,22 @@ class CharactersListFragment: BaseListFragment() {
             games.add(game)
         }
 
-        for(id in 0..Characters.count()) {
+        Characters.values().forEach { character ->
             val gamesForCharacter = games.filter { game ->
-                game.players.any { it.characterId == id }
+                game.players.any { it.characterId == character.id }
             }
 
-            gamesForCharacters[id] = gamesForCharacter
+            gamesForCharacters[character] = gamesForCharacter
         }
 
-        val characterIds = ArrayList(gamesForCharacters.keys)
-        characterIds.sortBy { it }
+        val sortedGames = gamesForCharacters.toSortedMap(Comparator { o1, o2 -> o1?.characterName.orEmpty().compareTo(o2?.characterName.orEmpty()) })
 
-        val adapter = CharactersListAdapter(characterIds, gamesForCharacters)
-        recyclerView!!.adapter = adapter as RecyclerView.Adapter<*>
+        val adapter = CharactersListAdapter(sortedGames)
+        recyclerView!!.adapter = adapter
         adapter.setEnableLoadMore(false)
 
         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
-            viewCharacter(characterIds[position])
+            viewCharacter(sortedGames.keys.toList()[position].id)
         }
 
         recyclerView?.adapter?.notifyDataSetChanged()

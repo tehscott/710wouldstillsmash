@@ -289,25 +289,25 @@ class CharacterActivity : BaseActivity() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..Characters.count()).sumByDouble {
-            var characterId = it
-            games.count { it.players.any { it.characterId == characterId } }.toDouble() / games.size.toDouble() }
+        val averageGamesPlayed = Characters.values().sumByDouble { character ->
+            games.count { it.players.any { it.characterId == character.id } }.toDouble() / games.size.toDouble()
+        }
 
-        (0..Characters.count()).forEachIndexed { _, characterId ->
+        Characters.values().forEach { character ->
             var numGamesWithThisCharacter: Int
             var numGamesThisCharacterWon: Float
             var numGamesIWonVsThisCharacter: Float
 
-            if(characterId == mCharacterId) {
-                val gamesVsSameCharacter = games.filter { it.players.count { it.characterId == characterId } > 1 }
+            if(character.id == mCharacterId) {
+                val gamesVsSameCharacter = games.filter { it.players.count { it.characterId == character.id } > 1 }
                 numGamesWithThisCharacter = gamesVsSameCharacter.size
-                numGamesThisCharacterWon = gamesVsSameCharacter.count { it.players.any { it.characterId == characterId && it.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == characterId } }.toFloat()
+                numGamesThisCharacterWon = gamesVsSameCharacter.count { it.players.any { it.characterId == character.id && it.winner } }.toFloat()
+                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == character.id } }.toFloat()
             }
             else {
-                numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId } }
-                numGamesThisCharacterWon = games.count { it.players.any { it.characterId == characterId && it.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = games.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == characterId } }.toFloat()
+                numGamesWithThisCharacter = games.count { it.players.any { it.characterId == character.id } }
+                numGamesThisCharacterWon = games.count { it.players.any { it.characterId == character.id && it.winner } }.toFloat()
+                numGamesIWonVsThisCharacter = games.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == character.id } }.toFloat()
             }
 
             val thisCharacterWinRate = numGamesThisCharacterWon / numGamesWithThisCharacter.toFloat()
@@ -317,13 +317,13 @@ class CharacterActivity : BaseActivity() {
                 if (bestVsCharacterId == null || winRateVsThisCharacter > bestVsCharacterWinRate) {
                     bestVsCharacterNumGames = numGamesWithThisCharacter
                     bestVsCharacterWinRate = winRateVsThisCharacter
-                    bestVsCharacterId = characterId
+                    bestVsCharacterId = character.id
                 }
 
                 if (worstVsCharacterId == null || worstVsCharacterWinRate < thisCharacterWinRate) {
                     worstVsCharacterNumGames = numGamesWithThisCharacter
                     worstVsCharacterWinRate = thisCharacterWinRate
-                    worstVsCharacterId = characterId
+                    worstVsCharacterId = character.id
                 }
             }
         }

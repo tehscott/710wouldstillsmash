@@ -428,7 +428,7 @@ class GameActivity : BaseActivity() {
     }
 
     private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer) {
-        val characterNames = (0..Characters.count()).mapNotNull { Characters.byId(it)?.characterName } as ArrayList<String>
+        val characterNames = Characters.values().map { it.characterName } as ArrayList<String>
         val topCharactersForThisPlayer = getTopCharactersForPlayer(gamePlayer)
 
         val characterAdapter = CharacterNameAdapter(this, topCharactersForThisPlayer, characterNames)
