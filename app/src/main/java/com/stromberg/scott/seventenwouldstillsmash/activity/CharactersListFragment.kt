@@ -18,10 +18,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
+import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class CharactersListFragment: BaseListFragment() {
@@ -41,14 +40,6 @@ class CharactersListFragment: BaseListFragment() {
         progress = contentView.findViewById(R.id.progress)
 
         recyclerView!!.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        recyclerView!!.addOnChildAttachStateChangeListener(object: RecyclerView.OnChildAttachStateChangeListener {
-            override fun onChildViewAttachedToWindow(view: View) {
-                readyToShowTooltips = true
-                showTooltips()
-            }
-
-            override fun onChildViewDetachedFromWindow(view: View) {}
-        })
 
         pullToRefreshView!!.loadMoreModel = LoadModel.NONE
         pullToRefreshView!!.addEasyEvent(object : EasyRefreshLayout.EasyEvent {
@@ -94,7 +85,7 @@ class CharactersListFragment: BaseListFragment() {
             games.add(game)
         }
 
-        for(id in 0..CharacterHelper.getNumberOfCharacters()) {
+        for(id in 0..Characters.count()) {
             val gamesForCharacter = games.filter { game ->
                 game.players.any { it.characterId == id }
             }
@@ -130,16 +121,4 @@ class CharactersListFragment: BaseListFragment() {
     }
 
     override fun fabClicked() {}
-    override fun showTooltips() {
-        if(readyToShowTooltips && hasFragmentBeenShown) {
-            (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
-                    .singleUse("CharactersListTooltip")
-                    .setTarget(view)
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.view_character_tooltip)
-                    .setDismissOnTouch(true)
-                    .withRectangleShape(true)
-                    .build())
-        }
-    }
 }

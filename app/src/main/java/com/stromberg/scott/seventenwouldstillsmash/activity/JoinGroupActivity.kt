@@ -19,9 +19,6 @@ import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import kotlinx.android.synthetic.main.activity_join_group.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 
 class JoinGroupActivity : AppCompatActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -72,8 +69,6 @@ class JoinGroupActivity : AppCompatActivity() {
                 finish()
             }
         }
-
-        showTooltips()
     }
 
     private fun createGroup(code: String?) {
@@ -148,36 +143,6 @@ class JoinGroupActivity : AppCompatActivity() {
                 findViewById<View>(R.id.progress).visibility = View.VISIBLE
                 findViewById<View>(R.id.content).visibility = View.GONE
             }
-        }
-    }
-
-    private fun showTooltips() {
-        groupCodeEditText.post {
-            val config = ShowcaseConfig()
-            config.fadeDuration = 50L
-
-            val sequence = MaterialShowcaseSequence(this, "JoinGroupTooltip")
-            sequence.setConfig(config)
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(join_group_container)
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.join_group_tooltip)
-                    .setDismissOnTouch(true)
-                    .withRoundedRectangleShape(24, 24)
-                    .setShapePadding(24)
-                    .build())
-
-            sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                    .setTarget(createGroupButton)
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.create_group_tooltip)
-                    .setDismissOnTouch(true)
-                    .withRoundedRectangleShape(24, 24)
-                    .setShapePadding(24)
-                    .build())
-
-            sequence.start()
         }
     }
 }

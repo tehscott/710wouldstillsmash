@@ -6,6 +6,7 @@ import com.chad.library.adapter.base.BaseViewHolder
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
@@ -36,7 +37,7 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
         if(winner != null) {
             viewHolder.setVisible(R.id.game_list_item_winner_image, true)
             viewHolder.setVisible(R.id.game_list_item_winner_name, true)
-            viewHolder.setImageResource(R.id.game_list_item_winner_image, CharacterHelper.getImage(winner.characterId))
+            viewHolder.setImageResource(R.id.game_list_item_winner_image, Characters.byId(winner.characterId)?.imageRes ?: 0)
             viewHolder.setText(R.id.game_list_item_winner_name, winner.player?.name)
         }
         else {
@@ -63,7 +64,7 @@ class GamesListAdapter(val games: List<Game>, val sortBy: SortBy, private var lo
             viewHolder.setVisible(imageId, true)
             viewHolder.setVisible(nameId, true)
 
-            viewHolder.setImageResource(imageId, CharacterHelper.getImage(gamePlayer.characterId))
+            viewHolder.setImageResource(imageId, Characters.byId(gamePlayer.characterId)?.imageRes ?: 0)
             viewHolder.setText(nameId, gamePlayer.player?.name)
 
             val container = viewHolder.getView<LinearLayout>(containerId)

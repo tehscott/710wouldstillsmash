@@ -19,10 +19,7 @@ import com.google.firebase.database.ValueEventListener
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.model.GameResult
-import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.model.Statistic
+import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
@@ -64,8 +61,9 @@ class CharacterActivity : BaseActivity() {
 
         setupGamesAdapter(games)
 
-        character_name.text = CharacterHelper.getName(mCharacterId)
-        character_image.setImageResource(CharacterHelper.getImage(mCharacterId))
+        val character = Characters.byId(mCharacterId)
+        character_name.text = character?.characterName
+        character_image.setImageResource(character?.imageRes ?: 0)
         character_image.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 character_image.viewTreeObserver.removeOnPreDrawListener(this)
@@ -291,11 +289,11 @@ class CharacterActivity : BaseActivity() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..CharacterHelper.getNumberOfCharacters()).sumByDouble {
+        val averageGamesPlayed = (0..Characters.count()).sumByDouble {
             var characterId = it
             games.count { it.players.any { it.characterId == characterId } }.toDouble() / games.size.toDouble() }
 
-        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
+        (0..Characters.count()).forEachIndexed { _, characterId ->
             var numGamesWithThisCharacter: Int
             var numGamesThisCharacterWon: Float
             var numGamesIWonVsThisCharacter: Float
@@ -333,14 +331,14 @@ class CharacterActivity : BaseActivity() {
         if(bestVsCharacterId != null) {
             val bestVsCharacterStat = Statistic()
             bestVsCharacterStat.characterId = mCharacterId
-            bestVsCharacterStat.playerValue = " Best vs " + CharacterHelper.getName(bestVsCharacterId!!) + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+            bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
             statistics.add(bestVsCharacterStat)
         }
 
         if(worstVsCharacterId != null) {
             val worstVsCharacterStat = Statistic()
             worstVsCharacterStat.characterId = mCharacterId
-            worstVsCharacterStat.playerValue = " Worst vs " + CharacterHelper.getName(worstVsCharacterId!!) + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+            worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
             statistics.add(worstVsCharacterStat)
         }
 

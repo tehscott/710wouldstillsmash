@@ -59,27 +59,6 @@
             android:enabled="false"
             tools:text="7F0BE"/>
 
-        <RadioGroup
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="12dp">
-
-            <RadioButton
-                android:id="@+id/ssb_4_radio_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SSB 4"
-                android:checked="true"/>
-
-            <RadioButton
-                android:id="@+id/ssb_ultimate_radio_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/space_8dp"
-                android:text="SSB Ultimate"/>
-        </RadioGroup>
-
         <Button
             android:id="@+id/create_group_create_button"
             android:layout_width="wrap_content"

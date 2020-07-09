@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.graphics.Paint
 import android.graphics.Rect
 import android.util.Log
-import uk.co.chrisjenx.calligraphy.TypefaceUtils
 
 class PlayerHelper {
     companion object {
@@ -14,7 +13,6 @@ class PlayerHelper {
 
             var longestLength = 0
 
-            paint.typeface = TypefaceUtils.load(resources.assets, fontName)
             paint.textSize = fontSize
 
             names.forEach { name -> run {

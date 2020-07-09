@@ -19,16 +19,10 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CharacterPagerAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.CreateGamePlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayerPagerAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.Game
-import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
-import com.stromberg.scott.seventenwouldstillsmash.model.Player
+import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.*
 import com.stromberg.scott.seventenwouldstillsmash.view.VelocityViewPager
 import kotlinx.android.synthetic.main.activity_game.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -125,7 +119,6 @@ class GameActivity : BaseActivity() {
         super.onResume()
 
         setupToggle()
-        showTooltips()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -435,7 +428,7 @@ class GameActivity : BaseActivity() {
     }
 
     private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer) {
-        val characterNames = (0..CharacterHelper.getNumberOfCharacters()).mapNotNull { CharacterHelper.getName(it) } as ArrayList<String>
+        val characterNames = (0..Characters.count()).mapNotNull { Characters.byId(it)?.characterName } as ArrayList<String>
         val topCharactersForThisPlayer = getTopCharactersForPlayer(gamePlayer)
 
         val characterAdapter = CharacterNameAdapter(this, topCharactersForThisPlayer, characterNames)
@@ -464,7 +457,7 @@ class GameActivity : BaseActivity() {
 
         if (topFiveCharacters.containsKey(gamePlayer.player?.id)) {
             topFiveCharacters[gamePlayer.player?.id]!!.forEach {
-                topCharactersForThisPlayer.add(CharacterHelper.getName(it))
+                topCharactersForThisPlayer.add(Characters.byId(it)?.characterName.orEmpty())
             }
         }
 
@@ -714,48 +707,5 @@ class GameActivity : BaseActivity() {
         override fun getCount(): Int {
             return recentCharacters.size + allCharacters.size
         }
-    }
-
-    private fun showTooltips() {
-        val config = ShowcaseConfig()
-        config.fadeDuration = 50L
-
-        val sequence = MaterialShowcaseSequence(this, "GameTooltip")
-        sequence.setConfig(config)
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(dateTextView)
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.date_tooltip)
-                .setDismissOnTouch(true)
-                .withRectangleShape()
-                .build())
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(findViewById(R.id.toggle_super_container))
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.type_tooltip)
-                .setDismissOnTouch(true)
-                .withRectangleShape()
-                .build())
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(add_game_type_button)
-                .singleUse("GameTypesButtonTooltip")
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.game_types_button_tooltip)
-                .setDismissOnTouch(true)
-                .setShapePadding(8)
-                .build())
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(addPlayerButton)
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.add_player_to_game_tooltip)
-                .setDismissOnTouch(true)
-                .withRectangleShape()
-                .build())
-
-        sequence.start()
     }
 }

@@ -24,9 +24,6 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.*
 import kotlinx.android.synthetic.main.activity_player.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseSequence
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
-import uk.co.deanwild.materialshowcaseview.ShowcaseConfig
 import java.util.*
 
 class PlayerActivity : BaseActivity() {
@@ -141,8 +138,6 @@ class PlayerActivity : BaseActivity() {
                 getStatistics()
             }
         }
-
-        showTooltips()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -436,11 +431,11 @@ class PlayerActivity : BaseActivity() {
         var worstVsCharacterWinRate = 0f
         var worstVsCharacterNumGames = 0
 
-        val averageGamesPlayed = (0..CharacterHelper.getNumberOfCharacters()).sumBy {
+        val averageGamesPlayed = (0..Characters.count()).sumBy {
             val characterId = it
             games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } } } / 58
 
-        (0..CharacterHelper.getNumberOfCharacters()).forEachIndexed { _, characterId ->
+        (0..Characters.count()).forEachIndexed { _, characterId ->
             val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } }
             val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
             val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == characterId && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
@@ -468,7 +463,7 @@ class PlayerActivity : BaseActivity() {
             bestVsCharacterStat.playerId = editingPlayer!!.id!!
 
             if(bestVsCharacterWinRate > 0) {
-                bestVsCharacterStat.playerValue = " Best vs " + CharacterHelper.getName(bestVsCharacterId!!) + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+                bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
             }
             else {
                 bestVsCharacterStat.playerValue = " Best vs no characters...git gud nerd"
@@ -482,7 +477,7 @@ class PlayerActivity : BaseActivity() {
             worstVsCharacterStat.playerId = editingPlayer!!.id!!
 
             if(worstVsCharacterWinRate > 0) {
-                worstVsCharacterStat.playerValue = " Worst vs " + CharacterHelper.getName(worstVsCharacterId!!) + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+                worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
             }
             else {
                 worstVsCharacterStat.playerValue = " Worst vs no characters...you are supreme"
@@ -588,7 +583,7 @@ class PlayerActivity : BaseActivity() {
     private fun getCharacterStats(statistics: ArrayList<Statistic>) {
         var statsString = " Character stats:\n"
 
-        for(characterId in 0..CharacterHelper.getNumberOfCharacters()) {
+        for(characterId in 0..Characters.count()) {
             val gamesForCharacter = games.filter {
                 it.players.any {player -> player.characterId == characterId && player.player!!.id == editingPlayer!!.id }
             }
@@ -596,7 +591,7 @@ class PlayerActivity : BaseActivity() {
             val gamesWonCount = gamesForCharacter.count { it.players.any { player -> player.characterId == characterId && player.winner } }
             val gamesWinPercentage = Math.round(gamesWonCount.toDouble() / gamesForCharacter.size.toDouble()) * 100
 
-            statsString += "  ${CharacterHelper.getName(characterId)}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
+            statsString += "  ${Characters.byId(characterId)?.characterName}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
         }
 
         val stat = Statistic()
@@ -682,30 +677,6 @@ class PlayerActivity : BaseActivity() {
         }
 
         return longestLossStreak
-    }
-
-    private fun showTooltips() {
-        val config = ShowcaseConfig()
-        config.fadeDuration = 50L
-
-        val sequence = MaterialShowcaseSequence(this, "PlayerTooltip")
-        sequence.setConfig(config)
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(create_player_visibility_button)
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.player_visibility_tooltip)
-                .setDismissOnTouch(true)
-                .build())
-
-        sequence.addSequenceItem(MaterialShowcaseView.Builder(this)
-                .setTarget(create_player_priority_button)
-                .setDismissText(getString(R.string.tooltip_next))
-                .setContentText(R.string.player_priority_tooltip)
-                .setDismissOnTouch(true)
-                .build())
-
-        sequence.start()
     }
 
     private fun showSnackbar(text: String) {

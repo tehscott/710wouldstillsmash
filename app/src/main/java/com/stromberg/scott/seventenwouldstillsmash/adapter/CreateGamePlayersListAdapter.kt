@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.GamePlayer
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 
@@ -25,7 +26,7 @@ class CreateGamePlayersListAdapter(private var players: List<GamePlayer>, privat
         val h = holder as PlayerViewHolder
         val item = players[position]
 
-        h.image.setImageResource(CharacterHelper.getImage(item.characterId))
+        h.image.setImageResource(Characters.byId(item.characterId)?.imageRes ?: 0)
         h.name.text = item.player?.name
         h.trophy.visibility = if(item.winner) View.VISIBLE else View.GONE
         h.parent.setOnClickListener({ itemClicked(position) })

@@ -3,7 +3,6 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
@@ -21,20 +20,12 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_main.*
-import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper
-import uk.co.deanwild.materialshowcaseview.IShowcaseListener
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 
 class MainActivity : FragmentActivity() {
     private var db = FirebaseDatabase.getInstance()
     private lateinit var viewPagerAdapter: ListPagerAdapter
-    private val tooltipQueue = LinkedList<MaterialShowcaseView>()
     private var currentItem: Int = -1
-
-    override fun attachBaseContext(newBase: Context) {
-        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase))
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +43,6 @@ class MainActivity : FragmentActivity() {
                 }
 
                 getCurrentFragment().hasFragmentBeenShown = true
-                getCurrentFragment().showTooltips()
             }
         })
 
@@ -77,17 +67,10 @@ class MainActivity : FragmentActivity() {
         getGameTypes()
     }
 
-    override fun onResume() {
-        super.onResume()
-
-        showTooltips()
-    }
-
     private fun setup() {
         setupGroupCodeText()
         setSelectedButton(0)
         getCurrentFragment().hasFragmentBeenShown = true
-        getCurrentFragment().showTooltips()
 
         fab.setOnClickListener {
             getCurrentFragment().fabClicked()
@@ -112,7 +95,7 @@ class MainActivity : FragmentActivity() {
 
         group_code.text = selectedGroup?.code
         group_code.setOnClickListener {
-            val allGroups = ArrayList(groups.map { "${it.code} (${it.type.shortName()})" })
+            val allGroups = ArrayList(groups.map { "${it.code}" })
             allGroups.add("Add Group")
 
             val dialogBuilder = AlertDialog.Builder(this)
@@ -175,73 +158,6 @@ class MainActivity : FragmentActivity() {
             }
 
             this.currentItem = currentItem
-        }
-    }
-
-    private fun showTooltips() {
-        group_code.post {
-            queueTooltip(MaterialShowcaseView.Builder(this)
-                    .setTarget(games_button)
-                    .singleUse("GamesButtonTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.games_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .setShapePadding(8)
-                    .build())
-
-            queueTooltip(MaterialShowcaseView.Builder(this)
-                    .setTarget(players_button)
-                    .singleUse("PlayersButtonTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.players_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .setShapePadding(8)
-                    .build())
-
-            queueTooltip(MaterialShowcaseView.Builder(this)
-                    .setTarget(characters_button)
-                    .singleUse("CharactersButtonTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.characters_button_tooltip)
-                    .setDismissOnTouch(true)
-                    .setShapePadding(8)
-                    .build())
-
-            queueTooltip(MaterialShowcaseView.Builder(this)
-                    .setTarget(group_code)
-                    .singleUse("GroupCodeTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.group_code_tooltip)
-                    .setDismissOnTouch(true)
-                    .withRoundedRectangleShape(24, 24)
-                    .setShapePadding(24)
-                    .build())
-        }
-    }
-
-    fun queueTooltip(tooltip: MaterialShowcaseView) {
-        tooltip.addShowcaseListener(object: IShowcaseListener {
-            override fun onShowcaseDisplayed(showcaseView: MaterialShowcaseView?) {}
-
-            override fun onShowcaseDismissed(showcaseView: MaterialShowcaseView?) {
-                Log.d("Tooltip", "Dismissing tooltip: " + showcaseView?.showcaseId)
-                tooltipQueue.remove()
-
-                if(tooltipQueue.isNotEmpty()) {
-                    Log.d("Tooltip", "Showing tooltip: " + tooltipQueue.peek().showcaseId)
-                    tooltipQueue.peek().show(this@MainActivity)
-                }
-            }
-        })
-
-        if(tooltipQueue.firstOrNull { it.showcaseId == tooltip.showcaseId } == null) {
-            Log.d("Tooltip", "Queueing tooltip: " + tooltip.showcaseId)
-            tooltipQueue.add(tooltip)
-        }
-
-        if(tooltipQueue.size == 1) {
-            Log.d("Tooltip", "Showing tooltip: " + tooltip.showcaseId)
-            tooltipQueue.peek().show(this)
         }
     }
 

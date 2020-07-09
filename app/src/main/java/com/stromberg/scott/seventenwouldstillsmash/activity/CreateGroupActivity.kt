@@ -4,26 +4,18 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
-import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.TextView
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.adapter.GameTypeListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
-import com.stromberg.scott.seventenwouldstillsmash.model.GroupType
-import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
-import com.stromberg.scott.seventenwouldstillsmash.util.setBackgroundColor
-import com.stromberg.scott.seventenwouldstillsmash.util.setTextAttributes
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -32,8 +24,6 @@ class CreateGroupActivity : BaseActivity() {
 
     private lateinit var groupCodeTextView: TextView
     private lateinit var createGroupButton: Button
-    private lateinit var ssb4RadioButton: RadioButton
-    private lateinit var ssbUltimateRadioButton: RadioButton
 
     private var code: String? = null
 
@@ -43,8 +33,6 @@ class CreateGroupActivity : BaseActivity() {
 
         groupCodeTextView = findViewById(R.id.create_group_code_text_view)
         createGroupButton = findViewById(R.id.create_group_create_button)
-        ssb4RadioButton = findViewById(R.id.ssb_4_radio_button)
-        ssbUltimateRadioButton = findViewById(R.id.ssb_ultimate_radio_button)
 
         if(intent?.extras?.containsKey("Code") == true) {
             code = intent.extras?.getString("Code")?.toUpperCase()
@@ -89,7 +77,6 @@ class CreateGroupActivity : BaseActivity() {
 
         val group = Group()
         group.code = code
-        group.type = if (ssb4RadioButton.isChecked) GroupType.SMASH4 else GroupType.ULTIMATE
         group.isSelected = true
 
         db.reference

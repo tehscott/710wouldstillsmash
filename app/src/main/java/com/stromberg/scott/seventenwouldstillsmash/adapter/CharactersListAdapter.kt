@@ -6,6 +6,7 @@ import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.stromberg.scott.seventenwouldstillsmash.App
 import com.stromberg.scott.seventenwouldstillsmash.R
+import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
@@ -13,11 +14,13 @@ import java.util.*
 
 class CharactersListAdapter(characterIds: List<Int>, private var gamesForAllPlayers: HashMap<Int, List<Game>>) : BaseQuickAdapter<Int, BaseViewHolder>(R.layout.character_list_item, characterIds) {
     override fun convert(viewHolder: BaseViewHolder?, characterId: Int) {
+        val character = Characters.byId(characterId)
+
         val characterImage = viewHolder?.getView<ImageView>(R.id.character_list_item_character_image)
         val characterName = viewHolder?.getView<TextView>(R.id.character_list_item_character_name)
 
-        characterImage?.setImageResource(CharacterHelper.getImage(characterId))
-        characterName?.text = CharacterHelper.getName(characterId)
+        characterImage?.setImageResource(character?.imageRes ?: 0)
+        characterName?.text = character?.characterName
 
         val gamesForThisPlayer = gamesForAllPlayers[characterId]
         val gameTypesForThisPlayer = HashMap<String?, Int>()

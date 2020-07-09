@@ -22,7 +22,6 @@ import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.model.PlayerStatistic
 import com.stromberg.scott.seventenwouldstillsmash.util.*
-import uk.co.deanwild.materialshowcaseview.MaterialShowcaseView
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -106,8 +105,6 @@ class PlayersListFragment: BaseListFragment() {
             setContentShown(true)
 
             emptyStateTextView.visibility = if(players.size == 0) View.VISIBLE else View.GONE
-            readyToShowTooltips = true
-            showTooltips()
         }
     }
 
@@ -151,8 +148,6 @@ class PlayersListFragment: BaseListFragment() {
                             setContentShown(true)
 
                             emptyStateTextView.visibility = View.VISIBLE
-                            readyToShowTooltips = true
-                            showTooltips()
                         }
                     }
                 })
@@ -218,9 +213,6 @@ class PlayersListFragment: BaseListFragment() {
         pullToRefreshView.refreshComplete()
         setContentShown(true)
         emptyStateTextView.visibility = View.GONE
-
-        readyToShowTooltips = true
-        showTooltips()
     }
 
     private fun createPlayer() {
@@ -232,34 +224,5 @@ class PlayersListFragment: BaseListFragment() {
         val intent = Intent(activity, PlayerActivity::class.java)
         intent.putExtra("player", player)
         startActivity(intent)
-    }
-
-    override fun showTooltips() {
-        if(readyToShowTooltips && hasFragmentBeenShown) {
-            val firstView = recyclerView.getChildAt(0)
-
-            (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
-                    .setTarget(activity!!.findViewById(R.id.fab))
-                    .singleUse("AddPlayerTooltip")
-                    .setDismissText(getString(R.string.tooltip_next))
-                    .setContentText(R.string.add_player_tooltip)
-                    .setDismissOnTouch(true)
-                    .build())
-
-            if (firstView != null) {
-//                val recyclerViewPadding = 4.toPx
-//                val listItemMargin = 4.toPx
-
-                (activity as MainActivity).queueTooltip(MaterialShowcaseView.Builder(activity)
-                        .setTarget(firstView)
-                        .singleUse("EditPlayerTooltip")
-                        .setDismissText(getString(R.string.tooltip_next))
-                        .setContentText(R.string.edit_player_tooltip)
-                        .setDismissOnTouch(true)
-                        .withRectangleShape(true)
-//                        .setOffset(0, activity!!.findViewById<View>(R.id.top_app_bar).measuredHeight + GameTypeHelper.getStatusBarHeight(activity!!) + recyclerViewPadding + listItemMargin)
-                        .build())
-            }
-        }
     }
 }
