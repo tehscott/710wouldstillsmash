@@ -15,19 +15,21 @@ import com.stromberg.scott.seventenwouldstillsmash.util.toPx
 import de.hdodenhof.circleimageview.CircleImageView
 
 class CharacterPagerAdapter(val context: Context) : PagerAdapter() {
+    private val characters = Characters.values().sortedBy { it.characterName }
+
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val character = Characters.byId(position)
+        val character = characters[position]
 
         val inflater = LayoutInflater.from(context)
         val layout = inflater.inflate(R.layout.character_pager_item, container, false)
 
         val image = layout.findViewById<CircleImageView>(R.id.character_pager_image)
-        image.setImageResource(character?.imageRes ?: 0)
+        image.setImageResource(character.imageRes)
 //        val lp = LinearLayout.LayoutParams(80.toPx, 80.toPx)
 //        lp.gravity = Gravity.CENTER
 //        image.layoutParams = lp
 
-        layout.findViewById<TextView>(R.id.character_pager_name).setText(character?.characterName)
+        layout.findViewById<TextView>(R.id.character_pager_name).text = character.characterName
 
         container.addView(layout)
 
