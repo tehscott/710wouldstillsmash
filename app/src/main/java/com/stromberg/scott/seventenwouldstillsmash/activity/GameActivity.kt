@@ -28,19 +28,19 @@ import java.util.*
 
 class GameActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
-    var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy")
+    private var dateFormatter = SimpleDateFormat("EEE, MMM d yyyy", Locale.getDefault())
 
     private var game: Game = Game()
     private var lastGame: Game? = null
     private var isEdit: Boolean = false
     private var hasMadeEdit: Boolean = false
     private var players = ArrayList<Player>()
-    private var playersAdapter: CreateGamePlayersListAdapter? = null
-    private lateinit var topFiveCharacters: HashMap<String, ArrayList<Int>>
+    private lateinit var playersAdapter: CreateGamePlayersListAdapter
+    private var topFiveCharacters = HashMap<String, ArrayList<Int>>()
 
-    private var dateTextView: TextView? = null
-    private var playersList: RecyclerView? = null
-    private var addPlayerButton: TextView? = null
+    private lateinit var dateTextView: TextView
+    private lateinit var playersList: RecyclerView
+    private lateinit var addPlayerButton: TextView
     private var addPlayerDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,15 +73,15 @@ class GameActivity : BaseActivity() {
             }
         }
 
-        dateTextView!!.text = dateFormatter.format(Date(game.date))
-        dateTextView!!.setOnClickListener {
-            var datePicker = DatePickerDialog(this)
+        dateTextView.text = dateFormatter.format(Date(game.date))
+        dateTextView.setOnClickListener {
+            val datePicker = DatePickerDialog(this)
             datePicker.setOnDateSetListener { _, year, month, day ->
                 val cal = Calendar.getInstance()
                 cal.set(year, month, day)
                 game.date = cal.time.time
 
-                dateTextView!!.text = dateFormatter.format(Date(game.date))
+                dateTextView.text = dateFormatter.format(Date(game.date))
                 hasMadeEdit = true
             }
             datePicker.show()
@@ -89,14 +89,14 @@ class GameActivity : BaseActivity() {
 
         game_title_text.text = if (isEdit) "Edit Game" else "New Game"
 
-        addPlayerButton?.setOnClickListener { addPlayer(null) }
+        addPlayerButton.setOnClickListener { addPlayer(null) }
 
         val sortedPlayers = game.players.sortedBy { it.player?.name }.sortedByDescending { it.winner }
         playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
-        playersList!!.adapter = playersAdapter
-        playersList!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        playersList.adapter = playersAdapter
+        playersList.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        playersList!!.addItemDecoration(dividerItemDecoration)
+        playersList.addItemDecoration(dividerItemDecoration)
 
         if(isEdit) {
             delete_button.setOnClickListener { deleteGame(true,false) }
@@ -230,18 +230,18 @@ class GameActivity : BaseActivity() {
     }
 
     private fun addPlayer(editingPlayer: GamePlayer?) {
+        val characters = Characters.values().sortedBy { it.characterName }
         val gamePlayer = editingPlayer ?: GamePlayer()
         val layout = layoutInflater.inflate(R.layout.create_game_players_dialog, null)
-//        val playerSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-//        val characterSpinner = layout.findViewById<Spinner>(R.id.create_game_players_dialog_character_spinner)
         val isWinnerCheckbox = layout.findViewById<CheckBox>(R.id.create_game_players_dialog_winner)
         val editingCharacterId = gamePlayer.characterId
 
+        val unusedPlayers = getUnusedPlayers(gamePlayer)
         val playerPager = layout.findViewById<VelocityViewPager>(R.id.player_view_pager)
         playerPager.offscreenPageLimit = 10
         playerPager.pageMargin = 2
-        playerPager.adapter = PlayerPagerAdapter(this@GameActivity, getUnusedPlayers(gamePlayer))
-        playerPager.viewTreeObserver.addOnPreDrawListener(object: ViewTreeObserver.OnPreDrawListener {
+        playerPager.adapter = PlayerPagerAdapter(this@GameActivity, unusedPlayers)
+        playerPager.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
                 val width = playerPager.measuredWidth
                 val desiredWidth = 96.toPx
@@ -253,6 +253,9 @@ class GameActivity : BaseActivity() {
                 return true
             }
         })
+        editingPlayer?.player?.id?.let { playerToSelectId ->
+            playerPager.currentItem = players.indexOfFirst { it.id == playerToSelectId }
+        }
 
         val characterPager = layout.findViewById<VelocityViewPager>(R.id.character_view_pager)
         characterPager.offscreenPageLimit = 10
@@ -270,41 +273,11 @@ class GameActivity : BaseActivity() {
                 return true
             }
         })
+        editingPlayer?.characterId?.let { characterToSelectId ->
+            characterPager.currentItem = characters.indexOfFirst { it.id == characterToSelectId }
+        }
 
-//        val playerNames = ArrayList<String>(getUnusedPlayers(gamePlayer).map { it.name })
-//        playerNames.add(0, "")
-//        playerNames.add(1, "Add Player")
-
-//        val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
-
-//        playerSpinner.adapter = playerAdapter
-//
-//        if(editingPlayer != null) {
-//            val player = players.find { it.id.equals(editingPlayer.player!!.id) }
-//            playerSpinner.setSelection(getUnusedPlayers(gamePlayer).indexOf(player) + 2, true)
-//
-//            setupCharacterDropdown(characterSpinner, gamePlayer)
-//            val topCharactersForThisPlayer = getTopCharactersForPlayer(editingPlayer)
-//            characterSpinner.setSelection(editingPlayer.characterId + topCharactersForThisPlayer.size, true)
-//
-//            isWinnerCheckbox.isChecked = editingPlayer.winner
-//        }
-//
-//        playerSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-//                when (position) {
-//                    0 -> characterSpinner.adapter = null
-//                    1 -> showNameEntryDialog(gamePlayer)
-//                    else -> {
-//                        gamePlayer.player = getUnusedPlayers(gamePlayer)[position - 2]
-//                        setupCharacterDropdown(characterSpinner, gamePlayer)
-//                    }
-//                }
-//            }
-//            override fun onNothingSelected(arg0: AdapterView<*>) {}
-//        }
-
-        isWinnerCheckbox.setOnCheckedChangeListener { _, isChecked -> gamePlayer.winner = isChecked }
+        isWinnerCheckbox.isChecked = gamePlayer.winner
 
         val builder = AlertDialog.Builder(this)
         builder.setTitle(if(editingPlayer != null) "Edit Player" else "Add Player")
@@ -317,6 +290,10 @@ class GameActivity : BaseActivity() {
 
         builder.setPositiveButton(if(editingPlayer != null) "Save" else "Add Player") { dialog, _ ->
             run {
+                gamePlayer.player = unusedPlayers[playerPager.currentItem]
+                gamePlayer.characterId = characters[characterPager.currentItem].id
+                gamePlayer.winner = isWinnerCheckbox.isChecked
+
                 if(gamePlayer.player!!.id == null) {
                     gamePlayer.player!!.id = Calendar.getInstance().timeInMillis.toString()
 
@@ -332,7 +309,7 @@ class GameActivity : BaseActivity() {
                                         players.add(gamePlayer.player!!)
                                     }
                                 } else {
-                                    playersList!!.adapter!!.notifyDataSetChanged()
+                                    playersList.adapter!!.notifyDataSetChanged()
                                 }
 
                                 hasMadeEdit = true
@@ -348,7 +325,7 @@ class GameActivity : BaseActivity() {
                         addPlayerToGame(gamePlayer)
                     }
                     else {
-                        playersList!!.adapter!!.notifyDataSetChanged()
+                        playersList.adapter!!.notifyDataSetChanged()
                     }
 
                     hasMadeEdit = true
@@ -366,92 +343,17 @@ class GameActivity : BaseActivity() {
                 }
 
                 game.players.remove(editingPlayer)
-                playersList!!.adapter!!.notifyDataSetChanged()
+                playersList.adapter!!.notifyDataSetChanged()
                 hasMadeEdit = true
 
                 dialog.dismiss()
             }
         }
 
-        addPlayerDialog = builder.create()
-        addPlayerDialog!!.show()
+        addPlayerDialog = builder.create().also { it.show() }
     }
 
-    private fun showNameEntryDialog(gamePlayer: GamePlayer) {
-        val eightDp = resources.getDimensionPixelSize(R.dimen.space_8dp)
-        val layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val linearLayout = LinearLayout(this)
-        linearLayout.layoutParams = layoutParams
-        linearLayout.setPadding(eightDp, eightDp, eightDp, eightDp)
-        val editText = EditText(this)
-        editText.layoutParams = layoutParams
-        linearLayout.addView(editText)
-
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Player name")
-        builder.setView(linearLayout)
-        builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-            if(editText.text.toString().trim().isNotEmpty()) {
-                if (gamePlayer.player == null) {
-                    gamePlayer.player = Player()
-                }
-
-                gamePlayer.player!!.name = editText.text.toString()
-
-                players.add(gamePlayer.player!!)
-                players.sortByDescending { it.name }
-
-//                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-//                val playerList = getUnusedPlayers(gamePlayer)
-//                val playerNames = ArrayList<String>(playerList.map { it.name })
-//                playerNames.add(0, "")
-//                playerNames.add(1, "Add Player")
-//
-//                val playerAdapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, playerNames)
-//                playerSpinner.adapter = playerAdapter
-//                playerSpinner.setSelection(playerList.indexOf(gamePlayer.player!!) + 2, true)
-
-                dialog.dismiss()
-            }
-            else {
-//                val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-//                playerSpinner.setSelection(0)
-//                dialog.dismiss()
-            }
-        }
-        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
-//            val playerSpinner = addPlayerDialog!!.findViewById<Spinner>(R.id.create_game_players_dialog_player_spinner)
-//            playerSpinner.setSelection(0)
-//            dialog.dismiss()
-        }
-        builder.show()
-    }
-
-    private fun setupCharacterDropdown(characterSpinner: Spinner, gamePlayer: GamePlayer) {
-        val characterNames = Characters.values().map { it.characterName } as ArrayList<String>
-        val topCharactersForThisPlayer = getTopCharactersForPlayer(gamePlayer)
-
-        val characterAdapter = CharacterNameAdapter(this, topCharactersForThisPlayer, characterNames)
-        characterSpinner.adapter = characterAdapter
-        characterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val characters = topFiveCharacters[gamePlayer.player?.id]
-
-                if(characters != null) {
-                    if (position < topCharactersForThisPlayer.size) {
-                        gamePlayer.characterId = characters[position]
-                    } else {
-                        gamePlayer.characterId = position - characters.size
-                    }
-                }
-                else {
-                    gamePlayer.characterId = position
-                }
-            }
-            override fun onNothingSelected(arg0: AdapterView<*>) {}
-        }
-    }
-
+    // TODO use this still
     private fun getTopCharactersForPlayer(gamePlayer: GamePlayer): ArrayList<String> {
         val topCharactersForThisPlayer = ArrayList<String>()
 
@@ -479,10 +381,10 @@ class GameActivity : BaseActivity() {
 
     private fun addPlayerToGame(player: GamePlayer) {
         game.players.add(player)
-        playersAdapter!!.notifyDataSetChanged()
-        playersList?.adapter?.notifyDataSetChanged()
+        playersAdapter.notifyDataSetChanged()
+        playersList.adapter?.notifyDataSetChanged()
 
-        addPlayerDialog!!.dismiss()
+        addPlayerDialog?.dismiss()
     }
 
     private fun setupToggle() {
@@ -606,7 +508,7 @@ class GameActivity : BaseActivity() {
 
                     override fun onDataChange(snapshot: DataSnapshot) {
                         snapshot.children.reversed().forEach {
-                            var player: Player = it.getValue(Player::class.java)!!
+                            val player: Player = it.getValue(Player::class.java)!!
                             player.id = it.key
                             players.add(player)
                         }
@@ -628,24 +530,9 @@ class GameActivity : BaseActivity() {
 
     private fun addPlayersFromLastGame() {
         val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-        var showPrompt = prefs.getBoolean(getString(R.string.shared_prefs_show_copy_last_game_prompt), true)
+        val showPrompt = prefs.getBoolean(getString(R.string.shared_prefs_show_copy_last_game_prompt), true)
 
         if(!isEdit && lastGame != null && showPrompt) {
-//            Snackbar.make(content, "Copy the players from last game?", 10000)
-//                    .setBackgroundColor(R.color.primary)
-//                    .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-//                    .setAction("Do It") {
-//                            lastGame!!.players.forEach { player ->
-//                                game.players.add(player)
-//                            }
-//
-//                            playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
-//                            playersList!!.adapter = playersAdapter
-//                            playersAdapter!!.notifyDataSetChanged()
-//                            playersList?.adapter?.notifyDataSetChanged()
-//                        }
-//                    .show()
-
             val builder = AlertDialog.Builder(this)
             builder.setTitle("Copy last game?")
             builder.setMessage("Do you want to copy the players from last game?")
@@ -656,9 +543,9 @@ class GameActivity : BaseActivity() {
                 }
 
                 playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
-                playersList!!.adapter = playersAdapter
-                playersAdapter!!.notifyDataSetChanged()
-                playersList?.adapter?.notifyDataSetChanged()
+                playersList.adapter = playersAdapter
+                playersAdapter.notifyDataSetChanged()
+                playersList.adapter?.notifyDataSetChanged()
 
                 dialog.dismiss()
             }
@@ -669,43 +556,6 @@ class GameActivity : BaseActivity() {
                 dialog.dismiss()
             }
             builder.show()
-        }
-    }
-
-    private class CharacterNameAdapter(context: Context, var recentCharacters: ArrayList<String>, var allCharacters: ArrayList<String>) : ArrayAdapter<String>(context, android.R.layout.select_dialog_item) {
-        override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            var listItem = convertView
-            if(listItem == null) {
-                listItem = LayoutInflater.from(context).inflate(R.layout.character_name_list_item, null) as LinearLayout
-            }
-
-            listItem.findViewById<View>(R.id.divider).visibility = View.INVISIBLE
-
-            if(position < recentCharacters.size) {
-                listItem.findViewById<TextView>(R.id.name).text = recentCharacters[position]
-
-                if(position == recentCharacters.size - 1) {
-                    listItem.findViewById<View>(R.id.divider).visibility = View.VISIBLE
-                }
-            }
-            else {
-                listItem.findViewById<TextView>(R.id.name).text = allCharacters[position - recentCharacters.size]
-            }
-
-            return listItem
-        }
-
-        override fun getItem(position: Int): String {
-            if(position < recentCharacters.size) {
-                return recentCharacters[position]
-            }
-            else {
-                return allCharacters[position - recentCharacters.size]
-            }
-        }
-
-        override fun getCount(): Int {
-            return recentCharacters.size + allCharacters.size
         }
     }
 }
