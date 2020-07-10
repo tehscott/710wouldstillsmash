@@ -38,9 +38,6 @@ class GameActivity : BaseActivity() {
     private lateinit var playersAdapter: CreateGamePlayersListAdapter
     private var topFiveCharacters = HashMap<String, ArrayList<Int>>()
 
-    private lateinit var dateTextView: TextView
-    private lateinit var playersList: RecyclerView
-    private lateinit var addPlayerButton: TextView
     private var addPlayerDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,17 +47,11 @@ class GameActivity : BaseActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        dateTextView = findViewById(R.id.create_game_date)
-        playersList = findViewById(R.id.create_game_players_list)
-        addPlayerButton = findViewById(R.id.create_game_players_title)
-
         isEdit = intent?.extras?.containsKey("Game") ?: false
 
         if(isEdit && intent?.extras != null) {
             game = intent.extras!!.getParcelable("Game")!!
-        }
-        else {
-            game.gameType = GameTypeHelper.getGameTypes()?.firstOrNull()?.id
+        } else {
             game.date = Calendar.getInstance().time.time
         }
 
@@ -73,15 +64,15 @@ class GameActivity : BaseActivity() {
             }
         }
 
-        dateTextView.text = dateFormatter.format(Date(game.date))
-        dateTextView.setOnClickListener {
+        create_game_date.text = dateFormatter.format(Date(game.date))
+        create_game_date.setOnClickListener {
             val datePicker = DatePickerDialog(this)
             datePicker.setOnDateSetListener { _, year, month, day ->
                 val cal = Calendar.getInstance()
                 cal.set(year, month, day)
                 game.date = cal.time.time
 
-                dateTextView.text = dateFormatter.format(Date(game.date))
+                create_game_date.text = dateFormatter.format(Date(game.date))
                 hasMadeEdit = true
             }
             datePicker.show()
@@ -89,14 +80,14 @@ class GameActivity : BaseActivity() {
 
         game_title_text.text = if (isEdit) "Edit Game" else "New Game"
 
-        addPlayerButton.setOnClickListener { addPlayer(null) }
+        create_game_players_title.setOnClickListener { addPlayer(null) }
 
         val sortedPlayers = game.players.sortedBy { it.player?.name }.sortedByDescending { it.winner }
         playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
-        playersList.adapter = playersAdapter
-        playersList.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        create_game_players_list.adapter = playersAdapter
+        create_game_players_list.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        playersList.addItemDecoration(dividerItemDecoration)
+        create_game_players_list.addItemDecoration(dividerItemDecoration)
 
         if(isEdit) {
             delete_button.setOnClickListener { deleteGame(true,false) }
@@ -107,18 +98,8 @@ class GameActivity : BaseActivity() {
             save_button.setOnClickListener { createGame() }
         }
 
-        add_game_type_button.setOnClickListener {
-            startActivityForResult(Intent(this, GameTypeListActivity::class.java), 6969)
-        }
-
         setContentShown(false)
         getPlayers()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        setupToggle()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -154,8 +135,6 @@ class GameActivity : BaseActivity() {
 
             if(gameTypeId != null) {
                 hasMadeEdit = true
-                game.gameType = gameTypeId
-                setupToggle()
             }
         }
     }
@@ -309,7 +288,7 @@ class GameActivity : BaseActivity() {
                                         players.add(gamePlayer.player!!)
                                     }
                                 } else {
-                                    playersList.adapter!!.notifyDataSetChanged()
+                                    create_game_players_list.adapter!!.notifyDataSetChanged()
                                 }
 
                                 hasMadeEdit = true
@@ -325,7 +304,7 @@ class GameActivity : BaseActivity() {
                         addPlayerToGame(gamePlayer)
                     }
                     else {
-                        playersList.adapter!!.notifyDataSetChanged()
+                        create_game_players_list.adapter!!.notifyDataSetChanged()
                     }
 
                     hasMadeEdit = true
@@ -343,7 +322,7 @@ class GameActivity : BaseActivity() {
                 }
 
                 game.players.remove(editingPlayer)
-                playersList.adapter!!.notifyDataSetChanged()
+                create_game_players_list.adapter!!.notifyDataSetChanged()
                 hasMadeEdit = true
 
                 dialog.dismiss()
@@ -382,121 +361,9 @@ class GameActivity : BaseActivity() {
     private fun addPlayerToGame(player: GamePlayer) {
         game.players.add(player)
         playersAdapter.notifyDataSetChanged()
-        playersList.adapter?.notifyDataSetChanged()
+        create_game_players_list.adapter?.notifyDataSetChanged()
 
         addPlayerDialog?.dismiss()
-    }
-
-    private fun setupToggle() {
-        toggle_container.removeAllViews()
-
-        val gameTypes = GameTypeHelper.getGameTypes()?.filter { !it.isDeleted }
-
-        var selectedView: View? = null
-        if(gameTypes?.isNotEmpty() == true) {
-            val firstSeparator = View(this)
-            val firstParams = LinearLayout.LayoutParams(1.toPx, LinearLayout.LayoutParams.MATCH_PARENT)
-            firstSeparator.layoutParams = firstParams
-            firstSeparator.setBackgroundColor(resources.getColor(R.color.light_gray, null))
-
-            toggle_container.addView(firstSeparator)
-
-            gameTypes.forEachIndexed { index, gameType ->
-                val selected = game.gameType == gameType.id
-
-                val lp = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT)
-                lp.gravity = Gravity.CENTER
-                val padding = resources.getDimensionPixelSize(R.dimen.space_8dp)
-
-                val button = Button(this)
-                button.layoutParams = lp
-                button.text = gameType.name
-//            button.compoundDrawables = gameType.icon
-                button.isAllCaps = true
-                button.setPadding(padding, padding, padding, padding)
-                button.gravity = Gravity.CENTER
-                button.tag = gameType.id
-
-                button.setOnClickListener { gameTypeClicked(gameType) }
-
-                if(selected) {
-                    button.setTextColor(resources.getColor(R.color.text_primary, null))
-                }
-                else {
-                    button.setTextColor(resources.getColor(R.color.text_secondary, null))
-                }
-
-                if(index == gameTypes.size - 1) {
-                    if(selected) {
-                        button.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
-                    }
-                    else {
-                        button.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
-                    }
-                }
-                else {
-                    if(selected) {
-                        button.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
-                    }
-                    else {
-                        button.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
-                    }
-                }
-
-                toggle_container.addView(button)
-
-                if(index != gameTypes.size - 1) {
-                    val separator = View(this)
-                    val params = LinearLayout.LayoutParams(1.toPx, LinearLayout.LayoutParams.MATCH_PARENT)
-                    separator.layoutParams = params
-                    separator.setBackgroundResource(R.color.light_gray)
-
-                    toggle_container.addView(separator)
-                }
-
-                if(selected) {
-                    selectedView = button
-                }
-            }
-
-            selectedView?.postDelayed({ toggle_scrollview.scrollToView(selectedView) }, 250)
-
-        }
-        else {
-            add_game_type_button.setBackgroundResource(R.drawable.toggle_add_deselected_ripple)
-        }
-    }
-
-    private fun gameTypeClicked(gameType: GameType) {
-        if(game.gameType != gameType.id) {
-            hasMadeEdit = true
-
-            val selectedButton = toggle_container.findViewWithTag<Button>(game.gameType)
-            val buttonToSelect = toggle_container.findViewWithTag<Button>(gameType.id)
-
-            game.gameType = gameType.id
-
-            val selectedButtonIndex = toggle_container.indexOfChild(selectedButton)
-            val buttonToSelectIndex = toggle_container.indexOfChild(buttonToSelect)
-
-            if(selectedButtonIndex == toggle_container.childCount - 1) {
-                selectedButton?.setBackgroundResource(R.drawable.toggle_right_deselected_ripple)
-            }
-            else {
-                selectedButton?.setBackgroundResource(R.drawable.toggle_middle_deselected_ripple)
-            }
-
-            selectedButton?.setTextColor(resources.getColor(R.color.text_secondary, null))
-
-            if(buttonToSelectIndex == toggle_container.childCount - 1) {
-                buttonToSelect?.setBackgroundResource(R.drawable.toggle_right_selected_ripple)
-            }
-            else {
-                buttonToSelect?.setBackgroundResource(R.drawable.toggle_middle_selected_ripple)
-            }
-
-            buttonToSelect?.setTextColor(resources.getColor(R.color.text_primary, null))
-        }
     }
 
     private fun getPlayers() {
@@ -543,9 +410,9 @@ class GameActivity : BaseActivity() {
                 }
 
                 playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
-                playersList.adapter = playersAdapter
+                create_game_players_list.adapter = playersAdapter
                 playersAdapter.notifyDataSetChanged()
-                playersList.adapter?.notifyDataSetChanged()
+                create_game_players_list.adapter?.notifyDataSetChanged()
 
                 dialog.dismiss()
             }

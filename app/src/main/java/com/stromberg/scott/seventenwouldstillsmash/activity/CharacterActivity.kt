@@ -2,7 +2,6 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
@@ -21,12 +20,10 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
 import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
-import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_character.*
 import java.util.*
-import kotlin.collections.HashMap
 
 class CharacterActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -207,19 +204,6 @@ class CharacterActivity : BaseActivity() {
     private fun getStatistics() {
         val statistics = ArrayList<Statistic>()
 
-        val gameTypes = HashMap<String?, Int>()
-
-        games.map { it.gameType }.forEach { gameTypeId ->
-            val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-            if(gameType != null && !gameType.isDeleted) {
-                gameTypes[gameTypeId] = games.count { game -> game.gameType == gameTypeId }
-            }
-        }
-
-        val top2GameTypes = gameTypes.toList().sortedByDescending { (_, count) -> count}.take(2).map { it.first }
-        Log.d("gametypes", top2GameTypes.toString())
-
         val gamesThisCharacterPlayedAllTime = games.filter { it.players.any { player -> player.characterId == mCharacterId } }
         val gamesThisCharacterWonAllTime: Float = (gamesThisCharacterPlayedAllTime.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }).toFloat()
         val last30GamesThisCharacterPlayed = gamesThisCharacterPlayedAllTime.sortedByDescending { it.date }.take(30)
@@ -228,56 +212,14 @@ class CharacterActivity : BaseActivity() {
         val allGameTypesOverallWinRate = Math.round(((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
         val allGameTypesLast30GamesWinRate = Math.round(((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
 
-        val top2GameTypeAllTimeStats = HashMap<String?, String>()
-        val top2GameTypeLast30GamesStats = HashMap<String?, String>()
-        top2GameTypes.forEach { gameTypeId ->
-            val gamesThisCharacterPlayedForThisGameTypeAllTime = gamesThisCharacterPlayedAllTime.filter { game -> game.gameType == gameTypeId }
-            val gamesThisCharacterWonForThisGameTypeAllTimeCount = gamesThisCharacterPlayedForThisGameTypeAllTime.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }
-            val thisGameTypeAllTimeWinRateDouble  = Math.round((gamesThisCharacterWonForThisGameTypeAllTimeCount / gamesThisCharacterPlayedForThisGameTypeAllTime.size.toDouble()) * 100)
-            val thisGameTypeAllTimeWinRate = thisGameTypeAllTimeWinRateDouble.toString() + "% (" + gamesThisCharacterWonForThisGameTypeAllTimeCount + "/" + gamesThisCharacterPlayedForThisGameTypeAllTime.size + ")"
-
-            val last30GamesThisCharacterPlayedForThisGameType = gamesThisCharacterPlayedAllTime.filter{ game -> game.gameType == gameTypeId }.sortedByDescending { it.date }.take(30)
-            val gamesThisCharacterWonForThisGameTypeLast30GamesCount = last30GamesThisCharacterPlayedForThisGameType.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }
-            val thisGameTypeLast30GamesWinRateDouble = Math.round((gamesThisCharacterWonForThisGameTypeLast30GamesCount / last30GamesThisCharacterPlayedForThisGameType.size.toDouble()) * 100)
-            val thisGameTypeLast30GamesWinRate = thisGameTypeLast30GamesWinRateDouble.toString() + "% (" + gamesThisCharacterWonForThisGameTypeLast30GamesCount + "/" + last30GamesThisCharacterPlayedForThisGameType.size + ")"
-
-            if(gamesThisCharacterPlayedForThisGameTypeAllTime.isNotEmpty()) {
-                top2GameTypeAllTimeStats[gameTypeId] = thisGameTypeAllTimeWinRate
-            }
-
-            if(last30GamesThisCharacterPlayedForThisGameType.isNotEmpty()) {
-                top2GameTypeLast30GamesStats[gameTypeId] = thisGameTypeLast30GamesWinRate
-            }
-        }
-
         val allTimeWinRates = Statistic()
         allTimeWinRates.characterId = mCharacterId
-        allTimeWinRates.playerValue = " Win rates (all games):\n\t " +
-                "Overall: " + allGameTypesOverallWinRate + "\n\t "
-
-        top2GameTypeAllTimeStats.forEach { gameTypeId, winRateText ->
-            val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-            if(gameType != null) {
-                allTimeWinRates.playerValue += "${gameType.name}: $winRateText\n\t "
-            }
-        }
-        allTimeWinRates.playerValue = allTimeWinRates.playerValue.removeSuffix("\n\t ")
+        allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
         statistics.add(allTimeWinRates)
 
         val thirtyDayWinRates = Statistic()
         thirtyDayWinRates.characterId = mCharacterId
-        thirtyDayWinRates.playerValue = " Win rates (last 30 games):\n\t " +
-                "Overall: " + allGameTypesLast30GamesWinRate + "\n\t "
-
-        top2GameTypeLast30GamesStats.forEach { gameTypeId, winRateText ->
-            val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-            if(gameType != null) {
-                thirtyDayWinRates.playerValue += "${gameType.name}: $winRateText\n\t "
-            }
-        }
-        thirtyDayWinRates.playerValue = thirtyDayWinRates.playerValue.removeSuffix("\n\t ")
+        thirtyDayWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
         statistics.add(thirtyDayWinRates)
 
         // Best vs character
@@ -343,42 +285,25 @@ class CharacterActivity : BaseActivity() {
         }
 
         // Streaks
-        if(gamesThisCharacterPlayedAllTime.size > 0) {
-            val allGamesStreak = getCurrentStreak(null)
+        if(gamesThisCharacterPlayedAllTime.isNotEmpty()) {
+            val allGamesStreak = getCurrentStreak()
 
             val streaks = Statistic()
             streaks.characterId = mCharacterId
             streaks.playerValue = " Streaks:\n\t " +
                     "Current streak (all games): " + allGamesStreak.first + " " + allGamesStreak.second.toString(allGamesStreak.first) + "\n\t " +
-                    "Longest win streak (all games): " + getLongestWinStreak(null) + "\n\t " +
-                    "Longest losing streak (all games): " + getLongestLosingStreak(null) + "\n\t "
-
-            gameTypes.forEach { gameType ->
-                val gt = GameTypeHelper.getGameType(gameType.key)
-                val streak = getCurrentStreak(gt?.id)
-
-                streaks.playerValue += "\n\t Current ${gt?.name} streak: " + streak.first + " " + streak.second.toString(streak.first) + "\n\t " +
-                        "Longest ${gt?.name} win streak: " + getLongestWinStreak(gt?.id) + "\n\t " +
-                        "Longest ${gt?.name} losing streak: " + getLongestLosingStreak(gt?.id)
-            }
-
+                    "Longest win streak (all games): " + getLongestWinStreak() + "\n\t " +
+                    "Longest losing streak (all games): " + getLongestLosingStreak() + "\n\t "
             statistics.add(streaks)
         }
 
         setupStatisticsAdapter(statistics)
     }
 
-    private fun getCurrentStreak(gameTypeId: String?): Pair<Int, GameResult> {
+    private fun getCurrentStreak(): Pair<Int, GameResult> {
         var gameCount = 0
         var lastGameResult = GameResult.UNKNOWN
-        val sortedGames: List<Game>
-
-        if(gameTypeId?.isNotEmpty() == true) {
-            sortedGames = games.filter { it.gameType.equals(gameTypeId, true) }.sortedByDescending { it.date }
-        }
-        else {
-            sortedGames = games.sortedByDescending { it.date }
-        }
+        val sortedGames = games.sortedByDescending { it.date }
 
         sortedGames.forEach {
             val didIWin = it.players.any { it.characterId == mCharacterId && it.winner }
@@ -395,18 +320,11 @@ class CharacterActivity : BaseActivity() {
         return Pair(gameCount, lastGameResult)
     }
 
-    private fun getLongestWinStreak(gameTypeId: String?): Int {
+    private fun getLongestWinStreak(): Int {
         var winCount = 0
         var longestWinStreak = 0
 
-        val sortedGames: List<Game>
-
-        if(gameTypeId?.isNotEmpty() == true) {
-            sortedGames = games.filter { it.gameType.equals(gameTypeId, true) }.sortedBy { it.date }
-        }
-        else {
-            sortedGames = games.sortedBy { it.date }
-        }
+        val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
             if (it.players.first { it.characterId == mCharacterId }.winner) {
@@ -423,18 +341,11 @@ class CharacterActivity : BaseActivity() {
         return longestWinStreak
     }
 
-    private fun getLongestLosingStreak(gameTypeId: String?): Int {
+    private fun getLongestLosingStreak(): Int {
         var lossCount = 0
         var longestLossStreak = 0
 
-        val sortedGames: List<Game>
-
-        if(gameTypeId?.isNotEmpty() == true) {
-            sortedGames = games.filter { it.gameType.equals(gameTypeId, true) }.sortedBy { it.date }
-        }
-        else {
-            sortedGames = games.sortedBy { it.date }
-        }
+        val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
             if (it.players.first { it.characterId == mCharacterId }.winner) {

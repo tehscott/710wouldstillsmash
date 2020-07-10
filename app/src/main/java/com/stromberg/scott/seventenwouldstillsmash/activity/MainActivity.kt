@@ -17,7 +17,6 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
-import com.stromberg.scott.seventenwouldstillsmash.util.GameTypeHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -64,7 +63,7 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        getGameTypes()
+        setup()
     }
 
     private fun setup() {
@@ -159,28 +158,5 @@ class MainActivity : FragmentActivity() {
 
             this.currentItem = currentItem
         }
-    }
-
-    private fun getGameTypes() {
-        db.getReference(context = this)
-            .child("gameTypes")
-            .addListenerForSingleValueEvent( object : ValueEventListener {
-                override fun onCancelled(error: DatabaseError) { }
-
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val gameTypes = ArrayList<GameType>()
-
-                    snapshot.children.reversed().forEach {
-                        val gameType: GameType = it.getValue(GameType::class.java)!!
-                        gameTypes.add(gameType)
-                    }
-
-                    gameTypes.sortBy { it.name }
-
-                    GameTypeHelper.saveGameTypes(gameTypes)
-
-                    setup()
-                }
-            })
     }
 }

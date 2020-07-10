@@ -48,16 +48,6 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
         tv.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         tv.textSize = 16f
 
-        var iconResId = mContext.resources.getIdentifier(stat.gameType?.iconName
-                ?: "", "drawable", App.getContext().packageName)
-
-        if (iconResId == -1) {
-            iconResId = R.drawable.ic_royale
-        }
-
-        tv.setCompoundDrawablesWithIntrinsicBounds(iconResId, 0, 0, 0)
-        tv.compoundDrawablePadding = mContext.resources.getDimensionPixelSize(R.dimen.space_8dp)
-
         val winRate = Math.round((stat.gamesWon.toFloat() / stat.gamesPlayed.toFloat()) * 100f)
 
         tv.text = "$winRate% (${stat.gamesWon}/${stat.gamesPlayed})"

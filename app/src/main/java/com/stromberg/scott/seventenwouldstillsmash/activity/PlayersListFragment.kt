@@ -166,44 +166,24 @@ class PlayersListFragment: BaseListFragment() {
         val playerStats = HashMap<Player, List<PlayerStatistic>>()
 
         gamesForPlayers.forEach { player, games ->
-            val gameTypesForThisPlayer = HashMap<String?, Int>()
-            games.map { it.gameType }.forEach { gameTypeId ->
-                val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-                if(gameType != null && !gameType.isDeleted) {
-                    gameTypesForThisPlayer[gameTypeId] = games.count { game -> game.gameType == gameTypeId }
-                }
-            }
-            val top2GameTypes = gameTypesForThisPlayer.toList().sortedByDescending { (_, count) -> count}.take(2).map { it.first }
+            val allGamesWonCount = games.count { it.players.any { it.player!!.id == player.id && it.winner } }
+            val last30Games = games.sortedByDescending { it.date }.take(30)
+            val last30GamesWonCount = last30Games.count { it.players.any { it.player!!.id == player.id && it.winner } }
 
             val stats = ArrayList<PlayerStatistic>()
+            stats.add(PlayerStatistic().also {
+                it.gamesPlayed = games.size
+                it.gamesWon = allGamesWonCount
+                it.player = player
+                it.is30GameStat = false
+            })
 
-            top2GameTypes.forEach { gameTypeId ->
-                val allGamesForThisType = games.filter { it.gameType == gameTypeId }
-                val allGamesWonCount = allGamesForThisType.count { it.players.any { it.player!!.id == player.id && it.winner } }
-                val last30Games = allGamesForThisType.sortedByDescending { it.date }.take(30)
-                val last30GamesWonCount = last30Games.count { it.players.any { it.player!!.id == player.id && it.winner } }
-
-                stats.add(PlayerStatistic().also {
-                    val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-                    it.gameType = gameType
-                    it.gamesPlayed = allGamesForThisType.size
-                    it.gamesWon = allGamesWonCount
-                    it.player = player
-                    it.is30GameStat = false
-                })
-
-                stats.add(PlayerStatistic().also {
-                    val gameType = GameTypeHelper.getGameType(gameTypeId)
-
-                    it.gameType = gameType
-                    it.gamesPlayed = last30Games.size
-                    it.gamesWon = last30GamesWonCount
-                    it.player = player
-                    it.is30GameStat = true
-                })
-            }
+            stats.add(PlayerStatistic().also {
+                it.gamesPlayed = last30Games.size
+                it.gamesWon = last30GamesWonCount
+                it.player = player
+                it.is30GameStat = true
+            })
 
             playerStats[player] = stats
         }
