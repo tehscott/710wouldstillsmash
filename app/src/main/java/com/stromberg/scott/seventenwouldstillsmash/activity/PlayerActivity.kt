@@ -207,19 +207,22 @@ class PlayerActivity : BaseActivity() {
         val last30GamesThisPlayerPlayed = gamesThisPlayerPlayedAllTime.sortedByDescending { it.date }.take(30)
         val gamesThisPlayerWonOutOfLast30Games: Float = (last30GamesThisPlayerPlayed.count { it.players.any { player -> player.player.id == editingPlayer!!.id && player.winner } }).toFloat()
 
-        val allGameTypesOverallWinRate = (((gamesThisPlayerWonAllTime) / (gamesThisPlayerPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonAllTime).toInt() + "/" + gamesThisPlayerPlayedAllTime.size + ")"
-        val allGameTypesLast30GamesWinRate = (((gamesThisPlayerWonOutOfLast30Games) / (last30GamesThisPlayerPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonOutOfLast30Games).toInt() + "/" + last30GamesThisPlayerPlayed.size + ")"
+        if (gamesThisPlayerPlayedAllTime.isNotEmpty()) {
+            val allGameTypesOverallWinRate = (((gamesThisPlayerWonAllTime) / (gamesThisPlayerPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonAllTime).toInt() + "/" + gamesThisPlayerPlayedAllTime.size + ")"
+            val allTimeWinRates = Statistic()
+            allTimeWinRates.playerId = editingPlayer!!.id
+            allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
+            statistics.add(allTimeWinRates)
+        }
 
-        val allTimeWinRates = Statistic()
-        allTimeWinRates.playerId = editingPlayer!!.id
-        allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
-        statistics.add(allTimeWinRates)
+        if (last30GamesThisPlayerPlayed.isNotEmpty()) {
+            val allGameTypesLast30GamesWinRate = (((gamesThisPlayerWonOutOfLast30Games) / (last30GamesThisPlayerPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonOutOfLast30Games).toInt() + "/" + last30GamesThisPlayerPlayed.size + ")"
+            val thirtyGameWinRates = Statistic()
+            thirtyGameWinRates.playerId = editingPlayer!!.id
+            thirtyGameWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
 
-        val thirtyGameWinRates = Statistic()
-        thirtyGameWinRates.playerId = editingPlayer!!.id
-        thirtyGameWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
-
-        statistics.add(thirtyGameWinRates)
+            statistics.add(thirtyGameWinRates)
+        }
 
         // Best/Worst vs player
         var bestVsPlayer: Player? = null

@@ -80,9 +80,7 @@ class GameActivity : BaseActivity() {
 
         create_game_players_title.setOnClickListener { addPlayer(null) }
 
-        val sortedPlayers = game.players.sortedBy { it.player.name }.sortedByDescending { it.winner }
-        playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
-        create_game_players_list.adapter = playersAdapter
+        updateAdapter()
         create_game_players_list.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
         val dividerItemDecoration = DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
         create_game_players_list.addItemDecoration(dividerItemDecoration)
@@ -135,6 +133,13 @@ class GameActivity : BaseActivity() {
                 hasMadeEdit = true
             }
         }
+    }
+
+    private fun updateAdapter() {
+        val sortedPlayers = game.players.sortedBy { it.player.name }.sortedByDescending { it.winner }
+        playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
+        create_game_players_list.adapter = playersAdapter
+        create_game_players_list.adapter?.notifyDataSetChanged()
     }
 
     private fun updateGame() {
@@ -274,6 +279,7 @@ class GameActivity : BaseActivity() {
                 if(gamePlayer.player.id.isEmpty()) {
                     gamePlayer.player.id = Calendar.getInstance().timeInMillis.toString()
 
+                    // Save new player to firebase
                     db.getReference(context = this)
                             .child("players")
                             .child(gamePlayer.player.id)
@@ -286,7 +292,7 @@ class GameActivity : BaseActivity() {
                                         players.add(gamePlayer.player)
                                     }
                                 } else {
-                                    create_game_players_list.adapter!!.notifyDataSetChanged()
+                                    updateAdapter()
                                 }
 
                                 hasMadeEdit = true
@@ -302,7 +308,7 @@ class GameActivity : BaseActivity() {
                         addPlayerToGame(gamePlayer)
                     }
                     else {
-                        create_game_players_list.adapter!!.notifyDataSetChanged()
+                        updateAdapter()
                     }
 
                     hasMadeEdit = true
@@ -320,7 +326,7 @@ class GameActivity : BaseActivity() {
                 }
 
                 game.players.remove(editingPlayer)
-                create_game_players_list.adapter!!.notifyDataSetChanged()
+                updateAdapter()
                 hasMadeEdit = true
 
                 dialog.dismiss()
@@ -358,8 +364,7 @@ class GameActivity : BaseActivity() {
 
     private fun addPlayerToGame(player: GamePlayer) {
         game.players.add(player)
-        playersAdapter.notifyDataSetChanged()
-        create_game_players_list.adapter?.notifyDataSetChanged()
+        updateAdapter()
 
         addPlayerDialog?.dismiss()
     }
@@ -410,7 +415,6 @@ class GameActivity : BaseActivity() {
                 playersAdapter = CreateGamePlayersListAdapter(game.players, fun(position: Int) { addPlayer(game.players[position]) })
                 create_game_players_list.adapter = playersAdapter
                 playersAdapter.notifyDataSetChanged()
-                create_game_players_list.adapter?.notifyDataSetChanged()
 
                 dialog.dismiss()
             }

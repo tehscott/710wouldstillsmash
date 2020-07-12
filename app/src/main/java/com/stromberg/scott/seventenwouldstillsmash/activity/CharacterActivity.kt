@@ -184,18 +184,21 @@ class CharacterActivity : BaseActivity() {
         val last30GamesThisCharacterPlayed = gamesThisCharacterPlayedAllTime.sortedByDescending { it.date }.take(30)
         val gamesThisCharacterWonLast30Games: Float = (last30GamesThisCharacterPlayed.count { it.players.any { player -> player.characterId == characterId && player.winner } }).toFloat()
 
-        val allGameTypesOverallWinRate = (((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
-        val allGameTypesLast30GamesWinRate = (((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
+        if (gamesThisCharacterPlayedAllTime.isNotEmpty()) {
+            val allGameTypesOverallWinRate = (((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
+            val allTimeWinRates = Statistic()
+            allTimeWinRates.characterId = characterId
+            allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
+            statistics.add(allTimeWinRates)
+        }
 
-        val allTimeWinRates = Statistic()
-        allTimeWinRates.characterId = characterId
-        allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
-        statistics.add(allTimeWinRates)
-
-        val thirtyDayWinRates = Statistic()
-        thirtyDayWinRates.characterId = characterId
-        thirtyDayWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
-        statistics.add(thirtyDayWinRates)
+        if (last30GamesThisCharacterPlayed.isNotEmpty()) {
+            val allGameTypesLast30GamesWinRate = (((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
+            val thirtyDayWinRates = Statistic()
+            thirtyDayWinRates.characterId = characterId
+            thirtyDayWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
+            statistics.add(thirtyDayWinRates)
+        }
 
         // Best vs character
         // Worst vs character
