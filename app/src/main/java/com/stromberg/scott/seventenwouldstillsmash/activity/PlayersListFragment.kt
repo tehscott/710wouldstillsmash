@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -21,7 +19,9 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.PlayersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
 import com.stromberg.scott.seventenwouldstillsmash.model.PlayerStatistic
-import com.stromberg.scott.seventenwouldstillsmash.util.*
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.fragment_list.*
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -31,23 +31,13 @@ class PlayersListFragment: BaseListFragment() {
     private val players = ArrayList<Player>()
     private val gamesForPlayers = HashMap<Player, List<Game>>()
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var pullToRefreshView: EasyRefreshLayout
-    private lateinit var emptyStateTextView: TextView
-    private lateinit var progress: ProgressBar
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater.inflate(R.layout.fragment_list, container, false)
 
-        pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
-        recyclerView = contentView.findViewById(R.id.recycler_view)
-        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
-        progress = contentView.findViewById(R.id.progress)
+        recycler_view.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-
-        pullToRefreshView.loadMoreModel = LoadModel.NONE
-        pullToRefreshView.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
+        refresh_layout.loadMoreModel = LoadModel.NONE
+        refresh_layout.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
                 getPlayers()
             }
@@ -55,7 +45,7 @@ class PlayersListFragment: BaseListFragment() {
             override fun onLoadMore() {}
         })
 
-        emptyStateTextView.text = getString(R.string.no_players_text)
+        empty_state_text_view.text = getString(R.string.no_players_text)
 
         return contentView
     }
@@ -78,7 +68,7 @@ class PlayersListFragment: BaseListFragment() {
 
                         snapshot.children.reversed().forEach {
                             val game: Game = it.getValue(Game::class.java)!!
-                            game.id = it.key!!
+                            game.id = it.key.orEmpty()
                             games.add(game)
                         }
 
@@ -93,7 +83,7 @@ class PlayersListFragment: BaseListFragment() {
                 val playerId = it.id
 
                 val gamesForPlayer = games.filter {
-                    it.players.any { it.player!!.id == playerId }
+                    it.players.any { it.player.id == playerId }
                 }
 
                 gamesForPlayers[it] = gamesForPlayer
@@ -104,7 +94,7 @@ class PlayersListFragment: BaseListFragment() {
         else {
             setContentShown(true)
 
-            emptyStateTextView.visibility = if(players.size == 0) View.VISIBLE else View.GONE
+            empty_state_text_view.visibility = if(players.size == 0) View.VISIBLE else View.GONE
         }
     }
 
@@ -131,7 +121,7 @@ class PlayersListFragment: BaseListFragment() {
                         val playerNameWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
                         val adapter = PlayersListAdapter(players, playerNameWidth, HashMap())
-                        recyclerView.adapter = adapter as RecyclerView.Adapter<*>
+                        recycler_view.adapter = adapter
 
                         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
                             editPlayer(players[position])
@@ -145,7 +135,7 @@ class PlayersListFragment: BaseListFragment() {
                         else {
                             setContentShown(true)
 
-                            emptyStateTextView.visibility = View.VISIBLE
+                            empty_state_text_view.visibility = View.VISIBLE
                         }
                     }
                 })
@@ -153,7 +143,7 @@ class PlayersListFragment: BaseListFragment() {
 
     override fun setContentShown(shown: Boolean) {
         progress.visibility = if(shown) View.GONE else View.VISIBLE
-        pullToRefreshView.visibility = if(shown) View.VISIBLE else View.GONE
+        refresh_layout.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun fabClicked() {
@@ -164,9 +154,9 @@ class PlayersListFragment: BaseListFragment() {
         val playerStats = HashMap<Player, List<PlayerStatistic>>()
 
         gamesForPlayers.forEach { player, games ->
-            val allGamesWonCount = games.count { it.players.any { it.player!!.id == player.id && it.winner } }
+            val allGamesWonCount = games.count { it.players.any { it.player.id == player.id && it.winner } }
             val last30Games = games.sortedByDescending { it.date }.take(30)
-            val last30GamesWonCount = last30Games.count { it.players.any { it.player!!.id == player.id && it.winner } }
+            val last30GamesWonCount = last30Games.count { it.players.any { it.player.id == player.id && it.winner } }
 
             val stats = ArrayList<PlayerStatistic>()
             stats.add(PlayerStatistic().also {
@@ -186,11 +176,11 @@ class PlayersListFragment: BaseListFragment() {
             playerStats[player] = stats
         }
 
-        (recyclerView.adapter as PlayersListAdapter).setPlayerStats(playerStats)
-        recyclerView.adapter?.notifyDataSetChanged()
-        pullToRefreshView.refreshComplete()
+        (recycler_view.adapter as PlayersListAdapter).setPlayerStats(playerStats)
+        recycler_view.adapter?.notifyDataSetChanged()
+        refresh_layout.refreshComplete()
         setContentShown(true)
-        emptyStateTextView.visibility = View.GONE
+        empty_state_text_view.visibility = View.GONE
     }
 
     private fun createPlayer() {

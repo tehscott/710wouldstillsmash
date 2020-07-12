@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -20,7 +18,10 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.model.Player
-import com.stromberg.scott.seventenwouldstillsmash.util.*
+import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.fragment_list.*
 import java.util.*
 
 class GamesListFragment : BaseListFragment() {
@@ -28,25 +29,15 @@ class GamesListFragment : BaseListFragment() {
     private var games = ArrayList<Game>()
     private var adapter: GamesListAdapter? = null
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var refreshLayout: EasyRefreshLayout
-    private lateinit var emptyStateTextView: TextView
-    private lateinit var progress: ProgressBar
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater.inflate(R.layout.fragment_list, container, false)
 
-        recyclerView = contentView.findViewById(R.id.recycler_view)
-        refreshLayout = contentView.findViewById(R.id.refresh_layout)
-        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
-        progress = contentView.findViewById(R.id.progress)
-
-        recyclerView.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        recycler_view.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
         setupAdapter(games)
 
-        refreshLayout.loadMoreModel = LoadModel.NONE
-        refreshLayout.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
+        refresh_layout.loadMoreModel = LoadModel.NONE
+        refresh_layout.addEasyEvent(object: EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
                 getGames()
             }
@@ -54,7 +45,7 @@ class GamesListFragment : BaseListFragment() {
             override fun onLoadMore() {}
         })
 
-        emptyStateTextView.text = getString(R.string.no_games_text)
+        empty_state_text_view.text = getString(R.string.no_games_text)
 
         return contentView
     }
@@ -67,29 +58,27 @@ class GamesListFragment : BaseListFragment() {
 
     private fun setupAdapter(games: List<Game>) {
         val allNames = HashSet<String>()
-        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
+        games.forEach { allNames.addAll(it.players.map { gamePlayer -> gamePlayer.player.name }) }
         var loserContainerWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
         loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
 
         adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)
 
-        adapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
+        adapter?.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             editGame(games[position], games)
         }
 
-        recyclerView.adapter = adapter as RecyclerView.Adapter<*>
+        recycler_view.adapter = adapter as RecyclerView.Adapter<*>
     }
 
     private fun createGame(games: ArrayList<Game>) {
         val allPlayers = ArrayList<Player>()
 
         games.forEach {
-            val players = it.players.map { it.player!! }
+            val players = it.players.map { gamePlayer -> gamePlayer.player }
 
-            players.forEach {
-                val player = it
-
-                if(allPlayers.find { it.id.equals(player.id) } == null) {
+            players.forEach { player ->
+                if(allPlayers.find { allPlayer -> allPlayer.id == player.id } == null) {
                     allPlayers.add(player)
                 }
             }
@@ -108,7 +97,7 @@ class GamesListFragment : BaseListFragment() {
     private fun editGame(game: Game, games: List<Game>) {
         val intent = Intent(activity, GameActivity::class.java)
         intent.putExtra("Game", game)
-        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
+        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player }, games))
         startActivity(intent)
     }
 
@@ -131,26 +120,26 @@ class GamesListFragment : BaseListFragment() {
         games.clear()
 
         snapshot.children.reversed().forEach {
-            var game: Game = it.getValue(Game::class.java)!!
-            game.id = it.key!!
+            val game: Game = it.getValue(Game::class.java)!!
+            game.id = it.key.orEmpty()
             games.add(game)
         }
 
         setupAdapter(games)
-        recyclerView.adapter?.notifyDataSetChanged()
+        recycler_view.adapter?.notifyDataSetChanged()
 
-        refreshLayout.refreshComplete()
+        refresh_layout.refreshComplete()
 
-        adapter!!.loadMoreComplete()
+        adapter?.loadMoreComplete()
 
-        emptyStateTextView.visibility = if(games.size == 0) View.VISIBLE else View.GONE
+        empty_state_text_view.visibility = if(games.size == 0) View.VISIBLE else View.GONE
 
         setContentShown(true)
     }
 
     override fun setContentShown(shown: Boolean) {
         progress.visibility = if(shown) View.GONE else View.VISIBLE
-        refreshLayout.visibility = if(shown) View.VISIBLE else View.GONE
+        refresh_layout.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun fabClicked() {

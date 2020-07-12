@@ -6,7 +6,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.google.firebase.database.FirebaseDatabase
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.BuildConfig
 import com.stromberg.scott.seventenwouldstillsmash.R
@@ -16,16 +15,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
 class MainActivity : FragmentActivity() {
-    private var db = FirebaseDatabase.getInstance()
-    private lateinit var viewPagerAdapter: ListPagerAdapter
     private var currentItem: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        viewPagerAdapter = ListPagerAdapter(this)
-        view_pager.adapter = viewPagerAdapter
+        view_pager.adapter = ListPagerAdapter(this)
         view_pager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 setSelectedButton(position)

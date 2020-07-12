@@ -1,16 +1,14 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
-import androidx.appcompat.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -19,21 +17,17 @@ import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
 import kotlinx.android.synthetic.main.activity_join_group.*
+import java.util.*
+import kotlin.collections.ArrayList
 
 class JoinGroupActivity : AppCompatActivity() {
     private var db = FirebaseDatabase.getInstance()
-
-    lateinit var groupCodeEditText: EditText
-    private lateinit var createGroupButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_join_group)
 
-        groupCodeEditText = findViewById(R.id.join_group_code_edit_text)
-        createGroupButton = findViewById(R.id.join_group_create_group_button)
-
-        groupCodeEditText.addTextChangedListener(object: TextWatcher {
+        join_group_code_edit_text.addTextChangedListener(object: TextWatcher {
             var isConvertingToUppercase = false
 
             override fun afterTextChanged(s: Editable?) {}
@@ -42,24 +36,24 @@ class JoinGroupActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if(!isConvertingToUppercase) {
                     isConvertingToUppercase = true
-                    groupCodeEditText.setText(s.toString().toUpperCase())
-                    groupCodeEditText.setSelection(s?.length ?: 0)
+                    join_group_code_edit_text.setText(s.toString().toUpperCase(Locale.getDefault()))
+                    join_group_code_edit_text.setSelection(s?.length ?: 0)
                     isConvertingToUppercase = false
 
                     if(s?.length == 5) {
-                        submitGroupCode(s.toString().toUpperCase())
+                        submitGroupCode(s.toString().toUpperCase(Locale.getDefault()))
                     }
                 }
             }
         })
 
-        createGroupButton.setOnClickListener { createGroup(null) }
+        join_group_create_group_button.setOnClickListener { createGroup(null) }
 
         val forceJoin = intent?.extras?.getBoolean("ForceJoin") ?: false
 
         if(!forceJoin) {
             val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-            val groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+            val groups = Gson().fromJson(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
 
             if (groups?.firstOrNull { it.isSelected } != null) {
 //                val intent = Intent(this@JoinGroupActivity, GamesListFragment::class.java)
@@ -83,7 +77,7 @@ class JoinGroupActivity : AppCompatActivity() {
 
     private fun submitGroupCode(code: String) {
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(groupCodeEditText.windowToken, 0)
+        imm.hideSoftInputFromWindow(join_group_code_edit_text.windowToken, 0)
 
         setContentShown(false)
 
@@ -100,7 +94,7 @@ class JoinGroupActivity : AppCompatActivity() {
                         group.isSelected = true
 
                         val prefs = getSharedPreferences(getString(R.string.shared_prefs_key), Context.MODE_PRIVATE)
-                        var groups = Gson().fromJson<Array<Group>>(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
+                        var groups = Gson().fromJson(prefs.getString(getString(R.string.shared_prefs_group_codes), ""), Array<Group>::class.java)?.toCollection(ArrayList())
 
                         if(groups == null) {
                             groups = ArrayList()
@@ -125,8 +119,8 @@ class JoinGroupActivity : AppCompatActivity() {
                             val builder = AlertDialog.Builder(this@JoinGroupActivity)
                             builder.setTitle(null)
                             builder.setMessage("Couldn't find a Group using the code '$code'.\n\nCreate one?")
-                            builder.setPositiveButton("Yes, create one", { _, _ -> createGroup(code) })
-                            builder.setNegativeButton("No", { dialog, _ -> dialog.dismiss() })
+                            builder.setPositiveButton("Yes, create one") { _, _ -> createGroup(code) }
+                            builder.setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
                             builder.show()
                         }
                     }

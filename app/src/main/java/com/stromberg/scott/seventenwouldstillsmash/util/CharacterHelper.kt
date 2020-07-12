@@ -12,7 +12,7 @@ class CharacterHelper {
             players.forEach { player ->
                 val gamesWithCharacters = HashMap<Int, Int>()
                 Characters.values().forEach { character ->
-                    val numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player!!.id == player.id } }
+                    val numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player.id == player.id } }
                     gamesWithCharacters[character.id] = numGamesWithThisCharacter
                 }
 
@@ -22,7 +22,7 @@ class CharacterHelper {
                     characterIds.add(game.key)
                 }
 
-                topFiveCharacters[player.id!!] = characterIds
+                topFiveCharacters[player.id] = characterIds
             }
             return topFiveCharacters
         }

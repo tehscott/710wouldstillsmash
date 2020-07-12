@@ -4,39 +4,28 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.RadioButton
-import android.widget.TextView
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.R
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.activity_create_group.*
 import java.util.*
 import kotlin.collections.ArrayList
 
 class CreateGroupActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
-
-    private lateinit var groupCodeTextView: TextView
-    private lateinit var createGroupButton: Button
-
     private var code: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_group)
 
-        groupCodeTextView = findViewById(R.id.create_group_code_text_view)
-        createGroupButton = findViewById(R.id.create_group_create_button)
-
         if(intent?.extras?.containsKey("Code") == true) {
-            code = intent.extras?.getString("Code")?.toUpperCase()
-            groupCodeTextView.text = code
+            code = intent.extras?.getString("Code")?.toUpperCase(Locale.getDefault())
+            create_group_code_text_view.text = code
         }
         else {
             setContentShown(false)
@@ -44,7 +33,7 @@ class CreateGroupActivity : BaseActivity() {
             getGroupCode()
         }
 
-        createGroupButton.setOnClickListener { createGroup() }
+        create_group_create_button.setOnClickListener { createGroup() }
     }
 
     private fun getGroupCode() {
@@ -63,8 +52,8 @@ class CreateGroupActivity : BaseActivity() {
                         getGroupCode()
                     }
                     else {
-                        code = codeToTry.toUpperCase()
-                        groupCodeTextView.text = code
+                        code = codeToTry.toUpperCase(Locale.getDefault())
+                        create_group_code_text_view.text = code
 
                         setContentShown(true)
                     }

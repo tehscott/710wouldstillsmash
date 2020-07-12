@@ -5,8 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.ajguan.library.EasyRefreshLayout
@@ -21,29 +19,20 @@ import com.stromberg.scott.seventenwouldstillsmash.adapter.CharactersListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.Characters
 import com.stromberg.scott.seventenwouldstillsmash.model.Game
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
+import kotlinx.android.synthetic.main.fragment_list.*
 import java.util.*
 import kotlin.Comparator
 
 class CharactersListFragment: BaseListFragment() {
     private var db = FirebaseDatabase.getInstance()
 
-    private var recyclerView: RecyclerView? = null
-    private var pullToRefreshView: EasyRefreshLayout? = null
-    private lateinit var emptyStateTextView: TextView
-    private lateinit var progress: ProgressBar
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val contentView = inflater.inflate(R.layout.fragment_list, container, false)
 
-        pullToRefreshView = contentView.findViewById(R.id.refresh_layout)
-        recyclerView = contentView.findViewById(R.id.recycler_view)
-        emptyStateTextView = contentView.findViewById(R.id.empty_state_text_view)
-        progress = contentView.findViewById(R.id.progress)
+        recycler_view.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
-        recyclerView!!.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-
-        pullToRefreshView!!.loadMoreModel = LoadModel.NONE
-        pullToRefreshView!!.addEasyEvent(object : EasyRefreshLayout.EasyEvent {
+        refresh_layout.loadMoreModel = LoadModel.NONE
+        refresh_layout.addEasyEvent(object : EasyRefreshLayout.EasyEvent {
             override fun onRefreshing() {
                 getGames()
             }
@@ -51,7 +40,7 @@ class CharactersListFragment: BaseListFragment() {
             override fun onLoadMore() {}
         })
 
-        emptyStateTextView.visibility = View.GONE
+        empty_state_text_view.visibility = View.GONE
 
         return contentView
     }
@@ -77,12 +66,12 @@ class CharactersListFragment: BaseListFragment() {
     }
 
     fun handleSnapshot(snapshot: DataSnapshot) {
-        var games = ArrayList<Game>()
+        val games = ArrayList<Game>()
         val gamesForCharacters = HashMap<Characters, List<Game>>()
 
         snapshot.children.reversed().forEach {
             val game: Game = it.getValue(Game::class.java)!!
-            game.id = it.key!!
+            game.id = it.key.orEmpty()
             games.add(game)
         }
 
@@ -97,15 +86,15 @@ class CharactersListFragment: BaseListFragment() {
         val sortedGames = gamesForCharacters.toSortedMap(Comparator { o1, o2 -> o1?.characterName.orEmpty().compareTo(o2?.characterName.orEmpty()) })
 
         val adapter = CharactersListAdapter(sortedGames)
-        recyclerView!!.adapter = adapter
+        recycler_view.adapter = adapter
         adapter.setEnableLoadMore(false)
 
         adapter.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             viewCharacter(sortedGames.keys.toList()[position].id)
         }
 
-        recyclerView?.adapter?.notifyDataSetChanged()
-        pullToRefreshView!!.refreshComplete()
+        recycler_view?.adapter?.notifyDataSetChanged()
+        refresh_layout.refreshComplete()
         setContentShown(true)
     }
 
@@ -117,7 +106,7 @@ class CharactersListFragment: BaseListFragment() {
 
     override fun setContentShown(shown: Boolean) {
         progress.visibility = if(shown) View.GONE else View.VISIBLE
-        pullToRefreshView?.visibility = if(shown) View.VISIBLE else View.GONE
+        refresh_layout?.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     override fun fabClicked() {}

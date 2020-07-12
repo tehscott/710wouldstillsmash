@@ -30,21 +30,21 @@ class CharacterActivity : BaseActivity() {
     private var gamesAdapter: GamesListAdapter? = null
     private var statisticsAdapter: StatisticsListAdapter? = null
     private var isFirstLoad = true
-    private var mCharacterId: Int = -1
+    private var characterId: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_character)
 
         if(intent?.extras?.containsKey("characterId") == true) {
-            mCharacterId = intent!!.extras!!.getInt("characterId")
+            characterId = intent!!.extras!!.getInt("characterId")
         }
 
         character_recyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         setupGamesAdapter(games)
 
-        val character = Characters.byId(mCharacterId)
+        val character = Characters.byId(characterId)
         character_name.text = character?.characterName
         character_image.setImageResource(character?.imageRes ?: 0)
         character_image.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
@@ -149,7 +149,7 @@ class CharacterActivity : BaseActivity() {
                         snapshot.children.reversed().forEach {
                             val game: Game = it.getValue(Game::class.java)!!
 
-                            if(game.players.any { player -> player.characterId == mCharacterId }) {
+                            if(game.players.any { player -> player.characterId == characterId }) {
                                 game.id = it.key.orEmpty()
                                 games.add(game)
                             }
@@ -179,21 +179,21 @@ class CharacterActivity : BaseActivity() {
     private fun getStatistics() {
         val statistics = ArrayList<Statistic>()
 
-        val gamesThisCharacterPlayedAllTime = games.filter { it.players.any { player -> player.characterId == mCharacterId } }
-        val gamesThisCharacterWonAllTime: Float = (gamesThisCharacterPlayedAllTime.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }).toFloat()
+        val gamesThisCharacterPlayedAllTime = games.filter { it.players.any { player -> player.characterId == characterId } }
+        val gamesThisCharacterWonAllTime: Float = (gamesThisCharacterPlayedAllTime.count { it.players.any { player -> player.characterId == characterId && player.winner } }).toFloat()
         val last30GamesThisCharacterPlayed = gamesThisCharacterPlayedAllTime.sortedByDescending { it.date }.take(30)
-        val gamesThisCharacterWonLast30Games: Float = (last30GamesThisCharacterPlayed.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }).toFloat()
+        val gamesThisCharacterWonLast30Games: Float = (last30GamesThisCharacterPlayed.count { it.players.any { player -> player.characterId == characterId && player.winner } }).toFloat()
 
         val allGameTypesOverallWinRate = (((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
         val allGameTypesLast30GamesWinRate = (((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
 
         val allTimeWinRates = Statistic()
-        allTimeWinRates.characterId = mCharacterId
+        allTimeWinRates.characterId = characterId
         allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
         statistics.add(allTimeWinRates)
 
         val thirtyDayWinRates = Statistic()
-        thirtyDayWinRates.characterId = mCharacterId
+        thirtyDayWinRates.characterId = characterId
         thirtyDayWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
         statistics.add(thirtyDayWinRates)
 
@@ -215,16 +215,16 @@ class CharacterActivity : BaseActivity() {
             val numGamesThisCharacterWon: Float
             val numGamesIWonVsThisCharacter: Float
 
-            if(character.id == mCharacterId) {
+            if(character.id == characterId) {
                 val gamesVsSameCharacter = games.filter { it.players.count { gamePlayer -> gamePlayer.characterId == character.id } > 1 }
                 numGamesWithThisCharacter = gamesVsSameCharacter.size
                 numGamesThisCharacterWon = gamesVsSameCharacter.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
+                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { gamePlayer -> gamePlayer.characterId == characterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
             }
             else {
                 numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }
                 numGamesThisCharacterWon = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
+                numGamesIWonVsThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == characterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
             }
 
             val thisCharacterWinRate = numGamesThisCharacterWon / numGamesWithThisCharacter.toFloat()
@@ -247,14 +247,14 @@ class CharacterActivity : BaseActivity() {
 
         if(bestVsCharacterId != null) {
             val bestVsCharacterStat = Statistic()
-            bestVsCharacterStat.characterId = mCharacterId
+            bestVsCharacterStat.characterId = characterId
             bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + (bestVsCharacterWinRate * 100).roundToInt() + "% of " + bestVsCharacterNumGames + " games)"
             statistics.add(bestVsCharacterStat)
         }
 
         if(worstVsCharacterId != null) {
             val worstVsCharacterStat = Statistic()
-            worstVsCharacterStat.characterId = mCharacterId
+            worstVsCharacterStat.characterId = characterId
             worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + (worstVsCharacterWinRate * 100).roundToInt() + "% of " + worstVsCharacterNumGames + " games)"
             statistics.add(worstVsCharacterStat)
         }
@@ -264,7 +264,7 @@ class CharacterActivity : BaseActivity() {
             val allGamesStreak = getCurrentStreak()
 
             val streaks = Statistic()
-            streaks.characterId = mCharacterId
+            streaks.characterId = characterId
             streaks.playerValue = " Streaks:\n\t " +
                     "Current streak (all games): " + allGamesStreak.first + " " + allGamesStreak.second.toString(allGamesStreak.first) + "\n\t " +
                     "Longest win streak (all games): " + getLongestWinStreak() + "\n\t " +
@@ -281,7 +281,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedByDescending { it.date }
 
         sortedGames.forEach {
-            val didIWin = it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner }
+            val didIWin = it.players.any { gamePlayer -> gamePlayer.characterId == characterId && gamePlayer.winner }
 
             if(lastGameResult == GameResult.UNKNOWN || (lastGameResult == GameResult.WIN && didIWin) || (lastGameResult == GameResult.LOSS && !didIWin)) {
                 gameCount++
@@ -302,7 +302,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { gamePlayer -> gamePlayer.characterId == mCharacterId }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.characterId == characterId }.winner) {
                 winCount++
             } else {
                 winCount = 0
@@ -323,7 +323,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { gamePlayer -> gamePlayer.characterId == mCharacterId }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.characterId == characterId }.winner) {
                 lossCount = 0
             } else {
                 lossCount++
