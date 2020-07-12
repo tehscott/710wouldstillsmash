@@ -1,9 +1,11 @@
 package com.stromberg.scott.seventenwouldstillsmash.model
 
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-class GamePlayer : Serializable {
-    var player: Player? = null
-    var characterId: Int = -1
+@Parcelize
+data class GamePlayer(
+    var player: Player = Player(),
+    var characterId: Int = -1,
     var winner: Boolean = false
-}
+) : Parcelable

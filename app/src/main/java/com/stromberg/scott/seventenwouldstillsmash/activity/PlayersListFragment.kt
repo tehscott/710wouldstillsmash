@@ -122,13 +122,13 @@ class PlayersListFragment: BaseListFragment() {
 
                         snapshot.children.reversed().forEach {
                             val player: Player = it.getValue(Player::class.java)!!
-                            player.id = it.key
+                            player.id = it.key.orEmpty()
                             players.add(player)
                         }
 
                         players.sortBy { it.name }
 
-                        val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
+                        val playerNameWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 
                         val adapter = PlayersListAdapter(players, playerNameWidth, HashMap())
                         recyclerView.adapter = adapter as RecyclerView.Adapter<*>

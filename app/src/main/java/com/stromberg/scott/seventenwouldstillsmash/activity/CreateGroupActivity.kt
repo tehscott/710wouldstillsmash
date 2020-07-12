@@ -98,27 +98,12 @@ class CreateGroupActivity : BaseActivity() {
 
                     prefs.edit().putString(getString(R.string.shared_prefs_group_codes), Gson().toJson(groups)).apply()
 
-                    createGameType()
+                    startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
                 } else {
                     setContentShown(true)
 
                     showDialog("Failed to create a Group. Try again.")
                 }
-            }
-    }
-
-    private fun createGameType() {
-        val gameType = GameType(Calendar.getInstance().timeInMillis.toString(), "FFA", "ic_royale", false)
-
-        db.getReference(context = this)
-            .child("gameTypes")
-            .child(gameType.id)
-            .setValue(gameType)
-            .addOnCompleteListener {
-                startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
-            }
-            .addOnFailureListener {
-                startActivity(Intent(this@CreateGroupActivity, MainActivity::class.java))
             }
     }
 

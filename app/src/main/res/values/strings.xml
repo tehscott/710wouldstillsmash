@@ -2,6 +2,7 @@
     <string name="app_name">7/10 would still smash</string>
     <string name="games">Games</string>
     <string name="players">Players</string>
+    <string name="new_player">New Player</string>
     <string name="header_reset">pull to refresh</string>
     <string name="header_pull">pull to refresh</string>
     <string name="header_pull_over">let go to refresh</string>

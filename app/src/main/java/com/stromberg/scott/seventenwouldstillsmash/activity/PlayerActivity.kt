@@ -1,11 +1,11 @@
 package com.stromberg.scott.seventenwouldstillsmash.activity
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.view.View
-import android.widget.EditText
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +24,7 @@ import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_player.*
 import java.util.*
+import kotlin.math.roundToInt
 
 class PlayerActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -31,38 +32,37 @@ class PlayerActivity : BaseActivity() {
     private var players = ArrayList<Player>()
     private var gamesAdapter: GamesListAdapter? = null
     private var statisticsAdapter: StatisticsListAdapter? = null
-
-    private var recyclerView: RecyclerView? = null
-    private var progressBar: ProgressBar? = null
-    private var nameEditText: EditText? = null
-    private var tabs: BottomNavigationView? = null
-    private lateinit var emptyStateTextView: TextView
-
     private var editingPlayer: Player? = null
-    private var hasMadeEdit: Boolean = false
     private var isFirstLoad = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
-        if(intent?.extras != null) {
-            if(intent.extras!!.containsKey("player")) {
-                editingPlayer = intent.extras!!.getSerializable("player") as Player?
+        intent?.extras?.let {
+            if (it.containsKey("player")) {
+                editingPlayer = it.getParcelable("player") as Player?
             }
         }
 
-        emptyStateTextView = findViewById(R.id.empty_state_text_view)
-        recyclerView = findViewById(R.id.create_player_recyclerview)
-        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        progressBar = findViewById(R.id.progress)
+        create_player_recyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         setupGamesAdapter(games)
         setupButtons()
 
-        nameEditText = findViewById(R.id.create_player_name)
-        nameEditText?.setText(editingPlayer?.name ?: "")
+        if (!editingPlayer?.name.isNullOrEmpty()) {
+            create_player_name.setText(editingPlayer?.name)
+        } else {
+            create_player_name.apply {
+                setText(R.string.new_player)
+                requestFocus()
+                selectAll()
+            }
+
+            Handler().postDelayed({
+                (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0)
+            }, 250)
+        }
 
         back_button.setOnClickListener { onBackPressed() }
     }
@@ -73,55 +73,41 @@ class PlayerActivity : BaseActivity() {
         if(editingPlayer != null) {
             if(games.size == 0) {
                 getPlayers()
-            }
-            else {
+            } else {
                 getStatistics()
             }
         }
     }
 
-    //todo: why is this not used?
-    private fun hasMadeEdits() : Boolean {
-        if(editingPlayer != null && editingPlayer!!.name != create_player_name.text.toString()) {
-            hasMadeEdit = true
-        }
-
-        return hasMadeEdit
-    }
-
     private fun setupGamesAdapter(games: List<Game>) {
         val allNames = HashSet<String>()
-        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
-        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
-        loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
+        games.forEach { game -> allNames.addAll(game.players.map { player -> player.player.name }) }
+        val loserContainerWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.loser_name_text_size), allNames.toList()) + (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
 
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.PLAYER, loserContainerWidth)
-
-        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
+        gamesAdapter?.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             editGame(games[position], games)
         }
 
-        recyclerView!!.adapter = gamesAdapter as RecyclerView.Adapter<*>
-        recyclerView!!.adapter!!.notifyDataSetChanged()
+        create_player_recyclerview.adapter = gamesAdapter
+        create_player_recyclerview.adapter?.notifyDataSetChanged()
 
-        recyclerView!!.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
-        emptyStateTextView.visibility = if (games.isEmpty() && editingPlayer != null) View.VISIBLE else View.GONE
+        create_player_recyclerview.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
+        empty_state_text_view.visibility = if (games.isEmpty() && editingPlayer != null) View.VISIBLE else View.GONE
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
-        recyclerView!!.adapter = statisticsAdapter as RecyclerView.Adapter<*>
-        recyclerView!!.adapter!!.notifyDataSetChanged()
+        create_player_recyclerview.adapter = statisticsAdapter
+        create_player_recyclerview.adapter?.notifyDataSetChanged()
 
-        recyclerView!!.visibility = View.VISIBLE
-        emptyStateTextView.visibility = View.GONE
+        create_player_recyclerview.visibility = View.VISIBLE
+        empty_state_text_view.visibility = View.GONE
     }
 
     private fun setupButtons() {
-        tabs = findViewById(R.id.create_player_navigation)
-
-        tabs?.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        create_player_navigation.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_statistics -> {
                     getStatistics()
@@ -145,14 +131,14 @@ class PlayerActivity : BaseActivity() {
             delete_button?.visibility = View.VISIBLE
             delete_button?.setOnClickListener { deletePlayer() }
 
-            save_button?.setOnClickListener { updatePlayer(true) }
+            save_button?.setOnClickListener { updatePlayer() }
         }
     }
 
     private fun editGame(game: Game, games: List<Game>) {
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("Game", game)
-        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
+        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player }, games))
         startActivity(intent)
     }
 
@@ -166,7 +152,7 @@ class PlayerActivity : BaseActivity() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         snapshot.children.reversed().forEach {
                             val player: Player = it.getValue(Player::class.java)!!
-                            player.id = it.key
+                            player.id = it.key.orEmpty()
                             players.add(player)
                         }
 
@@ -192,7 +178,7 @@ class PlayerActivity : BaseActivity() {
                         snapshot.children.reversed().forEach {
                             val game: Game = it.getValue(Game::class.java)!!
 
-                            if(game.players.any({ it.player!!.id == editingPlayer!!.id })) {
+                            if(game.players.any { player -> player.player.id == editingPlayer?.id }) {
                                 game.id = it.key!!
                                 games.add(game)
                             }
@@ -203,7 +189,7 @@ class PlayerActivity : BaseActivity() {
                             getStatistics()
                         }
                         else {
-                            gamesAdapter!!.loadMoreComplete()
+                            gamesAdapter?.loadMoreComplete()
 
                             setupGamesAdapter(games)
                         }
@@ -216,21 +202,21 @@ class PlayerActivity : BaseActivity() {
     private fun getStatistics() {
         val statistics = ArrayList<Statistic>()
 
-        val gamesThisPlayerPlayedAllTime = games.filter { it.players.any { player -> player.player?.id == editingPlayer!!.id } }
-        val gamesThisPlayerWonAllTime: Float = (gamesThisPlayerPlayedAllTime.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }).toFloat()
+        val gamesThisPlayerPlayedAllTime = games.filter { it.players.any { player -> player.player.id == editingPlayer?.id } }
+        val gamesThisPlayerWonAllTime: Float = (gamesThisPlayerPlayedAllTime.count { it.players.any { player -> player.player.id == editingPlayer!!.id && player.winner } }).toFloat()
         val last30GamesThisPlayerPlayed = gamesThisPlayerPlayedAllTime.sortedByDescending { it.date }.take(30)
-        val gamesThisPlayerWonOutOfLast30Games: Float = (last30GamesThisPlayerPlayed.count { it.players.any { player -> player.player?.id == editingPlayer!!.id && player.winner } }).toFloat()
+        val gamesThisPlayerWonOutOfLast30Games: Float = (last30GamesThisPlayerPlayed.count { it.players.any { player -> player.player.id == editingPlayer!!.id && player.winner } }).toFloat()
 
-        val allGameTypesOverallWinRate = Math.round(((gamesThisPlayerWonAllTime) / (gamesThisPlayerPlayedAllTime.size)) * 100).toString() + "% (" + (gamesThisPlayerWonAllTime).toInt() + "/" + gamesThisPlayerPlayedAllTime.size + ")"
-        val allGameTypesLast30GamesWinRate = Math.round(((gamesThisPlayerWonOutOfLast30Games) / (last30GamesThisPlayerPlayed.size)) * 100).toString() + "% (" + (gamesThisPlayerWonOutOfLast30Games).toInt() + "/" + last30GamesThisPlayerPlayed.size + ")"
+        val allGameTypesOverallWinRate = (((gamesThisPlayerWonAllTime) / (gamesThisPlayerPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonAllTime).toInt() + "/" + gamesThisPlayerPlayedAllTime.size + ")"
+        val allGameTypesLast30GamesWinRate = (((gamesThisPlayerWonOutOfLast30Games) / (last30GamesThisPlayerPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisPlayerWonOutOfLast30Games).toInt() + "/" + last30GamesThisPlayerPlayed.size + ")"
 
         val allTimeWinRates = Statistic()
-        allTimeWinRates.playerId = editingPlayer!!.id!!
+        allTimeWinRates.playerId = editingPlayer!!.id
         allTimeWinRates.playerValue = " Win rates (all games):\n\t Overall: $allGameTypesOverallWinRate"
         statistics.add(allTimeWinRates)
 
         val thirtyGameWinRates = Statistic()
-        thirtyGameWinRates.playerId = editingPlayer!!.id!!
+        thirtyGameWinRates.playerId = editingPlayer!!.id
         thirtyGameWinRates.playerValue = " Win rates (last 30 games):\n\t Overall: $allGameTypesLast30GamesWinRate"
 
         statistics.add(thirtyGameWinRates)
@@ -247,9 +233,9 @@ class PlayerActivity : BaseActivity() {
 
         players.forEachIndexed { _, player ->
             if(player.id != editingPlayer!!.id) {
-                val numGamesWithThisPlayer = games.count { it.players.any { it.player?.id == player.id } }
-                val numGamesThisPlayerWon: Float = games.count { it.players.any { it.player?.id == player.id && it.winner } }.toFloat()
-                val numGamesIWonVsThisPlayer: Float = games.count { it.players.any { it.player?.id == player.id } && it.players.any { it.player?.id == editingPlayer!!.id && it.winner } }.toFloat()
+                val numGamesWithThisPlayer = games.count { it.players.any { gamePlayer -> gamePlayer.player.id == player.id } }
+                val numGamesThisPlayerWon: Float = games.count { it.players.any { gamePlayer -> gamePlayer.player.id == player.id && gamePlayer.winner } }.toFloat()
+                val numGamesIWonVsThisPlayer: Float = games.count { it.players.any { gamePlayer -> gamePlayer.player.id == player.id } && it.players.any { gamePlayer -> gamePlayer.player.id == editingPlayer?.id && gamePlayer.winner } }.toFloat()
 
                 if(numGamesWithThisPlayer > 0 && numGamesWithThisPlayer >= averageGamesPlayedByPlayers) {
                     val thisPlayerWinRate = numGamesThisPlayerWon / numGamesWithThisPlayer.toFloat()
@@ -272,10 +258,10 @@ class PlayerActivity : BaseActivity() {
 
         if(bestVsPlayer != null) {
             val bestVsPlayerStat = Statistic()
-            bestVsPlayerStat.playerId = editingPlayer!!.id!!
+            bestVsPlayerStat.playerId = editingPlayer!!.id
 
             if(bestVsPlayerWinRate > 0) {
-                bestVsPlayerStat.playerValue = " Best vs " + bestVsPlayer?.name + " (won " + Math.round(bestVsPlayerWinRate * 100) + "% of " + bestVsPlayerNumGames + " games)"
+                bestVsPlayerStat.playerValue = " Best vs " + bestVsPlayer?.name + " (won " + (bestVsPlayerWinRate * 100).roundToInt() + "% of " + bestVsPlayerNumGames + " games)"
             }
             else {
                 bestVsPlayerStat.playerValue = " Best vs no players...git gud nerd"
@@ -286,10 +272,10 @@ class PlayerActivity : BaseActivity() {
 
         if(worstVsPlayer != null) {
             val worstVsPlayerStat = Statistic()
-            worstVsPlayerStat.playerId = editingPlayer!!.id!!
+            worstVsPlayerStat.playerId = editingPlayer!!.id
 
             if(worstVsPlayerWinRate > 0) {
-                worstVsPlayerStat.playerValue = " Worst vs " + worstVsPlayer?.name + " (lost " + Math.round(worstVsPlayerWinRate * 100) + "% of " + worstVsPlayerNumGames + " games)"
+                worstVsPlayerStat.playerValue = " Worst vs " + worstVsPlayer?.name + " (lost " + (worstVsPlayerWinRate * 100).roundToInt() + "% of " + worstVsPlayerNumGames + " games)"
             }
             else {
                 worstVsPlayerStat.playerValue = " Worst vs no players...you are supreme"
@@ -308,12 +294,12 @@ class PlayerActivity : BaseActivity() {
         var worstVsCharacterNumGames = 0
 
         val averageGamesPlayed = Characters.values().sumBy { character ->
-            games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } } } / 58 // todo wtf does 58 mean???
+            games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player.id != editingPlayer?.id } } } / Characters.values().size
 
         Characters.values().forEach { character ->
-            val numGamesWithThisCharacter = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } }
-            val numGamesThisCharacterWon: Float = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id && it.winner } }.toFloat()
-            val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { it.characterId == character.id && it.player!!.id != editingPlayer!!.id } && it.players.any { it.player?.id == editingPlayer?.id && it.winner } }.toFloat()
+            val numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player.id != editingPlayer?.id } }
+            val numGamesThisCharacterWon: Float = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player.id != editingPlayer?.id && gamePlayer.winner } }.toFloat()
+            val numGamesIWonVsThisCharacter: Float = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.player.id != editingPlayer?.id } && it.players.any { gamePlayer -> gamePlayer.player.id == editingPlayer?.id && gamePlayer.winner } }.toFloat()
 
             val thisCharacterWinRate = numGamesThisCharacterWon / numGamesWithThisCharacter.toFloat()
             val winRateVsThisCharacter = numGamesIWonVsThisCharacter / numGamesWithThisCharacter.toFloat()
@@ -335,10 +321,10 @@ class PlayerActivity : BaseActivity() {
 
         if(bestVsCharacterId != null) {
             val bestVsCharacterStat = Statistic()
-            bestVsCharacterStat.playerId = editingPlayer!!.id!!
+            bestVsCharacterStat.playerId = editingPlayer!!.id
 
             if(bestVsCharacterWinRate > 0) {
-                bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+                bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + (bestVsCharacterWinRate * 100).roundToInt() + "% of " + bestVsCharacterNumGames + " games)"
             }
             else {
                 bestVsCharacterStat.playerValue = " Best vs no characters...git gud nerd"
@@ -349,10 +335,10 @@ class PlayerActivity : BaseActivity() {
 
         if(worstVsCharacterId != null) {
             val worstVsCharacterStat = Statistic()
-            worstVsCharacterStat.playerId = editingPlayer!!.id!!
+            worstVsCharacterStat.playerId = editingPlayer!!.id
 
             if(worstVsCharacterWinRate > 0) {
-                worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+                worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + (worstVsCharacterWinRate * 100).roundToInt() + "% of " + worstVsCharacterNumGames + " games)"
             }
             else {
                 worstVsCharacterStat.playerValue = " Worst vs no characters...you are supreme"
@@ -366,7 +352,7 @@ class PlayerActivity : BaseActivity() {
             val allGamesStreak = getCurrentStreak()
 
             val streaks = Statistic()
-            streaks.playerId = editingPlayer!!.id!!
+            streaks.playerId = editingPlayer!!.id
             streaks.playerValue = " Streaks:\n\t " +
                     "Current streak (all games): " + allGamesStreak.first + " " + allGamesStreak.second.toString(allGamesStreak.first) + "\n\t " +
                     "Longest win streak (all games): " + getLongestWinStreak() + "\n\t " +
@@ -383,15 +369,13 @@ class PlayerActivity : BaseActivity() {
     }
 
     private fun createPlayer() {
-        val playerName = nameEditText!!.text.toString()
+        val playerName = create_player_name.text.toString()
         if (playerName.isNotEmpty()) {
-            val player = Player()
-            player.name = playerName
-            player.id = Calendar.getInstance().timeInMillis.toString()
+            val player = Player(Calendar.getInstance().timeInMillis.toString(), playerName)
 
             db.getReference(context = this)
                     .child("players")
-                    .child(player.id!!)
+                    .child(player.id)
                     .setValue(player)
                     .addOnCompleteListener {
                         onBackPressed()
@@ -402,19 +386,17 @@ class PlayerActivity : BaseActivity() {
         }
     }
 
-    private fun updatePlayer(goBack: Boolean) {
-        val playerName = nameEditText!!.text.toString()
+    private fun updatePlayer() {
+        val playerName = create_player_name.text.toString()
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
 
             db.getReference(context = this)
                 .child("players")
-                .child(editingPlayer!!.id!!)
+                .child(editingPlayer!!.id)
                 .setValue(editingPlayer)
                 .addOnCompleteListener {
-                    if(goBack) {
-                        onBackPressed()
-                    }
+                    onBackPressed()
                 }
         }
     }
@@ -426,19 +408,19 @@ class PlayerActivity : BaseActivity() {
         builder.setPositiveButton(android.R.string.ok) { _, _ ->
             db.getReference(context = this)
                     .child("players")
-                    .child(editingPlayer!!.id!!)
+                    .child(editingPlayer!!.id)
                     .removeValue()
                     .addOnCompleteListener {
                         onBackPressed()
                     }
         }
-        builder.setNegativeButton(android.R.string.cancel, { dialog, _ -> dialog.dismiss() })
+        builder.setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.dismiss() }
         builder.show()
     }
 
     override fun setContentShown(shown: Boolean) {
-        progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
-        recyclerView!!.visibility = if(shown) View.VISIBLE else View.GONE
+        progress.visibility = if(shown) View.GONE else View.VISIBLE
+        create_player_recyclerview.visibility = if(shown) View.VISIBLE else View.GONE
     }
 
     private fun getCharacterStats(statistics: ArrayList<Statistic>) {
@@ -446,17 +428,18 @@ class PlayerActivity : BaseActivity() {
 
         Characters.values().sortedBy { it.characterName }.forEach { character ->
             val gamesForCharacter = games.filter {
-                it.players.any {player -> player.characterId == character.id && player.player!!.id == editingPlayer!!.id }
+                it.players.any {player -> player.characterId == character.id && player.player.id == editingPlayer?.id }
             }
 
             val gamesWonCount = gamesForCharacter.count { it.players.any { player -> player.characterId == character.id && player.winner } }
-            val gamesWinPercentage = Math.round(gamesWonCount.toDouble() / gamesForCharacter.size.toDouble()) * 100
-
-            statsString += "  ${Characters.byId(character.id)?.characterName}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
+            if (gamesForCharacter.isNotEmpty()) {
+                val gamesWinPercentage = (gamesWonCount.toDouble() / gamesForCharacter.size.toDouble() * 100).roundToInt()
+                statsString += "   ${Characters.byId(character.id)?.characterName}: $gamesWonCount/${gamesForCharacter.size} ($gamesWinPercentage%)\n"
+            }
         }
 
         val stat = Statistic()
-        stat.playerId = editingPlayer!!.id!!
+        stat.playerId = editingPlayer!!.id
         stat.playerValue = statsString
         statistics.add(stat)
     }
@@ -467,7 +450,7 @@ class PlayerActivity : BaseActivity() {
         val sortedGames = games.sortedByDescending { it.date }
 
         sortedGames.forEach {
-            val didIWin = it.players.any { it.player!!.id == editingPlayer!!.id!! && it.winner }
+            val didIWin = it.players.any { gamePlayer -> gamePlayer.player.id == editingPlayer?.id && gamePlayer.winner }
 
             if(lastGameResult == GameResult.UNKNOWN || (lastGameResult == GameResult.WIN && didIWin) || (lastGameResult == GameResult.LOSS && !didIWin)) {
                 gameCount++
@@ -488,7 +471,7 @@ class PlayerActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { it.player!!.id!! == editingPlayer!!.id }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.player.id == editingPlayer?.id }.winner) {
                 winCount++
             } else {
                 winCount = 0
@@ -509,7 +492,7 @@ class PlayerActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { it.player!!.id!! == editingPlayer!!.id }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.player.id == editingPlayer?.id }.winner) {
                 lossCount = 0
             } else {
                 lossCount++

@@ -68,7 +68,7 @@ class GamesListFragment : BaseListFragment() {
     private fun setupAdapter(games: List<Game>) {
         val allNames = HashSet<String>()
         games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
-        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
+        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
         loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
 
         adapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)

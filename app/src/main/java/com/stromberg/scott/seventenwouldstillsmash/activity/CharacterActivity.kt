@@ -2,11 +2,8 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewTreeObserver
-import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
@@ -24,6 +21,7 @@ import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
 import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_character.*
 import java.util.*
+import kotlin.math.roundToInt
 
 class CharacterActivity : BaseActivity() {
     private var db = FirebaseDatabase.getInstance()
@@ -31,13 +29,8 @@ class CharacterActivity : BaseActivity() {
     private var players = ArrayList<Player>()
     private var gamesAdapter: GamesListAdapter? = null
     private var statisticsAdapter: StatisticsListAdapter? = null
-    private var isFirstLoad = true;
+    private var isFirstLoad = true
     private var mCharacterId: Int = -1
-
-    private var recyclerView: RecyclerView? = null
-    private var progressBar: ProgressBar? = null
-    private var tabs: BottomNavigationView? = null
-    private lateinit var emptyStateTextView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,11 +40,7 @@ class CharacterActivity : BaseActivity() {
             mCharacterId = intent!!.extras!!.getInt("characterId")
         }
 
-        emptyStateTextView = findViewById(R.id.empty_state_text_view)
-        recyclerView = findViewById(R.id.character_recyclerview)
-        recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-
-        progressBar = findViewById(R.id.progress)
+        character_recyclerview.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
 
         setupGamesAdapter(games)
 
@@ -62,7 +51,7 @@ class CharacterActivity : BaseActivity() {
             override fun onPreDraw(): Boolean {
                 character_image.viewTreeObserver.removeOnPreDrawListener(this)
 
-                var layoutParams = character_image.layoutParams
+                val layoutParams = character_image.layoutParams
                 layoutParams.width = character_image.height
                 character_image.layoutParams = layoutParams
 
@@ -70,9 +59,7 @@ class CharacterActivity : BaseActivity() {
             }
         })
 
-        tabs = findViewById(R.id.character_navigation)
-
-        tabs?.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
+        character_navigation.setOnNavigationItemSelectedListener(BottomNavigationView.OnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_statistics -> {
                     getStatistics()
@@ -98,31 +85,30 @@ class CharacterActivity : BaseActivity() {
 
     private fun setupGamesAdapter(games: List<Game>) {
         val allNames = HashSet<String>()
-        games.forEach { allNames.addAll(it.players.map { it.player!!.name!! }) }
-        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Light.ttf", resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
+        games.forEach { allNames.addAll(it.players.map { gamePlayer -> gamePlayer.player.name }) }
+        var loserContainerWidth = PlayerHelper.getLongestNameLength(resources.getDimension(R.dimen.loser_name_text_size), allNames.toList())
         loserContainerWidth += (resources.getDimensionPixelSize(R.dimen.loser_image_margin_size) * 2) + resources.getDimensionPixelSize(R.dimen.loser_image_size)
 
         gamesAdapter = GamesListAdapter(games, GamesListAdapter.SortBy.WINNER, loserContainerWidth)
-
-        gamesAdapter!!.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
+        gamesAdapter?.onItemClickListener = BaseQuickAdapter.OnItemClickListener { _, _, position ->
             editGame(games[position], games)
         }
 
-        recyclerView!!.adapter = gamesAdapter as RecyclerView.Adapter<*>
-        recyclerView?.adapter?.notifyDataSetChanged()
+        character_recyclerview.adapter = gamesAdapter as RecyclerView.Adapter<*>
+        character_recyclerview?.adapter?.notifyDataSetChanged()
 
-        recyclerView!!.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
-        emptyStateTextView.visibility = if (games.isEmpty()) View.VISIBLE else View.GONE
+        character_recyclerview.visibility = if (games.isEmpty()) View.GONE else View.VISIBLE
+        empty_state_text_view.visibility = if (games.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun setupStatisticsAdapter(statistics: List<Statistic>) {
         statisticsAdapter = StatisticsListAdapter(statistics)
 
-        recyclerView!!.adapter = statisticsAdapter as RecyclerView.Adapter<*>
-        recyclerView!!.adapter?.notifyDataSetChanged()
+        character_recyclerview.adapter = statisticsAdapter as RecyclerView.Adapter<*>
+        character_recyclerview.adapter?.notifyDataSetChanged()
 
-        recyclerView!!.visibility = View.VISIBLE
-        emptyStateTextView.visibility = View.GONE
+        character_recyclerview.visibility = View.VISIBLE
+        empty_state_text_view.visibility = View.GONE
     }
 
     private fun getPlayers() {
@@ -136,8 +122,8 @@ class CharacterActivity : BaseActivity() {
                         players.clear()
 
                         snapshot.children.reversed().forEach {
-                            var player: Player = it.getValue(Player::class.java)!!
-                            player.id = it.key
+                            val player: Player = it.getValue(Player::class.java)!!
+                            player.id = it.key.orEmpty()
                             players.add(player)
                         }
 
@@ -161,10 +147,10 @@ class CharacterActivity : BaseActivity() {
                         games.clear()
 
                         snapshot.children.reversed().forEach {
-                            var game: Game = it.getValue(Game::class.java)!!
+                            val game: Game = it.getValue(Game::class.java)!!
 
                             if(game.players.any { player -> player.characterId == mCharacterId }) {
-                                game.id = it.key!!
+                                game.id = it.key.orEmpty()
                                 games.add(game)
                             }
                         }
@@ -174,7 +160,7 @@ class CharacterActivity : BaseActivity() {
                             getStatistics()
                         }
                         else {
-                            gamesAdapter!!.loadMoreComplete()
+                            gamesAdapter?.loadMoreComplete()
                             setupGamesAdapter(games)
                         }
 
@@ -186,7 +172,7 @@ class CharacterActivity : BaseActivity() {
     private fun editGame(game: Game, games: List<Game>) {
         val intent = Intent(this, GameActivity::class.java)
         intent.putExtra("Game", game)
-        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player!! }, games))
+        intent.putExtra("TopCharacters", CharacterHelper.getTopCharacters(game.players.map { it.player }, games))
         startActivity(intent)
     }
 
@@ -198,8 +184,8 @@ class CharacterActivity : BaseActivity() {
         val last30GamesThisCharacterPlayed = gamesThisCharacterPlayedAllTime.sortedByDescending { it.date }.take(30)
         val gamesThisCharacterWonLast30Games: Float = (last30GamesThisCharacterPlayed.count { it.players.any { player -> player.characterId == mCharacterId && player.winner } }).toFloat()
 
-        val allGameTypesOverallWinRate = Math.round(((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
-        val allGameTypesLast30GamesWinRate = Math.round(((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
+        val allGameTypesOverallWinRate = (((gamesThisCharacterWonAllTime) / (gamesThisCharacterPlayedAllTime.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonAllTime).toInt() + "/" + gamesThisCharacterPlayedAllTime.size + ")"
+        val allGameTypesLast30GamesWinRate = (((gamesThisCharacterWonLast30Games) / (last30GamesThisCharacterPlayed.size)) * 100).roundToInt().toString() + "% (" + (gamesThisCharacterWonLast30Games).toInt() + "/" + last30GamesThisCharacterPlayed.size + ")"
 
         val allTimeWinRates = Statistic()
         allTimeWinRates.characterId = mCharacterId
@@ -221,24 +207,24 @@ class CharacterActivity : BaseActivity() {
         var worstVsCharacterNumGames = 0
 
         val averageGamesPlayed = Characters.values().sumByDouble { character ->
-            games.count { it.players.any { it.characterId == character.id } }.toDouble() / games.size.toDouble()
+            games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toDouble() / games.size.toDouble()
         }
 
         Characters.values().forEach { character ->
-            var numGamesWithThisCharacter: Int
-            var numGamesThisCharacterWon: Float
-            var numGamesIWonVsThisCharacter: Float
+            val numGamesWithThisCharacter: Int
+            val numGamesThisCharacterWon: Float
+            val numGamesIWonVsThisCharacter: Float
 
             if(character.id == mCharacterId) {
-                val gamesVsSameCharacter = games.filter { it.players.count { it.characterId == character.id } > 1 }
+                val gamesVsSameCharacter = games.filter { it.players.count { gamePlayer -> gamePlayer.characterId == character.id } > 1 }
                 numGamesWithThisCharacter = gamesVsSameCharacter.size
-                numGamesThisCharacterWon = gamesVsSameCharacter.count { it.players.any { it.characterId == character.id && it.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == character.id } }.toFloat()
+                numGamesThisCharacterWon = gamesVsSameCharacter.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.winner } }.toFloat()
+                numGamesIWonVsThisCharacter = gamesVsSameCharacter.count { it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
             }
             else {
-                numGamesWithThisCharacter = games.count { it.players.any { it.characterId == character.id } }
-                numGamesThisCharacterWon = games.count { it.players.any { it.characterId == character.id && it.winner } }.toFloat()
-                numGamesIWonVsThisCharacter = games.count { it.players.any { it.characterId == mCharacterId && it.winner } && it.players.any { it.characterId == character.id } }.toFloat()
+                numGamesWithThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }
+                numGamesThisCharacterWon = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == character.id && gamePlayer.winner } }.toFloat()
+                numGamesIWonVsThisCharacter = games.count { it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner } && it.players.any { gamePlayer -> gamePlayer.characterId == character.id } }.toFloat()
             }
 
             val thisCharacterWinRate = numGamesThisCharacterWon / numGamesWithThisCharacter.toFloat()
@@ -262,14 +248,14 @@ class CharacterActivity : BaseActivity() {
         if(bestVsCharacterId != null) {
             val bestVsCharacterStat = Statistic()
             bestVsCharacterStat.characterId = mCharacterId
-            bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + Math.round(bestVsCharacterWinRate * 100) + "% of " + bestVsCharacterNumGames + " games)"
+            bestVsCharacterStat.playerValue = " Best vs " + Characters.byId(bestVsCharacterId!!)?.characterName + " (won " + (bestVsCharacterWinRate * 100).roundToInt() + "% of " + bestVsCharacterNumGames + " games)"
             statistics.add(bestVsCharacterStat)
         }
 
         if(worstVsCharacterId != null) {
             val worstVsCharacterStat = Statistic()
             worstVsCharacterStat.characterId = mCharacterId
-            worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + Math.round(worstVsCharacterWinRate * 100) + "% of " + worstVsCharacterNumGames + " games)"
+            worstVsCharacterStat.playerValue = " Worst vs " + Characters.byId(worstVsCharacterId!!)?.characterName + " (lost " + (worstVsCharacterWinRate * 100).roundToInt() + "% of " + worstVsCharacterNumGames + " games)"
             statistics.add(worstVsCharacterStat)
         }
 
@@ -295,7 +281,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedByDescending { it.date }
 
         sortedGames.forEach {
-            val didIWin = it.players.any { it.characterId == mCharacterId && it.winner }
+            val didIWin = it.players.any { gamePlayer -> gamePlayer.characterId == mCharacterId && gamePlayer.winner }
 
             if(lastGameResult == GameResult.UNKNOWN || (lastGameResult == GameResult.WIN && didIWin) || (lastGameResult == GameResult.LOSS && !didIWin)) {
                 gameCount++
@@ -316,7 +302,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { it.characterId == mCharacterId }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.characterId == mCharacterId }.winner) {
                 winCount++
             } else {
                 winCount = 0
@@ -337,7 +323,7 @@ class CharacterActivity : BaseActivity() {
         val sortedGames = games.sortedBy { it.date }
 
         sortedGames.forEach {
-            if (it.players.first { it.characterId == mCharacterId }.winner) {
+            if (it.players.first { gamePlayer -> gamePlayer.characterId == mCharacterId }.winner) {
                 lossCount = 0
             } else {
                 lossCount++
@@ -352,7 +338,7 @@ class CharacterActivity : BaseActivity() {
     }
 
     override fun setContentShown(shown: Boolean) {
-        progressBar!!.visibility = if(shown) View.GONE else View.VISIBLE
-        recyclerView!!.visibility = if(shown) View.VISIBLE else View.GONE
+        progress.visibility = if(shown) View.GONE else View.VISIBLE
+        character_recyclerview.visibility = if(shown) View.VISIBLE else View.GONE
     }
 }

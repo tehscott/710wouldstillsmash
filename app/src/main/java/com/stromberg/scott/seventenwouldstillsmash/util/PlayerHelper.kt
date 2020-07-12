@@ -7,7 +7,7 @@ import android.util.Log
 
 class PlayerHelper {
     companion object {
-        fun getLongestNameLength(resources: Resources, fontName: String, fontSize: Float, names: List<String?>): Int {
+        fun getLongestNameLength(fontSize: Float, names: List<String?>): Int {
             val paint = Paint()
             val bounds = Rect()
 

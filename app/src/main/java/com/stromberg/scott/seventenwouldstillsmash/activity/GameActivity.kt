@@ -51,8 +51,6 @@ class GameActivity : BaseActivity() {
 
         if(isEdit && intent?.extras != null) {
             game = intent.extras!!.getParcelable("Game")!!
-        } else {
-            game.date = Calendar.getInstance().time.time
         }
 
         if(intent?.extras != null) {
@@ -82,7 +80,7 @@ class GameActivity : BaseActivity() {
 
         create_game_players_title.setOnClickListener { addPlayer(null) }
 
-        val sortedPlayers = game.players.sortedBy { it.player?.name }.sortedByDescending { it.winner }
+        val sortedPlayers = game.players.sortedBy { it.player.name }.sortedByDescending { it.winner }
         playersAdapter = CreateGamePlayersListAdapter(sortedPlayers, fun(position: Int) { addPlayer(sortedPlayers[position]) })
         create_game_players_list.adapter = playersAdapter
         create_game_players_list.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -140,7 +138,7 @@ class GameActivity : BaseActivity() {
     }
 
     private fun updateGame() {
-        if(!game.id.isNullOrBlank()) {
+        if(!game.id.isBlank()) {
             if(game.players.size > 1) {
                 deleteGame(false, true)
                 createGame()
@@ -175,7 +173,7 @@ class GameActivity : BaseActivity() {
 
         db.getReference(context = this)
             .child("games")
-            .child(game.id!!)
+            .child(game.id)
             .removeValue()
             .addOnCompleteListener {
                 if (goBack) {
@@ -273,19 +271,19 @@ class GameActivity : BaseActivity() {
                 gamePlayer.characterId = characters[characterPager.currentItem].id
                 gamePlayer.winner = isWinnerCheckbox.isChecked
 
-                if(gamePlayer.player!!.id == null) {
-                    gamePlayer.player!!.id = Calendar.getInstance().timeInMillis.toString()
+                if(gamePlayer.player.id.isEmpty()) {
+                    gamePlayer.player.id = Calendar.getInstance().timeInMillis.toString()
 
                     db.getReference(context = this)
                             .child("players")
-                            .child(gamePlayer.player!!.id!!)
+                            .child(gamePlayer.player.id)
                             .setValue(gamePlayer.player)
                             .addOnCompleteListener {
                                 if(editingPlayer == null) {
                                     addPlayerToGame(gamePlayer)
 
-                                    if(!players.any { it.id.equals(gamePlayer.player!!.id) }) {
-                                        players.add(gamePlayer.player!!)
+                                    if(!players.any { it.id == gamePlayer.player.id }) {
+                                        players.add(gamePlayer.player)
                                     }
                                 } else {
                                     create_game_players_list.adapter!!.notifyDataSetChanged()
@@ -316,8 +314,8 @@ class GameActivity : BaseActivity() {
 
         if(editingPlayer != null) {
             builder.setNeutralButton("Delete") { dialog, _ ->
-                if(gamePlayer.player!!.id == null) {
-                    players.remove(gamePlayer.player!!)
+                if(gamePlayer.player.id.isEmpty()) {
+                    players.remove(gamePlayer.player)
                     game.players.remove(gamePlayer)
                 }
 
@@ -336,8 +334,8 @@ class GameActivity : BaseActivity() {
     private fun getTopCharactersForPlayer(gamePlayer: GamePlayer): ArrayList<String> {
         val topCharactersForThisPlayer = ArrayList<String>()
 
-        if (topFiveCharacters.containsKey(gamePlayer.player?.id)) {
-            topFiveCharacters[gamePlayer.player?.id]!!.forEach {
+        if (topFiveCharacters.containsKey(gamePlayer.player.id)) {
+            topFiveCharacters[gamePlayer.player.id]!!.forEach {
                 topCharactersForThisPlayer.add(Characters.byId(it)?.characterName.orEmpty())
             }
         }
@@ -348,8 +346,8 @@ class GameActivity : BaseActivity() {
     private fun getUnusedPlayers(gamePlayer: GamePlayer): ArrayList<Player> {
         val playerList = ArrayList<Player>()
         players.forEach { player ->
-            val isCurrentlySelectedPlayer = gamePlayer.player != null && gamePlayer.player!!.id.equals(player.id)
-            val playerInUse = !isCurrentlySelectedPlayer && game.players.any { it.player!!.id.equals(player.id) }
+            val isCurrentlySelectedPlayer = gamePlayer.player.id == player.id
+            val playerInUse = !isCurrentlySelectedPlayer && game.players.any { it.player.id == player.id }
 
             if (!playerInUse) {
                 playerList.add(player)
@@ -376,7 +374,7 @@ class GameActivity : BaseActivity() {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         snapshot.children.reversed().forEach {
                             val player: Player = it.getValue(Player::class.java)!!
-                            player.id = it.key
+                            player.id = it.key.orEmpty()
                             players.add(player)
                         }
 
@@ -404,7 +402,7 @@ class GameActivity : BaseActivity() {
             builder.setTitle("Copy last game?")
             builder.setMessage("Do you want to copy the players from last game?")
             builder.setPositiveButton("Yes") { dialog, _ ->
-                lastGame!!.players.sortedBy { it.player?.name }.forEach { player ->
+                lastGame!!.players.sortedBy { it.player.name }.forEach { player ->
                     player.winner = false
                     game.players.add(player)
                 }
