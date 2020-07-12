@@ -27,7 +27,11 @@ class CharactersListFragment: BaseListFragment() {
     private var db = FirebaseDatabase.getInstance()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater.inflate(R.layout.fragment_list, container, false)
+        return inflater.inflate(R.layout.fragment_list, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         recycler_view.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
@@ -41,8 +45,6 @@ class CharactersListFragment: BaseListFragment() {
         })
 
         empty_state_text_view.visibility = View.GONE
-
-        return contentView
     }
 
     override fun onResume() {

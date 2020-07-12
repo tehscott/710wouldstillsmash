@@ -30,7 +30,11 @@ class GamesListFragment : BaseListFragment() {
     private var adapter: GamesListAdapter? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contentView = inflater.inflate(R.layout.fragment_list, container, false)
+        return inflater.inflate(R.layout.fragment_list, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         recycler_view.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
 
@@ -46,8 +50,6 @@ class GamesListFragment : BaseListFragment() {
         })
 
         empty_state_text_view.text = getString(R.string.no_games_text)
-
-        return contentView
     }
 
     override fun onResume() {
