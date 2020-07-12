@@ -3,21 +3,15 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 import com.google.gson.Gson
 import com.stromberg.scott.seventenwouldstillsmash.BuildConfig
 import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.ListPagerAdapter
-import com.stromberg.scott.seventenwouldstillsmash.model.GameType
 import com.stromberg.scott.seventenwouldstillsmash.model.Group
-import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -134,26 +128,14 @@ class MainActivity : FragmentActivity() {
 
     private fun setSelectedButton(currentItem: Int) {
         if(this.currentItem != currentItem) {
-            games_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
-            players_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
-            characters_button.drawable.setTint(resources.getColor(R.color.text_primary, null))
+            games_button.setBackgroundColor(resources.getColor(R.color.primary, null))
+            players_button.setBackgroundColor(resources.getColor(R.color.primary, null))
+            characters_button.setBackgroundColor(resources.getColor(R.color.primary, null))
 
             when (currentItem) {
-                0 -> games_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-                1 -> players_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-                2 -> characters_button.drawable.setTint(resources.getColor(R.color.secondary, null))
-            }
-
-            when (this.currentItem) {
-                0 -> games_title.visibility = View.GONE //shrink(games_title, 100)
-                1 -> players_title.visibility = View.GONE //shrink(players_title, 100)
-                2 -> characters_title.visibility = View.GONE //shrink(characters_title, 100)
-            }
-
-            when (currentItem) {
-                0 -> games_title.visibility = View.VISIBLE //grow(games_title, 100)
-                1 -> players_title.visibility = View.VISIBLE //grow(players_title, 100)
-                2 -> characters_title.visibility = View.VISIBLE //grow(characters_title, 100)
+                0 -> games_button.setBackgroundColor(resources.getColor(R.color.bottom_bar_selected_bg, null))
+                1 -> players_button.setBackgroundColor(resources.getColor(R.color.bottom_bar_selected_bg, null))
+                2 -> characters_button.setBackgroundColor(resources.getColor(R.color.bottom_bar_selected_bg, null))
             }
 
             this.currentItem = currentItem

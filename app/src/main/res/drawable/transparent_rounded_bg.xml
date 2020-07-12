@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<inset xmlns:android="http://schemas.android.com/apk/res/android">
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <stroke android:width="@dimen/toggle_button_stroke" android:color="@color/light_gray" />
-    <corners android:radius="@dimen/toggle_button_corner_radius" />
-    <padding android:left="1dp" android:top="1dp" android:right="1dp" android:bottom="1dp" />
-</shape>
-</inset>

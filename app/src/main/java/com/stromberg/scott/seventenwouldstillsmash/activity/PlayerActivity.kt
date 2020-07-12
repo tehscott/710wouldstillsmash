@@ -2,10 +2,8 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -13,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -22,7 +19,9 @@ import com.stromberg.scott.seventenwouldstillsmash.R
 import com.stromberg.scott.seventenwouldstillsmash.adapter.GamesListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.adapter.StatisticsListAdapter
 import com.stromberg.scott.seventenwouldstillsmash.model.*
-import com.stromberg.scott.seventenwouldstillsmash.util.*
+import com.stromberg.scott.seventenwouldstillsmash.util.CharacterHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.PlayerHelper
+import com.stromberg.scott.seventenwouldstillsmash.util.getReference
 import kotlinx.android.synthetic.main.activity_player.*
 import java.util.*
 
@@ -37,28 +36,19 @@ class PlayerActivity : BaseActivity() {
     private var progressBar: ProgressBar? = null
     private var nameEditText: EditText? = null
     private var tabs: BottomNavigationView? = null
-    private lateinit var visibilityToggle: ImageView
-    private lateinit var priorityToggle: ImageView
     private lateinit var emptyStateTextView: TextView
 
     private var editingPlayer: Player? = null
     private var hasMadeEdit: Boolean = false
-    private var isPlayerHidden = false
-    private var isPlayerLowPriority = false
     private var isFirstLoad = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_player)
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         if(intent?.extras != null) {
             if(intent.extras!!.containsKey("player")) {
                 editingPlayer = intent.extras!!.getSerializable("player") as Player?
-                isPlayerHidden = editingPlayer?.isHidden ?: false
-                isPlayerLowPriority = editingPlayer?.isLowPriority ?: false
             }
         }
 
@@ -71,60 +61,10 @@ class PlayerActivity : BaseActivity() {
         setupGamesAdapter(games)
         setupButtons()
 
-        player_title_text.text = editingPlayer?.name ?: "New Player"
-
         nameEditText = findViewById(R.id.create_player_name)
         nameEditText?.setText(editingPlayer?.name ?: "")
 
-        visibilityToggle = findViewById(R.id.create_player_visibility_button)
-        visibilityToggle.setOnClickListener {
-            if(isPlayerHidden) {
-                visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
-                showSnackbar(player_title_text.text.toString() + " set to visible")
-            }
-            else {
-                visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
-                showSnackbar(player_title_text.text.toString() + " set to hidden")
-            }
-
-            isPlayerHidden = !isPlayerHidden
-
-            if(editingPlayer != null) {
-                updatePlayer(false)
-            }
-        }
-
-        if(isPlayerHidden) {
-            visibilityToggle.setImageResource(R.drawable.ic_visibility_off)
-        }
-        else {
-            visibilityToggle.setImageResource(R.drawable.ic_visibility_on)
-        }
-
-        priorityToggle = findViewById(R.id.create_player_priority_button)
-        priorityToggle.setOnClickListener {
-            if(isPlayerLowPriority) {
-                priorityToggle.setImageResource(R.drawable.ic_priority_high)
-                showSnackbar(player_title_text.text.toString() + " set to normal priority")
-            }
-            else {
-                priorityToggle.setImageResource(R.drawable.ic_priority_low)
-                showSnackbar(player_title_text.text.toString() + " set to low priority")
-            }
-
-            isPlayerLowPriority = !isPlayerLowPriority
-
-            if(editingPlayer != null) {
-                updatePlayer(false)
-            }
-        }
-
-        if(isPlayerLowPriority) {
-            priorityToggle.setImageResource(R.drawable.ic_priority_low)
-        }
-        else {
-            priorityToggle.setImageResource(R.drawable.ic_priority_high)
-        }
+        back_button.setOnClickListener { onBackPressed() }
     }
 
     override fun onResume() {
@@ -137,16 +77,6 @@ class PlayerActivity : BaseActivity() {
             else {
                 getStatistics()
             }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
         }
     }
 
@@ -316,7 +246,7 @@ class PlayerActivity : BaseActivity() {
         val averageGamesPlayedByPlayers = games.size / players.size
 
         players.forEachIndexed { _, player ->
-            if(player.id != editingPlayer!!.id && !player.isHidden) {
+            if(player.id != editingPlayer!!.id) {
                 val numGamesWithThisPlayer = games.count { it.players.any { it.player?.id == player.id } }
                 val numGamesThisPlayerWon: Float = games.count { it.players.any { it.player?.id == player.id && it.winner } }.toFloat()
                 val numGamesIWonVsThisPlayer: Float = games.count { it.players.any { it.player?.id == player.id } && it.players.any { it.player?.id == editingPlayer!!.id && it.winner } }.toFloat()
@@ -458,8 +388,6 @@ class PlayerActivity : BaseActivity() {
             val player = Player()
             player.name = playerName
             player.id = Calendar.getInstance().timeInMillis.toString()
-            player.isHidden = isPlayerHidden
-            player.isLowPriority = isPlayerLowPriority
 
             db.getReference(context = this)
                     .child("players")
@@ -478,8 +406,6 @@ class PlayerActivity : BaseActivity() {
         val playerName = nameEditText!!.text.toString()
         if (playerName.isNotEmpty()) {
             editingPlayer!!.name = playerName
-            editingPlayer!!.isHidden = isPlayerHidden
-            editingPlayer!!.isLowPriority = isPlayerLowPriority
 
             db.getReference(context = this)
                 .child("players")
@@ -595,12 +521,5 @@ class PlayerActivity : BaseActivity() {
         }
 
         return longestLossStreak
-    }
-
-    private fun showSnackbar(text: String) {
-        Snackbar.make(create_player_navigation, text, Snackbar.LENGTH_LONG)
-                .setBackgroundColor(R.color.primary)
-                .setTextAttributes(resources.getColor(R.color.text_primary, null), 20f)
-                .show()
     }
 }

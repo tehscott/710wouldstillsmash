@@ -351,7 +351,7 @@ class GameActivity : BaseActivity() {
             val isCurrentlySelectedPlayer = gamePlayer.player != null && gamePlayer.player!!.id.equals(player.id)
             val playerInUse = !isCurrentlySelectedPlayer && game.players.any { it.player!!.id.equals(player.id) }
 
-            if (!playerInUse && !player.isHidden) {
+            if (!playerInUse) {
                 playerList.add(player)
             }
         }

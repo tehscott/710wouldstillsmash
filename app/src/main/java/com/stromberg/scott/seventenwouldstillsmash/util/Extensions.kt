@@ -2,6 +2,8 @@ package com.stromberg.scott.seventenwouldstillsmash.util
 
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -11,6 +13,7 @@ import android.widget.HorizontalScrollView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
@@ -87,4 +90,10 @@ fun HorizontalScrollView.scrollToView(view: View?) {
     view.getHitRect(rect)
 
     smoothScrollTo(rect.left, 0)
+}
+
+fun TextView.setDrawableTintColor(@ColorRes color: Int) {
+    compoundDrawables.filterNotNull().forEach { drawable ->
+        drawable.colorFilter = PorterDuffColorFilter(ContextCompat.getColor(context, color), PorterDuff.Mode.SRC_IN)
+    }
 }

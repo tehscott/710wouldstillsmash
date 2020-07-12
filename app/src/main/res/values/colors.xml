@@ -5,6 +5,7 @@
     <color name="primary_light">#07A8F3</color>
     <color name="primary_dark">#0863BB</color>
     <color name="accent">#66A4E0</color>
+    <color name="bottom_bar_selected_bg">#0f69c2</color>
     <color name="secondary">#FFFFFF</color>
     <color name="secondary_dark">#F48400</color>
     <color name="text_primary">#FFFFFF</color>

@@ -17,30 +17,20 @@ class PlayersListAdapter(players: List<Player>, private var playerNameWidth: Int
         playerName?.text = item?.name
         val layoutParams = playerName?.layoutParams
 
-        if(!item!!.isHidden) {
-            layoutParams?.width = playerNameWidth
-            playerName?.layoutParams = layoutParams
+        layoutParams?.width = playerNameWidth
+        playerName?.layoutParams = layoutParams
 
-            val statsForPlayer = playerStats[item]
-            statsForPlayer?.filter { !it.is30GameStat }?.forEach { stat ->
-                createStatTextView(stat, viewHolder?.getView(R.id.all_time_stats_container))
-            }
-
-            statsForPlayer?.filter { it.is30GameStat }?.forEach { stat ->
-                createStatTextView(stat, viewHolder?.getView(R.id.last_30_stats_container))
-            }
-
-            playerName?.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
-            viewHolder?.getView<View>(R.id.stats_container)!!.visibility = View.VISIBLE
+        val statsForPlayer = playerStats[item]
+        statsForPlayer?.filter { !it.is30GameStat }?.forEach { stat ->
+            createStatTextView(stat, viewHolder?.getView(R.id.all_time_stats_container))
         }
-        else {
-            layoutParams?.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            playerName?.layoutParams = layoutParams
 
-            playerName?.setTextColor(mContext.getColor(R.color.text_secondary))
-            playerName?.setCompoundDrawablesWithIntrinsicBounds(null, null, mContext.getDrawable(R.drawable.ic_visibility_off), null)
-            viewHolder?.getView<View>(R.id.stats_container)!!.visibility = View.GONE
+        statsForPlayer?.filter { it.is30GameStat }?.forEach { stat ->
+            createStatTextView(stat, viewHolder?.getView(R.id.last_30_stats_container))
         }
+
+        playerName?.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null)
+        viewHolder?.getView<View>(R.id.stats_container)!!.visibility = View.VISIBLE
     }
 
     private fun createStatTextView(stat: PlayerStatistic, container: LinearLayout?) {

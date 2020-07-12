@@ -47,9 +47,6 @@ class CharacterActivity : BaseActivity() {
             mCharacterId = intent!!.extras!!.getInt("characterId")
         }
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         emptyStateTextView = findViewById(R.id.empty_state_text_view)
         recyclerView = findViewById(R.id.character_recyclerview)
         recyclerView!!.layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -87,6 +84,8 @@ class CharacterActivity : BaseActivity() {
 
             return@OnNavigationItemSelectedListener true
         })
+
+        back_button.setOnClickListener { onBackPressed() }
     }
 
     override fun onResume() {
@@ -94,16 +93,6 @@ class CharacterActivity : BaseActivity() {
 
         if(games.size == 0) {
             getPlayers()
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed()
-                return true
-            }
-            else -> return super.onOptionsItemSelected(item)
         }
     }
 
@@ -174,7 +163,7 @@ class CharacterActivity : BaseActivity() {
                         snapshot.children.reversed().forEach {
                             var game: Game = it.getValue(Game::class.java)!!
 
-                            if(game.players.any({ it.characterId == mCharacterId })) {
+                            if(game.players.any { player -> player.characterId == mCharacterId }) {
                                 game.id = it.key!!
                                 games.add(game)
                             }

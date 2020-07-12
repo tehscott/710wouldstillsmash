@@ -127,8 +127,6 @@ class PlayersListFragment: BaseListFragment() {
                         }
 
                         players.sortBy { it.name }
-                        players.sortBy { it.isLowPriority }
-                        players.sortBy { it.isHidden }
 
                         val playerNameWidth = PlayerHelper.getLongestNameLength(resources, "Quicksand-Bold.ttf", resources.getDimension(R.dimen.player_list_player_name), players.map { it.name })
 

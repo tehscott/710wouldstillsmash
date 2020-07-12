@@ -28,7 +28,7 @@
         android:id="@+id/statistics_child_character_image"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:src="@drawable/ssb4_character_ryu"
+        tools:src="@drawable/ssbu_character_banjo_kazooie"
         android:adjustViewBounds="true"
         android:scaleType="fitEnd"
         android:layout_marginRight="8dp"/>

@@ -33,7 +33,6 @@
                     android:text="@string/app_name"
                     android:textColor="@color/text_primary"
                     android:textSize="24sp"
-                    fontPath="Quicksand-Bold.ttf"
                     tools:ignore="MissingPrefix" />
 
                 <TextView
@@ -68,69 +67,50 @@
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottom_appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:layout_gravity="bottom"
-        app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:fabAlignmentMode="end"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:backgroundTint="@color/primary"
         app:hideOnScroll="true"
         app:layout_scrollFlags="scroll|enterAlways"
-        android:transitionName="bottom_app_bar">
+        android:transitionName="bottom_app_bar"
+        app:contentInsetStart="0dp">
 
-        <ImageView
+        <TextView
             android:id="@+id/games_button"
-            android:layout_width="@dimen/bottom_app_bar_icon"
-            android:layout_height="@dimen/bottom_app_bar_icon"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_games"
-            android:background="?android:attr/selectableItemBackgroundBorderless"/>
-
-        <TextView
-            android:id="@+id/games_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textColor="@color/secondary"
-            fontPath="Quicksand-Bold.ttf"
-            tools:ignore="MissingPrefix"
+            android:drawableLeft="@drawable/ic_games"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
             android:text="Games"
-            android:visibility="gone"/>
-
-        <ImageView
-            android:id="@+id/players_button"
-            android:layout_width="@dimen/bottom_app_bar_icon"
-            android:layout_height="@dimen/bottom_app_bar_icon"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_players"
-            android:background="?android:attr/selectableItemBackgroundBorderless"/>
+            android:padding="12dp"
+            android:background="?attr/selectableItemBackground"/>
 
         <TextView
-            android:id="@+id/players_title"
+            android:id="@+id/players_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Players"
             android:textColor="@color/secondary"
-            fontPath="Quicksand-Bold.ttf"
-            tools:ignore="MissingPrefix"
-            android:visibility="gone"/>
-
-        <ImageView
-            android:id="@+id/characters_button"
-            android:layout_width="@dimen/bottom_app_bar_icon"
-            android:layout_height="@dimen/bottom_app_bar_icon"
-            android:layout_margin="12dp"
-            android:src="@drawable/ic_pikachu"
+            android:drawableLeft="@drawable/ic_players"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:padding="12dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"/>
 
         <TextView
-            android:id="@+id/characters_title"
+            android:id="@+id/characters_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:text="Characters"
             android:textColor="@color/secondary"
-            fontPath="Quicksand-Bold.ttf"
-            tools:ignore="MissingPrefix"
-            android:visibility="gone"/>
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/ic_pikachu"
+            android:drawablePadding="8dp"
+            android:padding="12dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
     </com.google.android.material.bottomappbar.BottomAppBar>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
