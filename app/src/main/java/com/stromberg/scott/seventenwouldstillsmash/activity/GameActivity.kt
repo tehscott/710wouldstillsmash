@@ -3,6 +3,7 @@ package com.stromberg.scott.seventenwouldstillsmash.activity
 import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -382,7 +383,7 @@ class GameActivity : BaseActivity() {
                 .minus(topCharactersForThisPlayer).toMutableList()
                 .also { it.addAll(0, topCharactersForThisPlayer) }
 
-        val characterAdapter = CharacterNameAdapter(this, allCharacters, topCharactersForThisPlayer.size - 1)
+        val characterAdapter = CharacterNameAdapter(this, characterSpinner, allCharacters, topCharactersForThisPlayer.size - 1)
         characterSpinner.adapter = characterAdapter
         characterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -480,12 +481,13 @@ class GameActivity : BaseActivity() {
         }
     }
 
-    private class CharacterNameAdapter(context: Context, val characters: List<Characters>, val dividerPosition: Int) : ArrayAdapter<String>(context, android.R.layout.select_dialog_item) {
+    private class CharacterNameAdapter(context: Context, val spinner: Spinner, val characters: List<Characters>, val dividerPosition: Int) : ArrayAdapter<String>(context, android.R.layout.select_dialog_item) {
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            return buildView(position, convertView, parent, false)
+        }
+
         override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val listItem = convertView ?: LayoutInflater.from(context).inflate(R.layout.character_name_list_item, parent, false)
-            listItem.findViewById<View>(R.id.divider).visibility = if(position == dividerPosition) View.VISIBLE else View.INVISIBLE
-            listItem.findViewById<TextView>(R.id.name).text = characters[position].characterName
-            return listItem
+            return buildView(position, convertView, parent, true)
         }
 
         override fun getItem(position: Int): String {
@@ -494,6 +496,21 @@ class GameActivity : BaseActivity() {
 
         override fun getCount(): Int {
             return characters.size
+        }
+
+        private fun buildView(position: Int, convertView: View?, parent: ViewGroup?, isDropdownShown: Boolean): View {
+            val listItem = convertView ?: LayoutInflater.from(context).inflate(R.layout.character_name_list_item, parent, false)
+            listItem.findViewById<View>(R.id.divider).visibility = if(position == dividerPosition) View.VISIBLE else View.INVISIBLE
+            listItem.findViewById<TextView>(R.id.name).text = characters[position].characterName
+            listItem.findViewById<ImageView>(R.id.character_image).setImageResource(characters[position].imageRes)
+
+            if(position == spinner.selectedItemPosition && isDropdownShown) {
+                listItem.setBackgroundColor(Color.rgb(239, 240, 241))
+            } else {
+                listItem.setBackgroundColor(Color.WHITE)
+            }
+
+            return listItem
         }
     }
 }
